@@ -52,7 +52,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private RenderTexture renderTexture;
         private Texture2D capturedTexture;
         bool init = false;
-
+        bool drawCorner = false;
         private Texture2D m_CameraTexture;
 #if UNITY_EDITOR
         XRCpuImage.Transformation m_Transformation = XRCpuImage.Transformation.None;
@@ -90,6 +90,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
             cameraManager.frameReceived += OnCameraFrameReceived;
             //cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
         }
+
+        private void Start()
+        {
+            Camera mainCamera = Camera.main;
+            Matrix4x4 projectionMatrix = mainCamera.projectionMatrix;
+
+            // Extracting intrinsic parameters
+            float focalLengthX = projectionMatrix[0, 0];
+            float focalLengthY = projectionMatrix[1, 1];
+            float principalPointX = projectionMatrix[0, 2];
+            float principalPointY = projectionMatrix[1, 2];
+
+            Debug.Log("Focal Length X: " + focalLengthX);
+            Debug.Log("Focal Length Y: " + focalLengthY);
+            Debug.Log("Focal Length: " + mainCamera.focalLength.ToString());
+            Debug.Log("Principal Point X: " + principalPointX);
+            Debug.Log("Principal Point Y: " + principalPointY);
+            
+        }
+
         void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
         {
             if (!init)
@@ -217,16 +237,22 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Vector3 scale = trackedImage.transform.localScale;
 #if UNITY_EDITOR
             scale.z = scale.z * 0.7f;
+            //scale.x = scale.x * 1.1f;
 #endif
             for (int i = 0; i < cornerOffsets.Length; i++)
             {
 
                 Vector3 position = trackedImage.transform.position + trackedImage.transform.rotation * Vector3.Scale(scale * 0.5f, cornerOffsets[i]);
-                //GameObject cornerObject = Instantiate(sphere, position, sphere.transform.rotation);
+                if (!drawCorner)
+                {
+                    GameObject cornerObject = Instantiate(sphere, position, sphere.transform.rotation);
+                }
+
                 bbox[i] = Camera.main.WorldToScreenPoint(position);
                 bbox[i][1] = Screen.height - bbox[i][1];
                 //Debug.Log();
             }
+            drawCorner = true;
 
             int[] tlrbBox = new int[4];
             tlrbBox[0] = Mathf.FloorToInt(bbox[0].x);

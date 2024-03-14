@@ -138,6 +138,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
+            Debug.Log(position.ToString());
             //DecomposeMatrix(matrix, out rotation, out position);
 
 
@@ -158,7 +159,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Get the camera's pose matrix
             Matrix4x4 cameraMatrix = Matrix4x4.TRS(position, rotation, Vector3.one);
             // Transform the object from object space to camera space
-            //Matrix4x4 objectInCameraMatrix = cameraMatrix * objectMatrix.inverse;
+            //Matrix4x4 objectInCameraMatrix = cameraMatrix.inverse * objectMatrix;
             //Matrix4x4 matrixCamInWorld = Camera.main.cameraToWorldMatrix;
             Matrix4x4 matrixCamInWorld1 = Camera.main.transform.localToWorldMatrix;
             Matrix4x4 matrixObjInWorld = matrixCamInWorld1 * cameraMatrix.inverse;
@@ -176,7 +177,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             GameObject obj = GameObject.Find("cube_frame");
             obj.transform.position = position;
-            Debug.Log(position.ToString());
+            //Debug.Log(position.ToString());
             TrackedImageInfoManager.drawObject = true;
         }
 
