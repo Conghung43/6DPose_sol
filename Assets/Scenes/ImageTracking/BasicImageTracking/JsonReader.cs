@@ -56,8 +56,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //imageData = System.IO.File.ReadAllBytes("/Users/hungnguyencong/Documents/PYTHON/API_Test_Python/test/1_3.jpg");
             //tlrbBox = new int[] { 458, 70, 1340, 950 };
 
-            string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
-            //System.IO.File.WriteAllBytes(filePath, imageData);
+            string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
+            System.IO.File.WriteAllBytes(filePath, imageData);
             //File.WriteAllBytes("test.jpg", imageData);
 
             WWWForm form = new WWWForm();

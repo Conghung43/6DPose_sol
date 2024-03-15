@@ -54,6 +54,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         bool init = false;
         bool drawCorner = false;
         private Texture2D m_CameraTexture;
+        [SerializeField] private TMPro.TextMeshProUGUI logInfo;
 #if UNITY_EDITOR
         XRCpuImage.Transformation m_Transformation = XRCpuImage.Transformation.None;
 #else
@@ -289,6 +290,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
             UpdateCPUImage(tlrbBox);
             drawObject = false;
         }
+
+        void OnCameraIntrinsicsUpdated()
+        {
+            if (!cameraManager.TryGetIntrinsics(out XRCameraIntrinsics intrinsics))
+            {
+                return;
+            }
+            logInfo.text = intrinsics.focalLength.ToString();
+            logInfo.text += intrinsics.principalPoint.ToString();
+            //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
+        }
+
         unsafe void UpdateCPUImage(int[] tlrbBox)
         {
 
@@ -349,8 +362,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
             m_CameraTexture.Apply();
 
             byte[] CapturedImage = m_CameraTexture.EncodeToJPG();
-            System.IO.File.WriteAllBytes("test.jpg", CapturedImage);
+            //System.IO.File.WriteAllBytes("test.jpg", CapturedImage);
             StartCoroutine(JsonReader.ServerInference(CapturedImage, tlrbBox));
+            OnCameraIntrinsicsUpdated();
         }
     }
 }
