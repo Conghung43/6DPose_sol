@@ -28,7 +28,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public float[] obj_pose;
     }
 
-    public class JsonReader : MonoBehaviour
+    public class Inference : MonoBehaviour
     {
         // Path to the JSON file
         //string jsonFilePath = "/Users/hungnguyencong/Downloads/out/poses.json";
@@ -106,7 +106,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 else
                 {
                     InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
-                    JsonReader.Set3DBox(result.data.obj_pose);
+                    Inference.Set3DBox(result.data.obj_pose);
                 }
             }
         }

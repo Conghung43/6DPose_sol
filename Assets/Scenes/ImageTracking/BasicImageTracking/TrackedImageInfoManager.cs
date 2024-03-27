@@ -178,34 +178,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
-        Matrix4x4 NormalizeMatrix(Matrix4x4 matrix)
-        {
-            // Extract rotation component
-            Vector3 forward = matrix.GetColumn(2).normalized;
-            Vector3 upwards = matrix.GetColumn(1).normalized;
-            Vector3 right = Vector3.Cross(forward, upwards).normalized;
-
-            // Orthonormalize the rotation basis
-            upwards = Vector3.Cross(right, forward);
-
-            // Apply the normalized basis to the matrix
-            matrix.SetColumn(0, right);
-            matrix.SetColumn(1, upwards);
-            matrix.SetColumn(2, forward);
-
-            // Ensure scale component doesn't introduce skewing
-            Vector3 scale = new Vector3(
-                matrix.GetColumn(0).magnitude,
-                matrix.GetColumn(1).magnitude,
-                matrix.GetColumn(2).magnitude
-            );
-            matrix.SetColumn(0, matrix.GetColumn(0) / scale.x);
-            matrix.SetColumn(1, matrix.GetColumn(1) / scale.y);
-            matrix.SetColumn(2, matrix.GetColumn(2) / scale.z);
-
-            return matrix;
-        }
-
         void ScreenCapture(int[] tlrbBox)
         {
             Camera.main.targetTexture = renderTexture;
@@ -223,59 +195,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             capturedTexture.Apply();
             Camera.main.targetTexture = null;
             RenderTexture.active = null;
-
-
-            Vector3 BoxPosition = box3D.transform.position;
-            Quaternion BoxRotation = box3D.transform.rotation;
-
-            Vector3 CameraPosition = Camera.main.transform.position;
-            Quaternion CameraRotation = Camera.main.transform.rotation;
-
-            Matrix4x4 objWorldMatrix = box3D.transform.localToWorldMatrix;
-            Matrix4x4 camWorldMatrix = Camera.main.transform.localToWorldMatrix;
-
-            //Matrix4x4 transformationMatrix = toMatrix * fromMatrix;
-
-            Matrix4x4 objecToWorld = box3D.transform.localToWorldMatrix;
-
-            Matrix4x4 camToWorld = Camera.main.transform.localToWorldMatrix;
-
-            Matrix4x4 camToObject = camToWorld * objecToWorld.inverse;
-
-            Matrix4x4 returnObjectToWorld = camToObject.inverse * camToWorld;
-
-            camToObject = NormalizeMatrix(camToObject);
-
-            //GameObject newObject = new GameObject();
-            //newObject.transform.localPosition = camOnObject.GetColumn(3);
-            //newObject.transform.localRotation = Quaternion.LookRotation(camOnObject.GetColumn(2), camOnObject.GetColumn(1));
-
-            //Vector3 camPosition = box3D.transform.position - Camera.main.transform.position;
-            //Quaternion camRotation = Quaternion.Inverse(box3D.transform.rotation) * Camera.main.transform.rotation;
-
-            //Matrix4x4 camOnObject1 = Matrix4x4.TRS(camPosition,camRotation,Vector3.one);
-
-
-            //Matrix4x4 camOnObject = Matrix4x4.TRS(newObject.transform.localPosition, newObject.transform.localRotation, Vector3.one);
-
-            //Matrix4x4 
-
-            //Vector3 camPosition = Camera.main.transform.position - box3D.transform.position;
-            //Quaternion camRotation = Camera.main.transform.rotation;
-            //camRotation = Quaternion.Inverse(box3D.transform.rotation) * Camera.main.transform.rotation;
-
-
-            //Matrix4x4 camOnWorld,
-            //    Matrix4x4 objectOnWorld
-
-            //JsonReader.TransformationObjectPose()
-            // Encode the capture texture as JPG and assign it to the CapturedImage variable
-            //Byte[] CapturedImage = capturedTexture.EncodeToJPG();
-
-            //StartCoroutine(JsonReader.ServerInference(CapturedImage, tlrbBox));
-            //string filePath = Path.Combine(Application.persistentDataPath, count.ToString() + "_.jpg");
-            // Write the byte array to a file
-            //System.IO.File.WriteAllBytes(filePath, CapturedImage);
         }
 
         void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -455,7 +374,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             
 #endif
 
-            StartCoroutine(JsonReader.ServerInference(CapturedImage, imageSize, tlrbBox, intrinsics.focalLength, intrinsics.principalPoint));
+            StartCoroutine(Inference.ServerInference(CapturedImage, imageSize, tlrbBox, intrinsics.focalLength, intrinsics.principalPoint));
             
         }
     }
