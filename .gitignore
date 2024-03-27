@@ -7,6 +7,8 @@
 [Uu]serSettings/
 
 iosbuild/
+Assets/UnityXRContent/ARFoundation/SimulationEnvironments
+Images/
 
 Assets/AssetStoreTools*
 Packages/packages-lock.json
