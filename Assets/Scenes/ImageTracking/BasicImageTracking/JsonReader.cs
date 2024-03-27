@@ -6,8 +6,10 @@ using System.Collections;
 using UnityEngine.Networking;
 using System.Net;
 using System.Net.NetworkInformation;
-using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
+//using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
 using UnityEngine.XR.ARFoundation.Samples;
+//using static UnityEditor.FilePathAttribute;
+using UnityEngine.UIElements;
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
@@ -30,31 +32,38 @@ namespace UnityEngine.XR.ARFoundation.Samples
     {
         // Path to the JSON file
         //string jsonFilePath = "/Users/hungnguyencong/Downloads/out/poses.json";
-        string txtFilePath = "/Users/hungnguyencong/Downloads/camera_poses_pred3.txt";
-        string txtFilePath1 = "/Users/hungnguyencong/Downloads/pose_1_476.txt";
+        //string InferenceTxtFilePath = "/Users/hungnguyencong/Documents/PYTHON/API_Test_Python/InferencePose325_1.txt";
+        //string ARTxtFilePath = "/Users/hungnguyencong/Downloads/megapose_debug/AR_Camera_Record/AR300Images/pose_1_307.txt";
         public GameObject originTransform;
-        public GameObject arPose;
+        public GameObject boxOnWorldObject;
+        public GameObject camOnObject;
+        public GameObject arCam;
         public GameObject megaPose;
         public GameObject box3D;
-        //[SerializeField] public TMPro.TextMeshProUGUI logInfo;
+        private Dictionary<string, GameObject> CamWorldDictionary = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
+        public static Matrix4x4 CameraMatrix = new Matrix4x4();
+
+        [SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
         //float[] positions1 = new float[111];
         void Start()
         {
-            //Camera.main.transform.position = Vector3.zero;
 
-            //ReadTXTFromFile(txtFilePath);
-            //ReadTXTFromFile(txtFilePath1);
+            //box3D.transform.position = new Vector3(-0.004634091f, - 0.1383801f, 2.226088f);////0.08501446f, - 0.1245978f, 2.024555f
+            //box3D.transform.rotation = new Quaternion(0, 0, 0, 1);
+            //ReadTXTFromFile(ARTxtFilePath);
+            //ReadTXTFromFile(InferenceTxtFilePath);
         }
 
-        public static IEnumerator ServerInference(byte[] imageData, int[] tlrbBox)
+
+        public static IEnumerator ServerInference(byte[] imageData, Vector2 imageSize, int[] tlrbBox, Vector2 focalLength, Vector2 principalPoint)
         {
-            string url = $"http://10.1.2.148:6996/inference";
-            //this.ResizeImage(imagePath);
-            //byte[] imageData = File.ReadAllBytes(imagePath);
-            //File.WriteAllBytes($"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg", imageData);
-            //imageData = System.IO.File.ReadAllBytes("/Users/hungnguyencong/Documents/PYTHON/API_Test_Python/test/1_3.jpg");
-            //tlrbBox = new int[] { 458, 70, 1340, 950 };
+            string url = $"https://10.1.2.148:5000/sol_server/inference/6dpose";
+
+            // Get current camera matrix:
+            CameraMatrix = Camera.main.transform.localToWorldMatrix;
 
             string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
             System.IO.File.WriteAllBytes(filePath, imageData);
@@ -72,7 +81,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     bboxData += ",";
                 }
             }
-            bboxData += "]}";
+#if UNITY_EDITOR
+            focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
+            principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
+#endif
+            bboxData += "], \"project\":\"airpump\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0,"+ principalPoint.x.ToString() +"],[0.0,"+ focalLength.y.ToString() +"," +principalPoint.y.ToString() +"], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString()+"]}}";
+
             form.AddField("data", bboxData);
 
             string jsonBox = "[" + string.Join(",", tlrbBox) + "]";
@@ -81,8 +95,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
-                //request.SetRequestHeader("bboxes", jsonBox);
                 request.certificateHandler = new CertificateVS();
+                request.SetRequestHeader("Tool-Name", "6dpose");
                 yield return request.SendWebRequest();
 
                 if (request.result != UnityWebRequest.Result.Success)
@@ -97,34 +111,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
+
         public static (Quaternion, Vector3) ConvertTransformToLeftHand(Quaternion rotation, Vector3 position)
         {
-
-            // Convert rotation from right-hand rule (pose B) to left-hand rule (pose A)
-            rotation = new Quaternion(-rotation.x, rotation.y, rotation.z, -rotation.w);
-            // Convert position from right-hand rule (pose B) to left-hand rule (pose A)
-            position = new Vector3(-position.x, position.y, position.z);
+            rotation = new Quaternion(rotation.x, -rotation.y, rotation.z, -rotation.w);
+            position = new Vector3(position.x, -position.y, position.z);
             return (rotation, position);
-        }
-
-        public static (Quaternion, Vector3) InverseTransformation(Quaternion quaternion, Vector3 translation)
-        {
-            // Convert Quaternion and Translation to Matrix4x4
-            Matrix4x4 matrix = QuaternionTranslationToMatrix(quaternion, translation);
-
-            // Invert the matrix
-            Matrix4x4 invertedMatrix = matrix.inverse;
-
-            // Convert inverted Matrix4x4 to Quaternion and Translation
-            MatrixToQuaternionTranslation(invertedMatrix, out Quaternion invertedQuaternion, out Vector3 invertedTranslation);
-
-            return (invertedQuaternion, invertedTranslation);
-        }
-
-        public static Matrix4x4 QuaternionTranslationToMatrix(Quaternion quaternion, Vector3 translation)
-        {
-            Matrix4x4 matrix = Matrix4x4.TRS(translation, quaternion, Vector3.one);
-            return matrix;
         }
 
         // Convert Matrix4x4 to Quaternion and Translation
@@ -138,46 +130,24 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
-            Debug.Log(position.ToString());
-            //DecomposeMatrix(matrix, out rotation, out position);
-
-
 
             (rotation, position) = ConvertTransformToLeftHand(rotation, position);
 
-            //GameObject megaCam = GameObject.Find("MegaCam");
-            //megaCam.transform.position = position;
-            //megaCam.transform.rotation = rotation;
+            Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
 
-            //Matrix4x4 matrixCamInWorld = Camera.main.transform.localToWorldMatrix;
-            //Matrix4x4 matrixObjInCam = QuaternionTranslationToMatrix(rotation, position);
+            Matrix4x4 ObjectToWorldMatrix = CameraMatrix * CamToObjectMatrixMega.inverse;
 
-            //Matrix4x4 matrixObjInWorld = matrixCamInWorld * matrixObjInCam.inverse;
-            //MatrixToQuaternionTranslation(matrixObjInWorld, out rotation, out position);
+            MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
 
-            //Matrix4x4 objectMatrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
-            // Get the camera's pose matrix
-            Matrix4x4 cameraMatrix = Matrix4x4.TRS(position, rotation, Vector3.one);
-            // Transform the object from object space to camera space
-            //Matrix4x4 objectInCameraMatrix = cameraMatrix.inverse * objectMatrix;
-            //Matrix4x4 matrixCamInWorld = Camera.main.cameraToWorldMatrix;
-            Matrix4x4 matrixCamInWorld1 = Camera.main.transform.localToWorldMatrix;
-            Matrix4x4 matrixObjInWorld = matrixCamInWorld1 * cameraMatrix.inverse;
-            MatrixToQuaternionTranslation(matrixObjInWorld, out rotation, out position);
-            Display3DBox(position);
+            Display3DBox(position, rotation);
 
-            //GameObject megaObject = new GameObject("NewObject");
-            //megaObject.transform.position = Vector3.zero;
-
-            //PoseConversion(megaCam.transform, Camera.main.transform, Vector3.zero);
         }
 
-        public static void Display3DBox(Vector3 position)
+        public static void Display3DBox(Vector3 position, Quaternion rotation)
         {
-            // sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            GameObject obj = GameObject.Find("cube_frame");
+            GameObject obj = GameObject.Find("AirPump3DModel");
             obj.transform.position = position;
-            //Debug.Log(position.ToString());
+            obj.transform.rotation = rotation;
             TrackedImageInfoManager.drawObject = true;
         }
 
@@ -213,62 +183,107 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 for (int i = 0; i < jsonContent.Length; i++)
                 {
                     string poseString = jsonContent[i];
-                    var stringSplit = poseString.Split(' ');
-                    if (stringSplit[0].Contains("jpg"))
+                    var stringSplitOrigin = poseString.Split(' ');
+                    
+                    if (stringSplitOrigin.Length > 10)
                     {
-                        stringSplit = RemoveFirstElementFromArray(stringSplit);
+                        
                         unityGenerate = true;
                     }
-                    //matrix = RightHandToLeftHand(matrix);
-                    Quaternion rotation = new Quaternion(float.Parse(stringSplit[1]),
-                                                            float.Parse(stringSplit[2]),
-                                                            float.Parse(stringSplit[3]),
-                                                            float.Parse(stringSplit[0])
-                                                            );
-                    Vector3 position = new Vector3(float.Parse(stringSplit[4]),
-                                                            float.Parse(stringSplit[5]),
-                                                            float.Parse(stringSplit[6])
-                                                            ); ;
-                    //DecomposeMatrix(matrix, out rotation, out position);
+
+                    var stringSplit = RemoveFirstElementFromArray(stringSplitOrigin);
+
                     if (!unityGenerate)
                     {
-                        (rotation, position) = ConvertTransformToLeftHand(rotation, position);
+                        Quaternion rotation = new Quaternion(float.Parse(stringSplit[1]),
+                                        float.Parse(stringSplit[2]),
+                                        float.Parse(stringSplit[3]),
+                                        float.Parse(stringSplit[0])
+                                        );
+                        Vector3 position = new Vector3(float.Parse(stringSplit[4]),
+                                                                float.Parse(stringSplit[5]),
+                                                                float.Parse(stringSplit[6])
+                                                                );
 
-                        (rotation, position) = InverseTransformation(rotation, position);
-
-
-                        Matrix4x4 matrixCamInWorld = Camera.main.transform.localToWorldMatrix;
-                        Matrix4x4 matrixObjInCam = QuaternionTranslationToMatrix(rotation, position);
-
-                        Matrix4x4 matrixObjInWorld = matrixCamInWorld * matrixObjInCam;
-                        MatrixToQuaternionTranslation(matrixObjInWorld, out rotation, out position);
-
-                        // PoseConversion(megaCam.transform, Camera.main.transform, Vector3.zero);
-
+                        //rotation = Quaternion.Euler(new Vector3(90,-90,90));
 
                         GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
+                        nodeGameObject.name = stringSplitOrigin[0];
                         nodeGameObject.transform.SetParent(megaPose.transform);
+                        CamObjectMegaDictionary[stringSplitOrigin[0]] = nodeGameObject;
 
+                        (rotation, position) = ConvertTransformToLeftHand(rotation, position);
+
+                        Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
+
+                        Matrix4x4 ObjectToWorldMatrix =  CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix * CamToObjectMatrixMega.inverse;
+
+                        MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
+
+                        //position = CamToObjectMatrixCal.inverse.MultiplyPoint(CamWorldDictionary[stringSplitOrigin[0]].transform.position);
+                        //Quaternion matrixRotation = Quaternion.LookRotation(CamToObjectMatrixCal.GetColumn(2), CamToObjectMatrixCal.GetColumn(1));
+                        //rotation = UnityEngine.Quaternion.Inverse(matrixRotation) * CamWorldDictionary[stringSplitOrigin[0]].transform.rotation;
+
+                        //position = CamToObjectMatrixCal.GetColumn(3);
+                        //position = position + CamWorldDictionary[stringSplitOrigin[0]].transform.position;
+                        GameObject nodeGameObject1 = Instantiate(originTransform, position, rotation);
+                        nodeGameObject1.transform.SetParent(boxOnWorldObject.transform);
+                        nodeGameObject1.name = stringSplitOrigin[0];
+
+                        // Compare distance:
+                        Debug.Log("AR distance" + stringSplitOrigin[0] + Vector3.Distance(CamObjectDictionary[stringSplitOrigin[0]].transform.position, CamWorldDictionary[stringSplitOrigin[0]].transform.position));
+                        
                     }
                     //position[0] = -position[0];
                     else
                     {
+                        Quaternion rotation = new Quaternion(float.Parse(stringSplit[8]),
+                                        float.Parse(stringSplit[9]),
+                                        float.Parse(stringSplit[10]),
+                                        float.Parse(stringSplit[7])
+                                        );
+                        Vector3 position = new Vector3(float.Parse(stringSplit[11]),
+                                                                float.Parse(stringSplit[12]),
+                                                                float.Parse(stringSplit[13])
+                                                                );
                         GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
-                        nodeGameObject.transform.SetParent(arPose.transform);
-                    }
-                    //nodeGameObject.transform.localScale = objectScale;
-                    //if (!unityGenerate)
-                    //{
-                    //    positions[i] = Vector3.Distance(Vector3.zero, position);
-                    //}
-                    //else
-                    //{
-                    //    positions1[i] = Vector3.Distance(Vector3.zero, position);
-                    //}
-                    if (i >= 100)
-                    {
-                        //Debug.Log(positions.ToString());
-                        break;
+                        nodeGameObject.transform.SetParent(arCam.transform);
+                        nodeGameObject.name = stringSplitOrigin[0];
+                        CamWorldDictionary[stringSplitOrigin[0]] = nodeGameObject;
+
+
+                        rotation = new Quaternion(float.Parse(stringSplit[1]),
+                                                float.Parse(stringSplit[2]),
+                                                float.Parse(stringSplit[3]),
+                                                float.Parse(stringSplit[0])
+                                                         );
+                        position = new Vector3(float.Parse(stringSplit[4]),
+                                                                float.Parse(stringSplit[5]),
+                                                                float.Parse(stringSplit[6])
+                                                                );
+                        
+                        Matrix4x4 CamToWorldMatrix = CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix;
+                       
+                        Matrix4x4 ObjectToWorldMatrix = box3D.transform.localToWorldMatrix;
+
+                        Matrix4x4 CamToObjectMatrix = ObjectToWorldMatrix.inverse * CamToWorldMatrix;
+
+                        position = CamToObjectMatrix.inverse.MultiplyPoint(CamWorldDictionary[stringSplitOrigin[0]].transform.position);
+                        Quaternion matrixRotation = Quaternion.LookRotation(CamToObjectMatrix.GetColumn(2), CamToObjectMatrix.GetColumn(1));
+                        rotation = UnityEngine.Quaternion.Inverse(matrixRotation) * CamWorldDictionary[stringSplitOrigin[0]].transform.rotation;
+
+                        // Move object to 0 before calculate
+                        Matrix4x4 boxOriginMatrix = Matrix4x4.TRS(Vector3.zero, box3D.transform.rotation, Vector3.one);
+                        Matrix4x4 cameraOriginMatrix = Matrix4x4.TRS(CamWorldDictionary[stringSplitOrigin[0]].transform.position - box3D.transform.position, CamWorldDictionary[stringSplitOrigin[0]].transform.rotation, Vector3.one);
+                        Matrix4x4 camToBoxMatrix = cameraOriginMatrix * boxOriginMatrix.inverse;
+
+
+                        MatrixToQuaternionTranslation(camToBoxMatrix, out rotation, out position);
+                        GameObject nodeGameObject2 = Instantiate(originTransform, position, rotation);
+                        nodeGameObject2.transform.SetParent(camOnObject.transform);
+                        nodeGameObject2.name = stringSplitOrigin[0];
+                        CamObjectDictionary[stringSplitOrigin[0]] = nodeGameObject2;
+
                     }
                 }
             }
@@ -328,16 +343,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             return matrix;
         }
 
-        // Function to convert a 4x4 affine transformation matrix to rotation and position
-        public static void ConvertMatrixToRotationAndPosition(Matrix4x4 matrix, out Quaternion rotation, out Vector3 position)
-        {
-            // Extract rotation
-            rotation = matrix.rotation;
-
-            // Extract translation (position)
-            position = matrix.GetColumn(3);
-        }
-
         private void DecomposeMatrix(Matrix4x4 matrix, out Quaternion rotation, out Vector3 position)
         {
             // Extract position from the matrix
@@ -367,48 +372,3 @@ namespace UnityEngine.XR.ARFoundation.Samples
         }
     }
 }
-
-//objectScale = new Vector3(0.2f, 0.2f, 0.2f);
-//Vector3 eula = rotation.eulerAngles;
-//eula.x = eula.x + 90;
-//eula.y = eula.y + 180;
-//Quaternion rotationZaxis = Quaternion.Euler(0, 180, 0);
-//position = rotationZaxis * position;
-//position.y = position.y + 0.15f;
-//rotation = Quaternion.Euler(eula);
-//rotation = RotateQuaternionAroundX(rotation, -90);
-
-// Function to convert a point from one system to another
-//public static void ConvertPoint(Transform from, Transform to, Vector3 point)
-//{
-//    Vector3 positionOffset = to.position - from.position;
-//    Quaternion rotationOffset = Quaternion.Inverse(from.rotation) * to.rotation;
-
-//    // Construct the transformation matrix
-//    Matrix4x4 matrix = Matrix4x4.TRS(positionOffset, rotationOffset, Vector3.one);
-
-//    Vector3 pointInSystemB = matrix.MultiplyPoint3x4(point);
-
-//    GameObject obj = GameObject.Find("cube_frame");
-//    obj.transform.position = pointInSystemB;
-//    TrackedImageInfoManager.drawObject = true;
-//}
-
-//public static void PoseConversion1(Transform objectTransformInSystemA, Transform objectTransformInSystemB, Vector3 objectTransformInSourcePosition)
-//{
-//    Matrix4x4 matrixA = objectTransformInSystemA.localToWorldMatrix;
-//    Matrix4x4 matrixB = objectTransformInSystemB.localToWorldMatrix;
-
-//    // Inverse of matrixA
-//    Matrix4x4 inverseMatrixA = matrixA.inverse;
-
-//    // Transformation matrix from system A to system B
-//    Matrix4x4 transformationMatrix = matrixB * inverseMatrixA;
-
-//    Vector3 pointInSystemB = transformationMatrix.MultiplyPoint3x4(objectTransformInSourcePosition);
-
-//    GameObject obj = GameObject.Find("cube_frame");
-//    obj.transform.position = pointInSystemB;
-//    TrackedImageInfoManager.drawObject = true;
-
-//}
