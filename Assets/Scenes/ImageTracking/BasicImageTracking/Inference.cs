@@ -44,6 +44,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
         public static Matrix4x4 CameraMatrix = new Matrix4x4();
+        private static bool objectInitialSet = true;
 
         [SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -139,16 +140,35 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
 
-            Display3DBox(position, rotation);
+            GameObject megaPoseEstimateGameObject = new GameObject();
+            megaPoseEstimateGameObject.name = "megaPoseEstimateGameObject";
+            megaPoseEstimateGameObject.transform.position = position;
+            megaPoseEstimateGameObject.transform.rotation = rotation;
+            megaPoseEstimateGameObject.transform.localScale = Vector3.one;
 
+            Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
+            if (updatedTransform != null)
+            {
+                //objectInitialSet = false;
+                GameObject filterObj = GameObject.Find("AirPump3dBox");
+                if (filterObj != null)//(objectInitialSet)
+                {
+                    Display3DBox(filterObj, position, rotation);
+                }
+            }
+            GameObject obj = GameObject.Find("AirPump3DModel");
+            if (obj != null)//(objectInitialSet)
+            {
+                Display3DBox(obj, position, rotation);
+            }
+
+            TrackedImageInfoManager.drawObject = true;
         }
 
-        public static void Display3DBox(Vector3 position, Quaternion rotation)
+        public static void Display3DBox(GameObject obj, Vector3 position, Quaternion rotation)
         {
-            GameObject obj = GameObject.Find("AirPump3DModel");
             obj.transform.position = position;
             obj.transform.rotation = rotation;
-            TrackedImageInfoManager.drawObject = true;
         }
 
         string[] RemoveFirstElementFromArray(string[] array)
@@ -291,56 +311,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 Debug.LogError("JSON file not found at path: " + filePath);
             }
-        }
-
-        void ReadJSONFromFile(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                string jsonContent = File.ReadAllText(filePath);
-                ParseJSON(jsonContent);
-            }
-            else
-            {
-                Debug.LogError("JSON file not found at path: " + filePath);
-            }
-        }
-
-        void ParseJSON(string jsonContent)
-        {
-            // Parse the JSON content into a Dictionary
-            var imageData = JsonConvert.DeserializeObject<Dictionary<string, List<List<float>>>>(jsonContent);
-            // Accessing the image data
-            foreach (KeyValuePair<string, List<List<float>>> pair in imageData)
-            {
-                Matrix4x4 matrix = ConvertListToMatrix(pair.Value);
-                //matrix = RightHandToLeftHand(matrix);
-                Quaternion rotation;
-                Vector3 position;
-                DecomposeMatrix(matrix, out rotation, out position);
-                (rotation, position) = ConvertTransformToLeftHand(rotation, position);
-                position[0] = -position[0];
-                GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
-                nodeGameObject.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-            }
-        }
-
-        // Function to convert a List<List<float>> to a Matrix4x4
-        public static Matrix4x4 ConvertListToMatrix(List<List<float>> list)
-        {
-            Matrix4x4 matrix = Matrix4x4.identity;
-
-            // Assign values to the matrix
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    matrix[i, j] = list[i][j];
-                }
-            }
-
-            return matrix;
         }
 
         private void DecomposeMatrix(Matrix4x4 matrix, out Quaternion rotation, out Vector3 position)

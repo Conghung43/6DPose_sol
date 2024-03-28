@@ -210,6 +210,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
             foreach (var trackedImage in eventArgs.updated)
             {
                 UpdateInfo(trackedImage);
+                int textLength = logInfo.text.Length;
+                if (textLength > 50)
+                {
+                    textLength = 50;
+                }
+                logInfo.text = trackedImage.name.Substring(0,3) + logInfo.text.Substring(0, textLength);
                 if (drawObject)
                 {
                     int[] TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
@@ -221,6 +227,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
             }
         }
+
+
 
         private int[] GetTrackedObjectCorner()
         {
@@ -298,8 +306,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 return;
             }
-            logInfo.text = intrinsics.focalLength.ToString();
-            logInfo.text += intrinsics.principalPoint.ToString();
             //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
         }
         //private int count = 0;
