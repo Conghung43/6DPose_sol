@@ -130,11 +130,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         private void Update()
         {
-            if (isInferenceAvailable)
+            if (isInferenceAvailable && TrackedImageCorner != null)
             {
                 byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
-                GetBboxSizeOnCPUimage(cpuImageTexture, TrackedImageCorner);
+                TrackedImageCorner = GetBboxSizeOnCPUimage(cpuImageTexture, TrackedImageCorner);
+                TrackedImageCorner = CheckBboxPositionOnCPUImage(cpuImageTexture, TrackedImageCorner);
+                if (TrackedImageCorner == null)
+                    return;
                 //System.IO.File.WriteAllBytes($"Images/{count}.jpg", CapturedImage);
                 //count++;
 #if !UNITY_EDITOR
@@ -144,7 +147,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
 #endif
                 StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, TrackedImageCorner, intrinsics.focalLength, intrinsics.principalPoint));
-
+                isInferenceAvailable = false;
             }
         }
 
@@ -385,7 +388,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             return tlrbBox;
         }
 
-        private bool CheckBboxPositionOnCPUImage(Texture2D cpuTexture, int[] tlrbBox)
+        private int[] CheckBboxPositionOnCPUImage(Texture2D cpuTexture, int[] tlrbBox)
         {
             int left = tlrbBox[0];
             int top = tlrbBox[1];
@@ -397,7 +400,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Check if the bounding box is entirely outside the image boundaries
             if (left >= width || right <= 0 || top >= height || bottom <= 0)
             {
-                return false;
+                return null;
             }
 
             // Adjust the bounding box if any part is outside the image boundaries
@@ -406,7 +409,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (right > width) right = width;
             if (bottom > height) bottom = height;
 
-            return true;
+            return new int[] { left, top, right, bottom};
         }
 
 
