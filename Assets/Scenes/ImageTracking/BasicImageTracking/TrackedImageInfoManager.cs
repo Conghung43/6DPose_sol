@@ -49,7 +49,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //private Camera _mainCamera;
         public bool updateMainCamera = false;
 
-        public static bool drawObject = true;
+        public static bool isInferenceAvailable = true;
         public static Vector2[] bbox;
 
         private RenderTexture renderTexture;
@@ -59,7 +59,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private Texture2D m_CameraTexture;
         [SerializeField] private TMPro.TextMeshProUGUI logInfo;
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
-
+        public static int[] TrackedImageCorner;
+        public static Texture2D cpuImageTexture;
 
         public GameObject box3D;
 
@@ -88,8 +89,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void OnEnable()
         {
-            //_mainCamera = new GameObject("_mainCamera").AddComponent<Camera>();
-            //_mainCamera.enabled = false;
+            cpuImageTexture = new Texture2D(2, 2, TextureFormat.RGB24, false);
 
             renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
             capturedTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
@@ -128,13 +128,25 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
-        //private void Update()
-        //{
-        //    if (updateMainCamera)
-        //    {
-        //        _mainCamera.CopyFrom(Camera.main);
-        //    }
-        //}
+        private void Update()
+        {
+            if (isInferenceAvailable)
+            {
+                byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
+                Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
+                GetBboxSizeOnCPUimage(cpuImageTexture, TrackedImageCorner);
+                //System.IO.File.WriteAllBytes($"Images/{count}.jpg", CapturedImage);
+                //count++;
+#if !UNITY_EDITOR
+            if (intrinsics.focalLength.x == 0)
+            {
+                OnCameraIntrinsicsUpdated();
+            }
+#endif
+                StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, TrackedImageCorner, intrinsics.focalLength, intrinsics.principalPoint));
+
+            }
+        }
 
         void OnDisable()
         {
@@ -204,27 +216,27 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 // Give the initial image a reasonable default scale
                 trackedImage.transform.localScale = new Vector3(0.01f, 1f, 0.01f);
                 UpdateInfo(trackedImage);
-                drawObject = true;
+                isInferenceAvailable = true;
             }
 
             foreach (var trackedImage in eventArgs.updated)
             {
                 UpdateInfo(trackedImage);
-                int textLength = logInfo.text.Length;
-                if (textLength > 50)
-                {
-                    textLength = 50;
-                }
-                logInfo.text = trackedImage.name.Substring(0,3) + logInfo.text.Substring(0, textLength);
-                if (drawObject)
-                {
-                    int[] TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
-                    if (TrackedImageCorner != null)
-                    {
-                        UpdateCPUImage(TrackedImageCorner);
-                        drawObject = false;
-                    }
-                }
+                //int textLength = logInfo.text.Length;
+                //if (textLength > 50)
+                //{
+                //    textLength = 50;
+                //}
+                //logInfo.text = trackedImage.name.Substring(0,3) + logInfo.text.Substring(0, textLength);
+                //if (isInferenceAvailable)
+                //{
+                TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
+                //    if (TrackedImageCorner != null)
+                //    {
+                cpuImageTexture = UpdateCPUImage(TrackedImageCorner);
+                //        isInferenceAvailable = false;
+                //    }
+                //}
             }
         }
 
@@ -249,7 +261,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Vector3 scale = trackedImage.transform.localScale;
 #if UNITY_EDITOR
             scale.z = scale.z * 0.7f;
-            //scale.x = scale.x * 1.1f;
 #endif
             for (int i = 0; i < cornerOffsets.Length; i++)
             {
@@ -295,8 +306,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             }
 
-            if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
-            trackedImage.SetActive(false);
+            //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
+            //trackedImage.SetActive(false);
             return tlrbBox;
         }
 
@@ -309,34 +320,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
         }
         //private int count = 0;
-        unsafe void UpdateCPUImage(int[] tlrbBox)
+        unsafe Texture2D UpdateCPUImage(int[] tlrbBox)
         {
 
             // Attempt to get the latest camera image. If this method succeeds,
             // it acquires a native resource that must be disposed (see below).
             if (!cameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
             {
-                return;
+                return null;
             }
-
-            // Convert screen image points to cpu image points
-            Vector2 cpuImageSize = new Vector2(image.width, image.height);
-            Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
-            Vector2 screenStartPointInCpuImage;
-            ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
-                                        out screenStartPointInCpuImage,
-                                        cpuImageSize,
-                                        screenImageSize);
-
-            for (int i = 0; i < 2; i++)
-            {
-                Vector2 EdgePoint = new Vector2(tlrbBox[i*2], screenImageSize.y - tlrbBox[i * 2 + 1]) / screenImageSize;
-                EdgePoint = screenStartPointInCpuImage + EdgePoint * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));
-                tlrbBox[i * 2] = Mathf.RoundToInt(EdgePoint.x);
-                tlrbBox[i * 2 + 1] = Mathf.RoundToInt(cpuImageSize.y - EdgePoint.y);
-            }
-
-
 
             // Choose an RGBA format.
             // See XRCpuImage.FormatSupported for a complete list of supported formats.
@@ -368,20 +360,55 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Apply the updated texture data to our texture
             m_CameraTexture.Apply();
 
-            byte[] CapturedImage = m_CameraTexture.EncodeToJPG();
-            Vector2 imageSize = new Vector2(m_CameraTexture.width, m_CameraTexture.height);
-            //System.IO.File.WriteAllBytes($"Images/{count}.jpg", CapturedImage);
-            //count++;
-#if !UNITY_EDITOR
-            if (intrinsics.focalLength.x == 0)
-            {
-                OnCameraIntrinsicsUpdated();
-            }
-            
-#endif
-
-            StartCoroutine(Inference.ServerInference(CapturedImage, imageSize, tlrbBox, intrinsics.focalLength, intrinsics.principalPoint));
-            
+            return m_CameraTexture;
         }
+
+        private int[] GetBboxSizeOnCPUimage(Texture2D cpuTexture, int[] tlrbBox)
+        {
+            // Convert screen image points to cpu image points
+            Vector2 cpuImageSize = new Vector2(cpuTexture.width, cpuTexture.height);
+            Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
+            Vector2 screenStartPointInCpuImage;
+            ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
+                                        out screenStartPointInCpuImage,
+                                        cpuImageSize,
+                                        screenImageSize);
+
+            for (int i = 0; i < 2; i++)
+            {
+                Vector2 EdgePoint = new Vector2(tlrbBox[i * 2], screenImageSize.y - tlrbBox[i * 2 + 1]) / screenImageSize;
+                EdgePoint = screenStartPointInCpuImage + EdgePoint * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));
+                tlrbBox[i * 2] = Mathf.RoundToInt(EdgePoint.x);
+                tlrbBox[i * 2 + 1] = Mathf.RoundToInt(cpuImageSize.y - EdgePoint.y);
+            }
+
+            return tlrbBox;
+        }
+
+        private bool CheckBboxPositionOnCPUImage(Texture2D cpuTexture, int[] tlrbBox)
+        {
+            int left = tlrbBox[0];
+            int top = tlrbBox[1];
+            int right = tlrbBox[2];
+            int bottom = tlrbBox[3];
+            int width = cpuTexture.width;
+            int height = cpuTexture.height;
+
+            // Check if the bounding box is entirely outside the image boundaries
+            if (left >= width || right <= 0 || top >= height || bottom <= 0)
+            {
+                return false;
+            }
+
+            // Adjust the bounding box if any part is outside the image boundaries
+            if (left < 0) left = 0;
+            if (top < 0) top = 0;
+            if (right > width) right = width;
+            if (bottom > height) bottom = height;
+
+            return true;
+        }
+
+
     }
 }

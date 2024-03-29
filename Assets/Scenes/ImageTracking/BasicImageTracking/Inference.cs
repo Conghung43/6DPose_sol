@@ -6,9 +6,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using System.Net;
 using System.Net.NetworkInformation;
-//using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
 using UnityEngine.XR.ARFoundation.Samples;
-//using static UnityEditor.FilePathAttribute;
 using UnityEngine.UIElements;
 
 namespace UnityEngine.XR.ARFoundation.Samples
@@ -149,26 +147,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
             if (updatedTransform != null)
             {
-                //objectInitialSet = false;
-                GameObject filterObj = GameObject.Find("AirPump3dBox");
-                if (filterObj != null)//(objectInitialSet)
-                {
-                    Display3DBox(filterObj, position, rotation);
-                }
+                objectInitialSet = false;
+                Display3DBox("AirPump3dBox", position, rotation);
             }
-            GameObject obj = GameObject.Find("AirPump3DModel");
-            if (obj != null)//(objectInitialSet)
+            //Display3DBox("AirPump3DModel", position, rotation);
+            if (objectInitialSet)
             {
-                Display3DBox(obj, position, rotation);
+                Display3DBox("AirPump3dBox", position, rotation);
             }
 
-            TrackedImageInfoManager.drawObject = true;
+            TrackedImageInfoManager.isInferenceAvailable = true;
         }
 
-        public static void Display3DBox(GameObject obj, Vector3 position, Quaternion rotation)
+        public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
         {
-            obj.transform.position = position;
-            obj.transform.rotation = rotation;
+            GameObject filterObj = GameObject.Find(objName);
+            if (filterObj != null)//(objectInitialSet)
+            {
+                filterObj.transform.position = position;
+                filterObj.transform.rotation = rotation;
+            }
         }
 
         string[] RemoveFirstElementFromArray(string[] array)

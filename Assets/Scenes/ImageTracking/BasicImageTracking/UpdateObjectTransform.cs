@@ -114,41 +114,41 @@ public class UpdateObjectTransform : MonoBehaviour
 
         return averageTransform;
     }
-    //void GetPoints2D(GameObject cubeGameObject)
-    //{
-    //    Vector3 cubePosition = cubeGameObject.transform.position;
-    //    Quaternion cubeRotation = cubeGameObject.transform.rotation;
-    //    Vector3 cubeScale = cubeGameObject.transform.localScale;
-    //    Vector3[] cornerOffsets = new Vector3[]
-    //        {
-    //            new Vector3(-1f, -1f, -1f),
-    //            new Vector3( 1f, -1f, -1f),
-    //            new Vector3(-1f,  1f, -1f),
-    //            new Vector3( 1f,  1f, -1f),
-    //            new Vector3(-1f, -1f,  1f),
-    //            new Vector3( 1f, -1f,  1f),
-    //            new Vector3(-1f,  1f,  1f),
-    //            new Vector3( 1f,  1f,  1f)
-    //        };
-    //    Vector2 boxCenter = Camera.main.WorldToScreenPoint(cubeGameObject.transform.position) / screenImageSize;
+    void GetPoints2D(GameObject cubeGameObject)
+    {
+        Vector3 cubePosition = cubeGameObject.transform.position;
+        Quaternion cubeRotation = cubeGameObject.transform.rotation;
+        Vector3 cubeScale = cubeGameObject.transform.localScale;
+        Vector3[] cornerOffsets = new Vector3[]
+            {
+                new Vector3(-1f, -1f, -1f),
+                new Vector3( 1f, -1f, -1f),
+                new Vector3(-1f,  1f, -1f),
+                new Vector3( 1f,  1f, -1f),
+                new Vector3(-1f, -1f,  1f),
+                new Vector3( 1f, -1f,  1f),
+                new Vector3(-1f,  1f,  1f),
+                new Vector3( 1f,  1f,  1f)
+            };
+        Vector2 boxCenter = Camera.main.WorldToScreenPoint(cubeGameObject.transform.position) / screenImageSize;
 
-    //    Vector2 screenStartPointInCpuImage;
-    //    ImageProcessing.ScreenPointToXrImagePoint(boxCenter,
-    //                                            out screenStartPointInCpuImage,
-    //                                            cpuImageSize,
-    //                                            screenImageSize);
-    //    boxCenter = screenStartPointInCpuImage + boxCenter * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));//image.height - (screenPoint.y * 2)
-    //    points2D[count].BoxCenter = boxCenter / cpuImageSize;
-    //    points2D[count].scale = cubeScale;
-    //    points2D[count].boxCorner = new Vector2[8];
-    //    points2D[count].box3DCorner = new Vector3[8];
-    //    for (int i = 0; i < cornerOffsets.Length; i++)
-    //    {
-    //        Vector3 position = cubePosition + cubeRotation * Vector3.Scale(cubeScale * 0.5f, cornerOffsets[i]);
-    //        Vector2 EdgePoint = arCamera.WorldToScreenPoint(position) / screenImageSize;
-    //        EdgePoint = screenStartPointInCpuImage + EdgePoint * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));
-    //        points2D[count].boxCorner[i] = EdgePoint / cpuImageSize;
-    //        points2D[count].box3DCorner[i] = position - cubeGameObject.transform.position;
-    //    }
-    //}
+        Vector2 screenStartPointInCpuImage;
+        ImageProcessing.ScreenPointToXrImagePoint(boxCenter,
+                                                out screenStartPointInCpuImage,
+                                                cpuImageSize,
+                                                screenImageSize);
+        boxCenter = screenStartPointInCpuImage + boxCenter * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));//image.height - (screenPoint.y * 2)
+        points2D[count].BoxCenter = boxCenter / cpuImageSize;
+        points2D[count].scale = cubeScale;
+        points2D[count].boxCorner = new Vector2[8];
+        points2D[count].box3DCorner = new Vector3[8];
+        for (int i = 0; i < cornerOffsets.Length; i++)
+        {
+            Vector3 position = cubePosition + cubeRotation * Vector3.Scale(cubeScale * 0.5f, cornerOffsets[i]);
+            Vector2 EdgePoint = arCamera.WorldToScreenPoint(position) / screenImageSize;
+            EdgePoint = screenStartPointInCpuImage + EdgePoint * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));
+            points2D[count].boxCorner[i] = EdgePoint / cpuImageSize;
+            points2D[count].box3DCorner[i] = position - cubeGameObject.transform.position;
+        }
+    }
 }
