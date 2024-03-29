@@ -134,21 +134,35 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
-                TrackedImageCorner = GetBboxSizeOnCPUimage(cpuImageTexture, TrackedImageCorner);
-                TrackedImageCorner = CheckBboxPositionOnCPUImage(cpuImageTexture, TrackedImageCorner);
-                if (TrackedImageCorner == null)
-                    return;
-                //System.IO.File.WriteAllBytes($"Images/{count}.jpg", CapturedImage);
-                //count++;
+
+                int[] bbox = TrackedImageCorner;
+
+                // filter bbox
+                if (!Inference.objectInitialSet) {
+                    if (box3D != null) {
+
+                        Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
+                        bbox = GetTopLeftRightBottom(megaPoseCorner);
+                    }
+                    
+                    //Compare bbox
+
+                }
+
+
+                bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
+                bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
+                if (bbox != null)
 #if !UNITY_EDITOR
-            if (intrinsics.focalLength.x == 0)
-            {
-                OnCameraIntrinsicsUpdated();
-            }
+                if (intrinsics.focalLength.x == 0)
+                {
+                    OnCameraIntrinsicsUpdated();
+                }
 #endif
-                StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, TrackedImageCorner, intrinsics.focalLength, intrinsics.principalPoint));
+                StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                 isInferenceAvailable = false;
             }
+            return;
         }
 
         void OnDisable()
@@ -280,6 +294,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
             drawCorner = true;
 
+            int[] tlrbBox = GetTopLeftRightBottom(bbox);
+
+            //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
+            //trackedImage.SetActive(false);
+            return tlrbBox;
+        }
+
+        int[] GetTopLeftRightBottom(Vector2[] bbox)
+        {
             int[] tlrbBox = new int[4];
             tlrbBox[0] = Mathf.FloorToInt(bbox[0].x);
             tlrbBox[1] = Mathf.FloorToInt(bbox[0].y);
@@ -308,9 +331,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
 
             }
-
-            //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
-            //trackedImage.SetActive(false);
             return tlrbBox;
         }
 
@@ -366,7 +386,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             return m_CameraTexture;
         }
 
-        private int[] GetBboxSizeOnCPUimage(Texture2D cpuTexture, int[] tlrbBox)
+        private int[] ConvertBboxScreenImageToCPUimage(Texture2D cpuTexture, int[] tlrbBox)
         {
             // Convert screen image points to cpu image points
             Vector2 cpuImageSize = new Vector2(cpuTexture.width, cpuTexture.height);

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using UnityEngine.XR.ARFoundation.Samples;
 using UnityEngine.UIElements;
+using TMPro;
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
@@ -42,7 +43,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
         public static Matrix4x4 CameraMatrix = new Matrix4x4();
-        private static bool objectInitialSet = true;
+        public static bool objectInitialSet = true;
 
         [SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -67,6 +68,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
             System.IO.File.WriteAllBytes(filePath, imageData);
             //File.WriteAllBytes("test.jpg", imageData);
+            //Debug.Log(tlrbBox.ToString());
 
             WWWForm form = new WWWForm();
             form.AddBinaryData("img", imageData, "image.jpg", "image/jpeg");
@@ -147,14 +149,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
             if (updatedTransform != null)
             {
-                objectInitialSet = false;
                 Display3DBox("AirPump3dBox", position, rotation);
+                objectInitialSet = false;
             }
             //Display3DBox("AirPump3DModel", position, rotation);
             if (objectInitialSet)
             {
                 Display3DBox("AirPump3dBox", position, rotation);
             }
+            Display3DBox("AirPump3DModel", position, rotation);
 
             TrackedImageInfoManager.isInferenceAvailable = true;
         }
@@ -164,7 +167,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             GameObject filterObj = GameObject.Find(objName);
             if (filterObj != null)//(objectInitialSet)
             {
-                filterObj.transform.position = position;
+                if (objectInitialSet)
+                {
+                    filterObj.transform.position = position;
+                }
+                else
+                {
+                    filterObj.transform.position = Vector3.Lerp(filterObj.transform.position, position, 0.1f * Time.deltaTime);
+
+                }
                 filterObj.transform.rotation = rotation;
             }
         }
