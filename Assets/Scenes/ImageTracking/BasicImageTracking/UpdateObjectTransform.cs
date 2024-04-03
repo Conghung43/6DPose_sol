@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARFoundation.Samples;
 
 public class UpdateObjectTransform : MonoBehaviour
 {
@@ -10,22 +11,30 @@ public class UpdateObjectTransform : MonoBehaviour
 
     public static float positionThreshold = 0.05f; // Adjust as needed
     public static float rotationThreshold = 2f;    // Adjust as needed
+    public static int GroupCountThreshold = 5;
 
     public static Transform UpdateTransformToGroup(Transform currentTransform)
     {
         // Find a group for the current transform
         bool foundGroup = false;
+        bool GroupCountValid = false;
+
         foreach (KeyValuePair<Transform, List<Transform>> pair in groupedTransforms)
         {
             Transform groupCenter = pair.Key;
             List<Transform> group = pair.Value;
+
+            if (Inference.objectInitialSet)
+            {
+                GroupCountValid = group.Count > (int)(GroupCountThreshold/2);
+            }
 
             // Check if the current transform is similar to the group center
             if (IsSimilar(currentTransform, groupCenter))
             {
                 group.Add(currentTransform);
                 foundGroup = true;
-                if (group.Count > 5)
+                if (GroupCountValid)
                 {
                     //update
                     Transform averageTransform = GetTransformAverage(group);
@@ -41,7 +50,7 @@ public class UpdateObjectTransform : MonoBehaviour
             }
         }
         // Limit lenth of dictionary
-        if (groupedTransforms.Count > 5)
+        if (GroupCountValid)
         {
             DestroyAllGameObject();
             groupedTransforms.Clear();
@@ -76,8 +85,15 @@ public class UpdateObjectTransform : MonoBehaviour
     {
         float positionDifference = Vector3.Distance(t1.position, t2.position);
         float rotationDifference = Quaternion.Angle(t1.rotation, t2.rotation);
-
-        return (positionDifference <= positionThreshold && rotationDifference <= rotationThreshold);
+        if (Inference.objectInitialSet)
+        {
+            return (positionDifference <= positionThreshold * 4 && rotationDifference <= rotationThreshold * 4);
+        }
+        else
+        {
+            return (positionDifference <= positionThreshold && rotationDifference <= rotationThreshold );
+        }
+        
     }
 
     public static Transform GetTransformAverage(List<Transform> transforms)

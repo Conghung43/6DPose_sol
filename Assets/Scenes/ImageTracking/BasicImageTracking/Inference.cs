@@ -44,6 +44,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
         public static Matrix4x4 CameraMatrix = new Matrix4x4();
         public static bool objectInitialSet = true;
+        public static float[] arPoseToInference = null;
 
         [SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -65,10 +66,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Get current camera matrix:
             CameraMatrix = Camera.main.transform.localToWorldMatrix;
 
-            string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
-            System.IO.File.WriteAllBytes(filePath, imageData);
+            //string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
+            //System.IO.File.WriteAllBytes(filePath, imageData);
             //File.WriteAllBytes("test.jpg", imageData);
             //Debug.Log(tlrbBox.ToString());
+            if (!objectInitialSet)
+            {
+                arPoseToInference = null;
+                ConvertARposeToMegaPose();
+            }
 
             WWWForm form = new WWWForm();
             form.AddBinaryData("img", imageData, "image.jpg", "image/jpeg");
@@ -82,11 +88,30 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     bboxData += ",";
                 }
             }
+            bboxData += "],";
 #if UNITY_EDITOR
             focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
             principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
 #endif
-            bboxData += "], \"project\":\"airpump\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0,"+ principalPoint.x.ToString() +"],[0.0,"+ focalLength.y.ToString() +"," +principalPoint.y.ToString() +"], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString()+"]}}";
+            if (arPoseToInference != null)
+            {
+                bboxData += "\"init_pose\": [";
+                for (int i = 0; i < arPoseToInference.Length; i ++)
+                {
+                    bboxData += arPoseToInference[i].ToString();
+                    if (i < arPoseToInference.Length - 1)
+                    {
+                        bboxData += ",";
+                    }
+                }
+                bboxData += "],";
+            }
+            else
+            {
+                bboxData += "\"init_pose\":\"None\",";
+            }
+            
+            bboxData += " \"project\":\"airpump\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0,"+ principalPoint.x.ToString() +"],[0.0,"+ focalLength.y.ToString() +"," +principalPoint.y.ToString() +"], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString()+"]}}";
 
             form.AddField("data", bboxData);
 
@@ -113,9 +138,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
         }
 
 
-        public static (Quaternion, Vector3) ConvertTransformToLeftHand(Quaternion rotation, Vector3 position)
+        public static (Quaternion, Vector3) ConvertTransformToLeftHandRule(Quaternion rotation, Vector3 position)
         {
             rotation = new Quaternion(rotation.x, -rotation.y, rotation.z, -rotation.w);
+            position = new Vector3(position.x, -position.y, position.z);
+            return (rotation, position);
+        }
+
+        public static (Quaternion, Vector3) ConvertTransformToRightHandRule(Quaternion rotation, Vector3 position)
+        {
+            rotation = new Quaternion(-rotation.x, rotation.y, -rotation.z, rotation.w);
             position = new Vector3(position.x, -position.y, position.z);
             return (rotation, position);
         }
@@ -132,7 +164,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
 
-            (rotation, position) = ConvertTransformToLeftHand(rotation, position);
+            (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
 
             Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
 
@@ -149,7 +181,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
             if (updatedTransform != null)
             {
-                Display3DBox("AirPump3dBox", position, rotation);
+                //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
+                Display3DBox("AirPump3dBox", position, rotation);//Haven't use the average pose yetq
                 objectInitialSet = false;
             }
             //Display3DBox("AirPump3DModel", position, rotation);
@@ -160,6 +193,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Display3DBox("AirPump3DModel", position, rotation);
 
             TrackedImageInfoManager.isInferenceAvailable = true;
+        }
+
+        public static void ConvertARposeToMegaPose()
+        {
+            GameObject filterObj = GameObject.Find("AirPump3dBox");
+            if (filterObj != null)//(objectInitialSet)
+            {
+                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
+                Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
+                MatrixToQuaternionTranslation(camToObjectMatrix, out Quaternion rotation, out Vector3 position);
+                (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
+                arPoseToInference = new float[] { rotation.w, rotation.x, rotation.y, rotation.z, position.x, position.y, position.z };
+            }
         }
 
         public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
@@ -173,6 +219,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
                 else
                 {
+                    // Smooth movement
                     filterObj.transform.position = Vector3.Lerp(filterObj.transform.position, position, 0.1f * Time.deltaTime);
 
                 }
@@ -241,7 +288,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         nodeGameObject.transform.SetParent(megaPose.transform);
                         CamObjectMegaDictionary[stringSplitOrigin[0]] = nodeGameObject;
 
-                        (rotation, position) = ConvertTransformToLeftHand(rotation, position);
+                        (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
 
                         Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
 
