@@ -68,7 +68,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             //string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
             //System.IO.File.WriteAllBytes(filePath, imageData);
-            //File.WriteAllBytes("test.jpg", imageData);
+            File.WriteAllBytes("test.jpg", imageData);
             //Debug.Log(tlrbBox.ToString());
             if (!objectInitialSet)
             {
@@ -132,7 +132,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 else
                 {
                     InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
-                    Inference.Set3DBox(result.data.obj_pose);
+                    if (result.data.obj_pose != null)
+                    {
+                        Inference.Set3DBox(result.data.obj_pose);
+                    }
+                    else
+                    {
+                        TrackedImageInfoManager.isInferenceAvailable = true;
+                    }
                 }
             }
         }
@@ -184,11 +191,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
                 Display3DBox("AirPump3dBox", position, rotation);//Haven't use the average pose yetq
                 objectInitialSet = false;
+                StationStageIndex.ModelTargetFound = true;
             }
             //Display3DBox("AirPump3DModel", position, rotation);
             if (objectInitialSet)
             {
                 Display3DBox("AirPump3dBox", position, rotation);
+                StationStageIndex.ModelTargetFound = true;
             }
             Display3DBox("AirPump3DModel", position, rotation);
 

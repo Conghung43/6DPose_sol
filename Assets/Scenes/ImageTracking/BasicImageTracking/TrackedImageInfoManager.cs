@@ -61,6 +61,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
         public static int[] TrackedImageCorner;
         public static Texture2D cpuImageTexture;
+        public GameObject PoseInference;
 
         public GameObject box3D;
 
@@ -130,7 +131,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         private void Update()
         {
-            if (isInferenceAvailable && TrackedImageCorner != null)
+            if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
             {
                 byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);

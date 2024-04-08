@@ -1,0 +1,27 @@
+#pragma kernel ComputeNormalization
+
+Texture2D<float4> InputImage;
+RWStructuredBuffer<float3> OutputBuffer;
+float3 Mean;
+float3 Std;
+uint2 TextureDimensions;
+
+[numthreads(1, 1, 1)]
+void ComputeNormalization(uint3 id : SV_DispatchThreadID)
+{
+    uint2 texCoord = id.xy;
+
+    // Ensure texCoord is within texture dimensions
+    if (texCoord.x >= TextureDimensions.x || texCoord.y >= TextureDimensions.y)
+        return;
+    uint yAdjust = TextureDimensions.y - texCoord.y-1;
+    float4 color = InputImage.Load(uint3(texCoord.x, yAdjust, 0)); // Load from texture
+
+    float3 normalizedColor;
+    normalizedColor.r = (color.r - Mean.x) / Std.x;
+    normalizedColor.g = (color.g - Mean.y) / Std.y;
+    normalizedColor.b = (color.b - Mean.z) / Std.z;
+
+    uint index = texCoord.y * TextureDimensions.x + texCoord.x;
+    OutputBuffer[index] = normalizedColor;
+}
