@@ -2756,7 +2756,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barcode: {fileID: 156259917}
-  arCameraScript: {fileID: 0}
+  arCameraScript: {fileID: 1557103666}
   ImageTarget: {fileID: 156259917}
 --- !u!1 &2017973560
 GameObject:
@@ -9996,7 +9996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   captureButton: {fileID: 6533596913808313040}
-  arCameraScript: {fileID: 0}
+  arCameraScript: {fileID: 1557103666}
   ResultStateTxt: {fileID: 3912845824046942768}
   uiMessage: {fileID: 2289558225682086171}
 --- !u!114 &7167429242628010326
