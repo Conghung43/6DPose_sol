@@ -14,8 +14,8 @@ public class TargetHitDetector : MonoBehaviour
 
     private Vector3[] topCorners;
     public static Vector3[] lineBasedPoints = new Vector3[4];
-    public GameObject testObject0;
-    public GameObject testObject1;
+    //public GameObject testObject0;
+    //public GameObject testObject1;
     [SerializeField] private TMPro.TextMeshProUGUI logInfo;
     Vector3 startPoint;
     // Define a delegate type for the event (no parameters)
@@ -40,8 +40,8 @@ public class TargetHitDetector : MonoBehaviour
             status = true
         });
         startPoint = arCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 4, 0.3f));
-        testObject0.transform.position = startPoint;
-        testObject1.transform.position = arCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 0.5f));
+        //testObject0.transform.position = startPoint;
+        //testObject1.transform.position = arCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 0.5f));
             //logInfo.text = arCamera.WorldToScreenPoint(lineBasedPoints[3]).ToString() + Profiler.GetMonoUsedSizeLong().ToString();
 
         //logInfo.text = startPoint.ToString();

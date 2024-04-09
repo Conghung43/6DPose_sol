@@ -246,15 +246,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //    textLength = 50;
                 //}
                 //logInfo.text = trackedImage.name.Substring(0,3) + logInfo.text.Substring(0, textLength);
-                //if (isInferenceAvailable)
-                //{
-                TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
-                //    if (TrackedImageCorner != null)
-                //    {
-                cpuImageTexture = UpdateCPUImage(TrackedImageCorner);
-                //        isInferenceAvailable = false;
-                //    }
-                //}
+                if (PoseInference.activeSelf)
+                {
+                    TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
+                    cpuImageTexture = UpdateCPUImage(TrackedImageCorner);
+                }
             }
         }
 
@@ -297,7 +293,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             int[] tlrbBox = GetTopLeftRightBottom(bbox);
 
-            //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
+            if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
             //trackedImage.SetActive(false);
             return tlrbBox;
         }
