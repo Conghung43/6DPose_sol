@@ -11,7 +11,7 @@ public class UpdateObjectTransform : MonoBehaviour
 
     public static float positionThreshold = 0.05f; // Adjust as needed
     public static float rotationThreshold = 2f;    // Adjust as needed
-    public static int GroupCountThreshold = 5;
+    public static int GroupCountThreshold = 6;
 
     public static Transform UpdateTransformToGroup(Transform currentTransform)
     {
@@ -26,7 +26,11 @@ public class UpdateObjectTransform : MonoBehaviour
 
             if (Inference.objectInitialSet)
             {
-                GroupCountValid = group.Count > (int)(GroupCountThreshold/2);
+                GroupCountValid = group.Count > (int)(GroupCountThreshold / 2);
+            }
+            else
+            {
+                GroupCountValid = group.Count > (int)(GroupCountThreshold);
             }
 
             // Check if the current transform is similar to the group center

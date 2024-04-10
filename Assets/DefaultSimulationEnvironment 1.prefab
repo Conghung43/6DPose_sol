@@ -991,7 +991,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CameraStartingPose:
-    position: {x: 0.22, y: 0.9345944, z: -0.21}
+    position: {x: 0.22, y: 0, z: -0.21}
     rotation: {x: 0, y: 0, z: 0, w: 1}
   m_CameraMovementBounds:
     m_Center: {x: 0.044999838, y: 0.545, z: 0.00000011920929}

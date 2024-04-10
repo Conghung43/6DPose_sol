@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation.Samples;
+
 public class UIController : MonoBehaviour
 {
     public Button nextButton;
@@ -57,42 +59,24 @@ public class UIController : MonoBehaviour
                     qrCodeFrame.SetActive(false);
                     //model3Dbtn.gameObject.SetActive(true);
                     modelTargetBtn.gameObject.SetActive(true);
-                    //model3D.SetActive(false);
-                    checkList.gameObject.SetActive(false);
-                    ModelTarget.gameObject.SetActive(false);
-                    backButton.gameObject.SetActive(false);
-                    nextButton.gameObject.SetActive(false);
-                    screenShotButton.gameObject.SetActive(false);
-                    redoButton.gameObject.SetActive(false);
-                    skipButton.gameObject.SetActive(false);
-                    finishButton.gameObject.SetActive(false);
-                    retryButton.gameObject.SetActive(false);
-                    BottomBackground.SetActive(false);
-                    ResultCanvas.SetActive(false);
+                    ModelTarget.SetActive(false);
+                    DisableMainUI();
                     lineRenderer.gameObject.SetActive(false);
                     break;
                 case "ScanBarcode":// Show square bounding box
                     uiMessage.text = "Scan META QR code";
                     modelTargetBtn.gameObject.SetActive(false);
                     qrCodeFrame.SetActive(true);
-                    checkList.gameObject.SetActive(false);
-                    backButton.gameObject.SetActive(false);
-                    nextButton.gameObject.SetActive(false);
-                    screenShotButton.gameObject.SetActive(false);
-                    redoButton.gameObject.SetActive(false);
-                    skipButton.gameObject.SetActive(false);
-                    finishButton.gameObject.SetActive(false);
-                    retryButton.gameObject.SetActive(false);
-                    BottomBackground.SetActive(false);
-                    ResultCanvas.SetActive(false);
+                    DisableMainUI();
                     break;
                 case "VuforiaTargetDetecting":
                     uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detecting..";
+                    StationStageIndex.ModelTargetFound = false;
                     ModelTarget.gameObject.SetActive(false);
                     ModelTarget.gameObject.SetActive(true);
                     //observer.enabled = true;
                     //targetBehaviour.enabled = true;
-                    skipButton.gameObject.SetActive(false);
+                    DisableMainUI();
                     qrCodeFrame.SetActive(false);
                     break;
                 case "VuforiaTarget":// Image target: all 3D model show up
@@ -220,6 +204,21 @@ public class UIController : MonoBehaviour
             uiMessage.text = ex.Message;
         }
     }
+
+    private void DisableMainUI()
+    {
+        checkList.gameObject.SetActive(false);
+        backButton.gameObject.SetActive(false);
+        nextButton.gameObject.SetActive(false);
+        screenShotButton.gameObject.SetActive(false);
+        redoButton.gameObject.SetActive(false);
+        skipButton.gameObject.SetActive(false);
+        finishButton.gameObject.SetActive(false);
+        retryButton.gameObject.SetActive(false);
+        BottomBackground.SetActive(false);
+        ResultCanvas.SetActive(false);
+    }
+
     public void OnFinalUIPage(bool finalUI)
     {
         if (finalUI){

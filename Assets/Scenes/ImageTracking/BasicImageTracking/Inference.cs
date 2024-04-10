@@ -58,6 +58,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //ReadTXTFromFile(InferenceTxtFilePath);
         }
 
+        private void OnDisable()
+        {
+            arPoseToInference = null;
+            objectInitialSet = true;
+        }
+
 
         public static IEnumerator ServerInference(byte[] imageData, Vector2 imageSize, int[] tlrbBox, Vector2 focalLength, Vector2 principalPoint)
         {
@@ -68,7 +74,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             //string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
             //System.IO.File.WriteAllBytes(filePath, imageData);
-            File.WriteAllBytes("test.jpg", imageData);
+            //File.WriteAllBytes("test.jpg", imageData);
             //Debug.Log(tlrbBox.ToString());
             if (!objectInitialSet)
             {
@@ -197,7 +203,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (objectInitialSet)
             {
                 Display3DBox("ModelTarget", position, rotation);
-                StationStageIndex.ModelTargetFound = true;
+                //StationStageIndex.ModelTargetFound = true;
             }
             Display3DBox("AirPump3DModel", position, rotation);
 

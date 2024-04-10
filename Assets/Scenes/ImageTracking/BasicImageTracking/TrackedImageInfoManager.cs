@@ -47,7 +47,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         [Tooltip("If an image is detected but no source texture can be found, this texture is used instead.")]
         Texture2D m_DefaultTexture;
         //private Camera _mainCamera;
-        public bool updateMainCamera = false;
+        //public bool updateMainCamera = false;
 
         public static bool isInferenceAvailable = true;
         public static Vector2[] bbox;
@@ -139,13 +139,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 int[] bbox = TrackedImageCorner;
 
                 // filter bbox
-                if (!Inference.objectInitialSet) {
-                    if (box3D != null) {
+                if (!Inference.objectInitialSet)
+                {
+                    if (box3D != null)
+                    {
 
                         Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
                         bbox = GetTopLeftRightBottom(megaPoseCorner);
                     }
-                    
+
                     //Compare bbox
 
                 }
@@ -154,13 +156,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
                 bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
                 if (bbox != null)
-#if !UNITY_EDITOR
-                if (intrinsics.focalLength.x == 0)
                 {
-                    OnCameraIntrinsicsUpdated();
-                }
+#if !UNITY_EDITOR
+                    if (intrinsics.focalLength.x == 0)
+                    {
+                        OnCameraIntrinsicsUpdated();
+                    }
 #endif
-                StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                    StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                }
                 isInferenceAvailable = false;
             }
             return;

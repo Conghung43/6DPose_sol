@@ -1551,6 +1551,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749343039863888789, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
         type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.87
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749343039863888789, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.028000355
       objectReference: {fileID: 0}
@@ -2013,12 +2018,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aea765814de5741378bb81a8ea5d206f, type: 3}
---- !u!1 &1317186456 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fd848070c68e340dd89b3ec591f01916,
-    type: 3}
-  m_PrefabInstance: {fileID: 1817371369}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1384577971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2319,10 +2318,9 @@ MonoBehaviour:
   cameraManager: {fileID: 501678716}
   sphere: {fileID: 1536650404}
   m_DefaultTexture: {fileID: 10305, guid: 0000000000000000f000000000000000, type: 0}
-  updateMainCamera: 0
   logInfo: {fileID: 1201157911}
   PoseInference: {fileID: 816003150}
-  box3D: {fileID: 1317186456}
+  box3D: {fileID: 105800678}
 --- !u!114 &1557103655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2591,7 +2589,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fd848070c68e340dd89b3ec591f01916,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10674,7 +10672,7 @@ MonoBehaviour:
   BottomBackground: {fileID: 6236849959462620532}
   ResultCanvas: {fileID: 2449669072226795378}
   checkList: {fileID: 6863659516895057608}
-  ModelTarget: {fileID: 2070036341}
+  ModelTarget: {fileID: 816003150}
   uiMessage: {fileID: 2289558225682086171}
   backgroundResult: {fileID: 2275714276708773237}
   backgroundTopResult: {fileID: 3512604408068878537}

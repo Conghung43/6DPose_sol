@@ -212,12 +212,12 @@ public class ARCameraScript : MonoBehaviour
             else
             {
                 smoothInference.RemoveAt(0);
-                if (StationStageIndex.stageIndex * 2 - 1 != inferenceClass && StationStageIndex.stageIndex * 2 != inferenceClass)
-                {
-                    smoothInference.Add(0);
-                }
-                else { smoothInference.Add(inferenceClass); }
-                
+                //if (StationStageIndex.stageIndex * 2 - 1 != inferenceClass && StationStageIndex.stageIndex * 2 != inferenceClass)
+                //{
+                //    smoothInference.Add(0);
+                //}
+                //else { smoothInference.Add(inferenceClass); }
+                smoothInference.Add(inferenceClass);
             }
         }
         else
@@ -365,7 +365,7 @@ public class ARCameraScript : MonoBehaviour
         //Crop Image
         int bboxX = (int)(bBoxRect.x);// + bBoxRect.width/2);
 #if UNITY_EDITOR
-        int bboxY = (int)bBoxRect.y;
+        int bboxY = (int)(Screen.height - bBoxRect.y - bBoxRect.height);
 #else
         int bboxY = (int)(Screen.height- bBoxRect.y- bBoxRect.height);
 #endif
@@ -390,6 +390,8 @@ public class ARCameraScript : MonoBehaviour
 
             stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
             //logInfo.text = "croppedTexture time:" + elMs + "ms \n";
+
+            File.WriteAllBytes("test.jpg", croppedTexture.EncodeToJPG());
 
             Texture2D resizeTexture = ResizeTextureOnnx(croppedTexture);
             stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
