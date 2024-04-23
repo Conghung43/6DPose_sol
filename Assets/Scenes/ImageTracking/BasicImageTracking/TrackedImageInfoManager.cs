@@ -212,25 +212,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
-        void ScreenCapture(int[] tlrbBox)
-        {
-            Camera.main.targetTexture = renderTexture;
-
-            // Render the AR camera
-            Camera.main.Render();
-
-            // Set the active render texture
-            RenderTexture.active = renderTexture;
-
-            // Read the pixels from the specified rectangle in the capture texture
-            capturedTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-
-            // Apply the changes made to the capture texture
-            capturedTexture.Apply();
-            Camera.main.targetTexture = null;
-            RenderTexture.active = null;
-        }
-
         void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
         {
             foreach (var trackedImage in eventArgs.added)

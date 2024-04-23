@@ -25,25 +25,25 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         EventManager.OnCheckpointUpdateEvent += StartContinuousInference;
     }
 
-    private void RunContinuousInference()
-    {
-        isRunningInference = true;
+    //private void RunContinuousInference()
+    //{
+    //    isRunningInference = true;
         
-        if (ARCameraScript.ImageFloatValues != null)
-        {
-            Tensor inputTensor = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
+    //    if (ARCameraScript.ImageFloatValues != null)
+    //    {
+    //        Tensor inputTensor = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
 
-            var output = modelWorker.Execute(inputTensor).PeekOutput();
-            ARCameraScript.prb = output.ToReadOnlyArray();
+    //        var output = modelWorker.Execute(inputTensor).PeekOutput();
+    //        ARCameraScript.prb = output.ToReadOnlyArray();
 
-            ARCameraScript.inferenceResponseFlag = true;
+    //        ARCameraScript.inferenceResponseFlag = true;
 
-            //yield return new WaitForSeconds(0.001f); 
-            inputTensor.Dispose();
-        }
-        //yield return null;
-        isRunningInference = false;
-    }
+    //        //yield return new WaitForSeconds(0.001f); 
+    //        inputTensor.Dispose();
+    //    }
+    //    //yield return null;
+    //    isRunningInference = false;
+    //}
 
     IEnumerator ImageRecognitionCoroutine()
     {
@@ -51,6 +51,9 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         if (ARCameraScript.ImageFloatValues != null)
         {
             var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
+
+            ARCameraScript.ImageFloatValues = null;
+
             var enumerator = modelWorker.StartManualSchedule(input);
             int step = 0;
             inferenceWatch.Start();

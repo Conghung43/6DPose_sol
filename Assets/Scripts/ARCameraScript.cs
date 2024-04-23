@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.IO;
 using UnityEditor;
+using UnityEngine.XR.ARFoundation.Samples;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class ARCameraScript : MonoBehaviour
     [SerializeField] private Texture2D grayBBox;
     [SerializeField] private Camera arCamera;
     [SerializeField] private RawImage resultStageDispalayImage;
+    [SerializeField] private RawImage debugRawImage;
     [SerializeField] private Button nextStepBtn;
     [SerializeField] private GameObject captureBtn;
     [SerializeField] private int bBoxBorderSize = -1;
@@ -97,7 +99,7 @@ public class ARCameraScript : MonoBehaviour
         try
         {
             // Deserialize the inference response
-            InferenceResult metaAPIinferenceData = JsonConvert.DeserializeObject<InferenceResult>(e.inferenceResponse);
+            JsonDeserialization.InferenceResult metaAPIinferenceData = JsonConvert.DeserializeObject<JsonDeserialization.InferenceResult>(e.inferenceResponse);
 
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
@@ -348,69 +350,73 @@ public class ARCameraScript : MonoBehaviour
             inferenceWatch.Start();
         }
     }
-
+    Texture2D resizeTexture;
     private void EdgeInferenceAsync()
     {
         UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync");
         Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
-        // Set the target texture of the AR camera to the render texture
-        arCamera.targetTexture = screenRenderTexture;
-
-        // Render the AR camera
-        arCamera.Render();
-
-        // Set the active render texture
-        RenderTexture.active = screenRenderTexture;
 
         //Crop Image
-        int bboxX = (int)(bBoxRect.x);// + bBoxRect.width/2);
+        float bboxX = bBoxRect.x;// + bBoxRect.width/2);
 #if UNITY_EDITOR
-        int bboxY = (int)(Screen.height - bBoxRect.y - bBoxRect.height);
+        float bboxY = (float)(Screen.height - bBoxRect.y - bBoxRect.height);
 #else
-        int bboxY = (int)(Screen.height- bBoxRect.y- bBoxRect.height);
+        float bboxY = (float)(Screen.height- bBoxRect.y- bBoxRect.height);
 #endif
-        int bboxW = (int)bBoxRect.width;
-        int bboxH = (int)bBoxRect.height;
+        float bboxW = (float)bBoxRect.width;
+        float bboxH = (float)bBoxRect.height;
         if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= Screen.width || bboxY <= 0 || bboxY + bboxH >= Screen.height)
         {
-            logInfo.text = "Return";
-            arCamera.targetTexture = null;
-            RenderTexture.active = null;
+            logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
             inferenceResponseFlag = true;
             return ;
         }
         try
         {
-            Texture2D croppedTexture = new Texture2D(bboxW, bboxH);
-            croppedTexture.ReadPixels(new Rect(bboxX, bboxY, bboxW, bboxH), 0, 0);
-            croppedTexture.Apply();
+            // Crop image from cpu image
+            if (TrackedImageInfoManager.cpuImageTexture != null)
+            {
+                int cpuWidth = TrackedImageInfoManager.cpuImageTexture.width;
+                int cpuHeight = TrackedImageInfoManager.cpuImageTexture.height;
+                Vector2 cpuImageSize = new Vector2(TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+                Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
+                Vector2 screenStartPointInCpuImage;
+                ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
+                                            out screenStartPointInCpuImage,
+                                            cpuImageSize,
+                                            screenImageSize);
+                Rect newRect = new Rect((int)((bboxX / Screen.width) * cpuWidth),
+                    (int)((bboxY / Screen.height) * (cpuWidth * Screen.height / Screen.width) + screenStartPointInCpuImage.y),
+                    (int)(bboxW * cpuWidth / Screen.width),
+                    (int)(bboxW * cpuWidth / Screen.width));
+                Texture2D croppedTexture = new Texture2D((int)newRect.width, (int)newRect.height);
+                croppedTexture = ImageProcessing.CropTexture2D(TrackedImageInfoManager.cpuImageTexture,
+                    croppedTexture, newRect
+                    );
 
-            arCamera.targetTexture = null;
-            RenderTexture.active = null;
+                stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
+                //logInfo.text = "croppedTexture time:" + elMs + "ms \n";
 
-            stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
-            //logInfo.text = "croppedTexture time:" + elMs + "ms \n";
+                //File.WriteAllBytes("test.jpg", croppedTexture.EncodeToJPG());
 
-            File.WriteAllBytes("test.jpg", croppedTexture.EncodeToJPG());
+                if (resizeTexture == null)
+                {
+                    resizeTexture = ResizeTextureOnnx(croppedTexture);
+                }
 
-            Texture2D resizeTexture = ResizeTextureOnnx(croppedTexture);
-            stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
-            //logInfo.text += "resize time:" + elMs + "ms \n";
+                //string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
+                //System.IO.File.WriteAllBytes(filePath, resizeTexture.EncodeToJPG());
 
-            ImageFloatValues = NormalizeImageWithComputeShader(resizeTexture);
+                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
+                //logInfo.text += "resize time:" + elMs + "ms \n";
 
-            //edgeInference.StartContinuousInference();
-            //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
-            //logInfo.text += "normalize time:" + elMs + "ms \n";
+                ImageFloatValues = NormalizeImageWithComputeShader(resizeTexture);
 
-            //Tensor inputTensor = new Tensor(1, height, width, 3, ImageFloatValues);
-            //await network.ForwardAsyncAlt(inputTensor);
-            //logInfo.text = inferenceClass.ToString();
-
-            Destroy(croppedTexture);
-            //inputTensor.Dispose();
-            stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; //UnityEngine.Debug.Log("NormalizeImage time:" + elMs + "ms");
-            //logInfo.text += "inference time:" + elMs + "ms \n";
+                Destroy(croppedTexture);
+                //inputTensor.Dispose();
+                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; //UnityEngine.Debug.Log("NormalizeImage time:" + elMs + "ms");
+                                                                        //logInfo.text = "toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync finish";
+            }
 
             UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync finish");
         }

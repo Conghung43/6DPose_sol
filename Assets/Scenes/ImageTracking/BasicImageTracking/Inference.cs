@@ -32,7 +32,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         // Path to the JSON file
         //string jsonFilePath = "/Users/hungnguyencong/Downloads/out/poses.json";
         //string InferenceTxtFilePath = "/Users/hungnguyencong/Documents/PYTHON/API_Test_Python/InferencePose325_1.txt";
-        //string ARTxtFilePath = "/Users/hungnguyencong/Downloads/megapose_debug/AR_Camera_Record/AR300Images/pose_1_307.txt";
+        //string ARTxtFilePath = "/Users/hungnguyencong/Downloads/pose_1_123.txt";
         public GameObject originTransform;
         public GameObject boxOnWorldObject;
         public GameObject camOnObject;
@@ -151,19 +151,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
         }
 
 
-        public static (Quaternion, Vector3) ConvertTransformToLeftHandRule(Quaternion rotation, Vector3 position)
+        public static (Quaternion, Vector3) ConvertToOppositeHandedness(Quaternion rotation, Vector3 position)
         {
             rotation = new Quaternion(rotation.x, -rotation.y, rotation.z, -rotation.w);
             position = new Vector3(position.x, -position.y, position.z);
             return (rotation, position);
         }
 
-        public static (Quaternion, Vector3) ConvertTransformToRightHandRule(Quaternion rotation, Vector3 position)
-        {
-            rotation = new Quaternion(-rotation.x, rotation.y, -rotation.z, rotation.w);
-            position = new Vector3(position.x, -position.y, position.z);
-            return (rotation, position);
-        }
+        //public static (Quaternion, Vector3) ConvertTransformToRightHandRule(Quaternion rotation, Vector3 position)
+        //{
+        //    rotation = new Quaternion(-rotation.x, rotation.y, -rotation.z, rotation.w);
+        //    position = new Vector3(position.x, -position.y, position.z);
+        //    return (rotation, position);
+        //}
 
         // Convert Matrix4x4 to Quaternion and Translation
         public static void MatrixToQuaternionTranslation(Matrix4x4 matrix, out Quaternion quaternion, out Vector3 translation)
@@ -177,7 +177,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
 
-            (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
+            (rotation, position) = ConvertToOppositeHandedness(rotation, position);
 
             Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
 
@@ -218,7 +218,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
                 Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
                 MatrixToQuaternionTranslation(camToObjectMatrix, out Quaternion rotation, out Vector3 position);
-                (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
+                (rotation, position) = ConvertToOppositeHandedness(rotation, position);
                 arPoseToInference = new float[] { rotation.w, rotation.x, rotation.y, rotation.z, position.x, position.y, position.z };
             }
         }
@@ -265,6 +265,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void ReadTXTFromFile(string filePath)
         {
+            string fileTxt = Application.dataPath + "/position_rotation.txt";
+            StreamWriter writer = new StreamWriter(fileTxt);
             if (File.Exists(filePath))
             {
                 //float[] positions = new float[59];
@@ -296,18 +298,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
                                                                 float.Parse(stringSplit[6])
                                                                 );
 
-                        //rotation = Quaternion.Euler(new Vector3(90,-90,90));
-
                         GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
                         nodeGameObject.name = stringSplitOrigin[0];
                         nodeGameObject.transform.SetParent(megaPose.transform);
                         CamObjectMegaDictionary[stringSplitOrigin[0]] = nodeGameObject;
 
-                        (rotation, position) = ConvertTransformToLeftHandRule(rotation, position);
+                        (rotation, position) = ConvertToOppositeHandedness(rotation, position);
 
                         Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
 
-                        Matrix4x4 ObjectToWorldMatrix =  CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix * CamToObjectMatrixMega.inverse;
+                        Matrix4x4 ObjectToWorldMatrix = CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix * CamToObjectMatrixMega.inverse;
 
                         MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
 
@@ -323,7 +323,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                         // Compare distance:
                         Debug.Log("AR distance" + stringSplitOrigin[0] + Vector3.Distance(CamObjectDictionary[stringSplitOrigin[0]].transform.position, CamWorldDictionary[stringSplitOrigin[0]].transform.position));
-                        
+
                     }
                     //position[0] = -position[0];
                     else
@@ -337,10 +337,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
                                                                 float.Parse(stringSplit[12]),
                                                                 float.Parse(stringSplit[13])
                                                                 );
-                        GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
-                        nodeGameObject.transform.SetParent(arCam.transform);
-                        nodeGameObject.name = stringSplitOrigin[0];
-                        CamWorldDictionary[stringSplitOrigin[0]] = nodeGameObject;
+                        //GameObject nodeGameObject = Instantiate(originTransform, position, rotation);
+                        //nodeGameObject.transform.SetParent(arCam.transform);
+                        //nodeGameObject.name = stringSplitOrigin[0];
+                        //CamWorldDictionary[stringSplitOrigin[0]] = nodeGameObject;
 
 
                         rotation = new Quaternion(float.Parse(stringSplit[1]),
@@ -352,24 +352,28 @@ namespace UnityEngine.XR.ARFoundation.Samples
                                                                 float.Parse(stringSplit[5]),
                                                                 float.Parse(stringSplit[6])
                                                                 );
-                        
-                        Matrix4x4 CamToWorldMatrix = CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix;
-                       
-                        Matrix4x4 ObjectToWorldMatrix = box3D.transform.localToWorldMatrix;
-
-                        Matrix4x4 CamToObjectMatrix = ObjectToWorldMatrix.inverse * CamToWorldMatrix;
-
-                        position = CamToObjectMatrix.inverse.MultiplyPoint(CamWorldDictionary[stringSplitOrigin[0]].transform.position);
-                        Quaternion matrixRotation = Quaternion.LookRotation(CamToObjectMatrix.GetColumn(2), CamToObjectMatrix.GetColumn(1));
-                        rotation = UnityEngine.Quaternion.Inverse(matrixRotation) * CamWorldDictionary[stringSplitOrigin[0]].transform.rotation;
-
-                        // Move object to 0 before calculate
-                        Matrix4x4 boxOriginMatrix = Matrix4x4.TRS(Vector3.zero, box3D.transform.rotation, Vector3.one);
-                        Matrix4x4 cameraOriginMatrix = Matrix4x4.TRS(CamWorldDictionary[stringSplitOrigin[0]].transform.position - box3D.transform.position, CamWorldDictionary[stringSplitOrigin[0]].transform.rotation, Vector3.one);
-                        Matrix4x4 camToBoxMatrix = cameraOriginMatrix * boxOriginMatrix.inverse;
+                        (rotation, position) = ConvertToOppositeHandedness(rotation, position);
+                        writer.WriteLine($"{stringSplitOrigin[0]} {rotation.w} {rotation.x} {rotation.y} {rotation.z} {position.x} {position.y} {position.z} \n");
+                        continue;
 
 
-                        MatrixToQuaternionTranslation(camToBoxMatrix, out rotation, out position);
+                        //Matrix4x4 CamToWorldMatrix = CamWorldDictionary[stringSplitOrigin[0]].transform.localToWorldMatrix;
+
+                        //Matrix4x4 ObjectToWorldMatrix = box3D.transform.localToWorldMatrix;
+
+                        //Matrix4x4 CamToObjectMatrix = ObjectToWorldMatrix.inverse * CamToWorldMatrix;
+
+                        //position = CamToObjectMatrix.inverse.MultiplyPoint(CamWorldDictionary[stringSplitOrigin[0]].transform.position);
+                        //Quaternion matrixRotation = Quaternion.LookRotation(CamToObjectMatrix.GetColumn(2), CamToObjectMatrix.GetColumn(1));
+                        //rotation = UnityEngine.Quaternion.Inverse(matrixRotation) * CamWorldDictionary[stringSplitOrigin[0]].transform.rotation;
+
+                        //// Move object to 0 before calculate
+                        //Matrix4x4 boxOriginMatrix = Matrix4x4.TRS(Vector3.zero, box3D.transform.rotation, Vector3.one);
+                        //Matrix4x4 cameraOriginMatrix = Matrix4x4.TRS(CamWorldDictionary[stringSplitOrigin[0]].transform.position - box3D.transform.position, CamWorldDictionary[stringSplitOrigin[0]].transform.rotation, Vector3.one);
+                        //Matrix4x4 camToBoxMatrix = cameraOriginMatrix * boxOriginMatrix.inverse;
+
+
+                        //MatrixToQuaternionTranslation(camToBoxMatrix, out rotation, out position);
                         GameObject nodeGameObject2 = Instantiate(originTransform, position, rotation);
                         nodeGameObject2.transform.SetParent(camOnObject.transform);
                         nodeGameObject2.name = stringSplitOrigin[0];
@@ -382,6 +386,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 Debug.LogError("JSON file not found at path: " + filePath);
             }
+            writer.Close();
         }
 
         private void DecomposeMatrix(Matrix4x4 matrix, out Quaternion rotation, out Vector3 position)
