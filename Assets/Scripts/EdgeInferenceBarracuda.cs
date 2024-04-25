@@ -13,9 +13,9 @@ public class EdgeInferenceBarracuda : MonoBehaviour
     protected IWorker modelWorker;       // Barracuda worker for inference
     public NNModel modelAsset;
     [SerializeField] private TMPro.TextMeshProUGUI logInfo;
-    public static int stepsPerFrame = 20;
+    public static int stepsPerFrame = 30;
     //private Stopwatch inferenceWatch = new Stopwatch();
-    int counttime = 0;
+    //int counttime = 0;
     public static long elMs;
     ModelBuilder builder;
     public void Start()
@@ -28,129 +28,69 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         EventManager.OnCheckpointUpdateEvent += StartContinuousInference;
     }
 
-    //private void RunContinuousInference()
-    //{
-    //    isRunningInference = true;
+    public static float speedRealCameraAR()
+    {
+        Vector3 velocity = Camera.main.velocity;
+        return velocity.magnitude;
+    }
 
-    //    if (ARCameraScript.ImageFloatValues != null)
-    //    {
-    //        Tensor inputTensor = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
-
-    //        var output = modelWorker.Execute(inputTensor).PeekOutput();
-    //        ARCameraScript.prb = output.ToReadOnlyArray();
-
-    //        ARCameraScript.inferenceResponseFlag = true;
-
-    //        //yield return new WaitForSeconds(0.001f); 
-    //        inputTensor.Dispose();
-    //    }
-    //    //yield return null;
-    //    isRunningInference = false;
-    //}
+    public static bool isSpeedRealCameraARFast(float allowableValue)
+    {
+        return speedRealCameraAR() > allowableValue;
+    }
 
     IEnumerator ImageRecognitionCoroutine()
     {
         isRunningInference = true;
-        //while (ARCameraScript.ImageFloatValues == null)
+
+        //var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
+
+        //counttime += 1;
+
+        //if (counttime % 30 == 0)
         //{
-        //    yield return null;
+        //    stepsPerFrame += 1;
         //}
-        if (true)//(ARCameraScript.ImageFloatValues != null)
+
+        var input = new Tensor(ARCameraScript.resizeTextureOnnx, 3);
+
+        //ARCameraScript.ImageFloatValues = null;
+
+        var enumerator = modelWorker.StartManualSchedule(input);
+        int step = 0;
+        //inferenceWatch.Start();
+
+        while (enumerator.MoveNext())
         {
-            //var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
-
-            //counttime += 1;
-
-            //if (counttime % 30 == 0)
-            //{
-            //    stepsPerFrame += 1;
-            //}
-
-            var input = new Tensor(ARCameraScript.resizeTextureOnnx, 3);
-
-            //ARCameraScript.ImageFloatValues = null;
-
-            var enumerator = modelWorker.StartManualSchedule(input);
-            int step = 0;
-            //inferenceWatch.Start();
-
-            while (enumerator.MoveNext())
-            {
-                //logInfo.text += step.ToString();
-                if (++step % stepsPerFrame == 0) yield return null;
-            }
-
-            //inferenceWatch.Stop();
-            //elMs = inferenceWatch.ElapsedMilliseconds;
-            //inferenceWatch.Reset();
-
-            var output = modelWorker.PeekOutput();
-            ARCameraScript.prb = output.ToReadOnlyArray();
-
-            DateTime now = DateTime.Now;
-
-            // Format date and time information
-            string dateTimeInfo = now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            // Create log message with date and time information
-            //string logMessage = $"[{dateTimeInfo}] {message}";
-            logInfo.text = dateTimeInfo + " Step per frame = " + stepsPerFrame.ToString();//string.Join(", ", ARCameraScript.prb);
-
-            //File.WriteAllBytes("test2.png", ConvertTensorToByteArray(input));
-
-
-            ARCameraScript.inferenceResponseFlag = true;
-            input.Dispose();
-            output.Dispose();
-
-            //logInfo.text = stepsPerFrame.ToString();
+            //logInfo.text += step.ToString();
+            if (++step % stepsPerFrame == 0) yield return null;
         }
+
+        //inferenceWatch.Stop();
+        //elMs = inferenceWatch.ElapsedMilliseconds;
+        //inferenceWatch.Reset();
+
+        var output = modelWorker.PeekOutput();
+        ARCameraScript.prb = output.ToReadOnlyArray();
+
+        DateTime now = DateTime.Now;
+
+        // Format date and time information
+        string dateTimeInfo = now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        // Create log message with date and time information
+        //string logMessage = $"[{dateTimeInfo}] {message}";
+        logInfo.text = dateTimeInfo + " Step per frame = " + stepsPerFrame.ToString();//string.Join(", ", ARCameraScript.prb);
+
+        //File.WriteAllBytes("test2.png", ConvertTensorToByteArray(input));
+
+
+        ARCameraScript.inferenceResponseFlag = true;
+        input.Dispose();
+        output.Dispose();
+
         isRunningInference = false;
     }
-
-    //void ImageRecognitionCoroutine()
-    //{
-
-    //    //yield return null;
-    //    isRunningInference = true;
-
-
-    //    //var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
-    //    var input = new Tensor(ARCameraScript.resizeTextureOnnx, 3);
-
-    //    string filePath = Path.Combine(Application.persistentDataPath, "testbarra.jpg");
-    //    System.IO.File.WriteAllBytes(filePath, ARCameraScript.resizeTextureOnnx.EncodeToJPG());
-
-    //    //modelWorker = WorkerFactory.CreateWorker(WorkerFactory.Type.ComputePrecompiled, builder.model);
-    //    modelWorker.Execute(input);
-
-
-    //    //inferenceWatch.Stop();
-    //    //elMs = inferenceWatch.ElapsedMilliseconds;
-    //    //inferenceWatch.Reset();
-
-    //    var output = modelWorker.PeekOutput();
-    //    ARCameraScript.prb = output.ToReadOnlyArray();
-
-    //    DateTime now = DateTime.Now;
-
-    //    // Format date and time information
-    //    string dateTimeInfo = now.ToString("yyyy-MM-dd HH:mm:ss");
-
-    //    // Create log message with date and time information
-    //    //string logMessage = $"[{dateTimeInfo}] {message}";
-    //    logInfo.text = dateTimeInfo + string.Join(", ", output.ToReadOnlyArray());
-
-    //    //File.WriteAllBytes("test2.png", ConvertTensorToByteArray(input));
-
-
-    //    ARCameraScript.inferenceResponseFlag = true;
-    //    input.Dispose();
-    //    //modelWorker.Dispose();
-    //    output.Dispose();
-
-    //    isRunningInference = false;
-    //}
 
     public void StartContinuousInference(object sender, EventManager.OnCheckpointUpdateEventArgs e)
     {

@@ -69,7 +69,7 @@ public class ARCameraScript : MonoBehaviour
         // Subscribe to the OnInferenceResponse event in MetaApiStatic
         MetaService.OnInferenceResponse += OnInferenceResponse;
 
-        //EventManager.OnStageChange += OnUpdate3DModelName;
+        EventManager.OnStageChange += ResetBoundingBox;
 
         // Create a new RenderTexture with specified dimensions
         renderTexture = new RenderTexture(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, 24);
@@ -92,7 +92,13 @@ public class ARCameraScript : MonoBehaviour
         guiStyle.border = new RectOffset(bBoxBorderSize, bBoxBorderSize, bBoxBorderSize, bBoxBorderSize);
     }
 
-    private void OnInferenceResponse(object sender, MetaService.OnInferenceResponseEventArgs e)
+    private void ResetBoundingBox(object sender, EventManager.OnStageIndexEventArgs e)
+    {
+        // Reset bbox when stage change
+        guiStyle.normal.background = redBBox;
+    }
+
+        private void OnInferenceResponse(object sender, MetaService.OnInferenceResponseEventArgs e)
     {
         // Listen event from Inference response in Meta API, event parameter will be drawn in this function
         UnityEngine.Debug.Log("START ARCameraScript/OnInferenceResponse ");
@@ -214,7 +220,7 @@ public class ARCameraScript : MonoBehaviour
                     }
                     else
                     {
-                        UpdateIfClassChange(grayBBox, false);
+                        UpdateIfClassChange(redBBox, false);// original is gray
                     }
                 }
             }
@@ -276,7 +282,7 @@ public class ARCameraScript : MonoBehaviour
     private void Update()
     {
         // Check if the current function index is "Detect"
-        if (StationStageIndex.FunctionIndex == "Detect")
+        if (StationStageIndex.FunctionIndex == "Detect" && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
         {
             // Ignore object out of view
             Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
@@ -299,6 +305,8 @@ public class ARCameraScript : MonoBehaviour
             titleInfo.text = "";
         }
     }
+
+
 
     private void Inference(object sender, EventManager.OnCheckpointUpdateEventArgs e)
     {
@@ -497,41 +505,6 @@ public class ARCameraScript : MonoBehaviour
         // Now you have the normalized floatValues array
     }
 
-    //Texture2D NormalizeImageWithComputeShaderOutTexture(Texture2D imageTexture)
-    //{
-    //    int kernelIndex = normalizeShader.FindKernel("ComputeNormalizationOutTexture");
-
-    //    RenderTexture outputTexture = new RenderTexture(imageTexture.width, imageTexture.height, 0, RenderTextureFormat.ARGBFloat);
-    //    outputTexture.enableRandomWrite = true;
-    //    outputTexture.Create();
-
-    //    normalizeShader.SetTexture(kernelIndex, "InputImage", imageTexture);
-    //    normalizeShader.SetTexture(kernelIndex, "OutputTexture", outputTexture);
-    //    normalizeShader.SetFloats("Mean", mean);
-    //    normalizeShader.SetFloats("Std", std);
-    //    normalizeShader.SetVector("TextureDimensions", new Vector2(imageTexture.width, imageTexture.height));
-
-    //    uint maxThreadGroupSizeX, maxThreadGroupSizeY, maxThreadGroupSizeZ;
-    //    normalizeShader.GetKernelThreadGroupSizes(kernelIndex, out maxThreadGroupSizeX, out maxThreadGroupSizeY, out maxThreadGroupSizeZ);
-
-    //    int threadGroupsX = (int)Mathf.CeilToInt(imageTexture.width / maxThreadGroupSizeX);
-    //    int threadGroupsY = (int)Mathf.CeilToInt(imageTexture.height / maxThreadGroupSizeY);
-
-    //    normalizeShader.Dispatch(kernelIndex, threadGroupsX, threadGroupsY, 1);
-
-    //    // Create a new Texture2D and read the RenderTexture data into it
-    //    Texture2D resultTexture = new Texture2D(imageTexture.width, imageTexture.height, TextureFormat.RGBAFloat, false);
-    //    RenderTexture.active = outputTexture;
-    //    resultTexture.ReadPixels(new Rect(0, 0, outputTexture.width, outputTexture.height), 0, 0);
-    //    resultTexture.Apply();
-    //    RenderTexture.active = null;
-    //    // Memory leak in resultTexture
-    //    // Release the RenderTexture
-    //    outputTexture.Release();
-
-    //    return resultTexture;
-    //}
-
 
     public float[] NormalizeImage(Texture2D image)
     {
@@ -550,29 +523,6 @@ public class ARCameraScript : MonoBehaviour
         }
         return floatValues;
     }
-
-    //public float[] RunInference(float[] inputImageData)
-    //{
-
-    //    // Preprocess input texture if needed
-    //    Tensor inputTensor = new Tensor(1, height, width, 3, inputImageData);
-
-    //    // Perform inference
-    //    worker.Execute(inputTensor);
-
-    //    // Retrieve the output tensor(s) and process the results
-    //    Tensor outputTensor = worker.PeekOutput();
-
-    //    // Post-process output tensor to get results
-    //    float[] classProbabilities = outputTensor.ToReadOnlyArray();
-    //    // Clean up resources
-    //    inputTensor.Dispose();
-    //    outputTensor.Dispose();
-
-    //    // Stop the stopwatch
-
-    //    return classProbabilities;
-    //}
 
     private int GetMaxValueIndex(float[] array)
     {

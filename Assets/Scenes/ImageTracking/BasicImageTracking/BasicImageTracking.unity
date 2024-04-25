@@ -2348,6 +2348,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1557103665}
+    - targetCorrespondingSourceObject: {fileID: 8766024634595469697, guid: 8f2c1ffdafd49a943ac79dc0ff480220,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 8f2c1ffdafd49a943ac79dc0ff480220, type: 3}
 --- !u!1 &1557103652 stripped
 GameObject:
@@ -10748,7 +10752,7 @@ MonoBehaviour:
   retryButton: {fileID: 5864587129571328596}
   BottomBackground: {fileID: 6236849959462620532}
   ResultCanvas: {fileID: 2449669072226795378}
-  checkList: {fileID: 6863659516895057608}
+  checkList: {fileID: 1972632696367211547}
   ModelTarget: {fileID: 816003150}
   uiMessage: {fileID: 2289558225682086171}
   backgroundResult: {fileID: 2275714276708773237}
