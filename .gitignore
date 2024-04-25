@@ -55,3 +55,6 @@ sysinfo.txt
 test.jpg
 test1.jpg
 *.jpg
+/Assets/OpenCVForUnity
+Assets/OpenCVForUnity.meta
+Assets/DefaultSimulationEnvironment 1.prefab

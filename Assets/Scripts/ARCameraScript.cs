@@ -11,6 +11,13 @@ using System.Collections;
 using System.IO;
 using UnityEditor;
 using UnityEngine.XR.ARFoundation.Samples;
+using OpenCVForUnity.VideoModule;
+using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UnityUtils.Helper;
+using OpenCVForUnity.UtilsModule;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.ImgcodecsModule;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -30,14 +37,14 @@ public class ARCameraScript : MonoBehaviour
     private GameObject checkListGameObject;
     private Transform checkMarkTransform;
     private RenderTexture renderTexture;
-    private Rect bBoxRect;
+    private UnityEngine.Rect bBoxRect;
     private GUIStyle guiStyle = new GUIStyle();
     private Coroutine coroutineControler;
     private int reconnectedCount = 0;
     private byte[] CapturedImage;
     private Texture2D screenTexture;
     private RenderTexture screenRenderTexture;
-    private Texture2D resizeTextureOnnx;
+    public static Texture2D resizeTextureOnnx;
     private RenderTexture resizeRenderTextureOnnx;
     public static bool inferenceResponseFlag = true;
 
@@ -164,12 +171,12 @@ public class ARCameraScript : MonoBehaviour
         return (centerPoint, radiusOnScreen);
     }
 
-    public Rect GetObjectBBox()
+    public UnityEngine.Rect GetObjectBBox()
     {
         Vector3 centerPoint; float radiusOnScreen;
         (centerPoint, radiusOnScreen) = GetObjectCenterRadius();
         Vector3 corner1World2D = centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
-        Rect unityRect = new Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
+        UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
         return unityRect;
     }
 
@@ -350,11 +357,11 @@ public class ARCameraScript : MonoBehaviour
             inferenceWatch.Start();
         }
     }
-    Texture2D resizeTexture;
+    //Texture2D resizeTexture;
     private void EdgeInferenceAsync()
     {
         UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync");
-        Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
+        //Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
 
         //Crop Image
         float bboxX = bBoxRect.x;// + bBoxRect.width/2);
@@ -385,7 +392,7 @@ public class ARCameraScript : MonoBehaviour
                                             out screenStartPointInCpuImage,
                                             cpuImageSize,
                                             screenImageSize);
-                Rect newRect = new Rect((int)((bboxX / Screen.width) * cpuWidth),
+                UnityEngine.Rect newRect = new UnityEngine.Rect((int)((bboxX / Screen.width) * cpuWidth),
                     (int)((bboxY / Screen.height) * (cpuWidth * Screen.height / Screen.width) + screenStartPointInCpuImage.y),
                     (int)(bboxW * cpuWidth / Screen.width),
                     (int)(bboxW * cpuWidth / Screen.width));
@@ -394,27 +401,41 @@ public class ARCameraScript : MonoBehaviour
                     croppedTexture, newRect
                     );
 
-                stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
+                //stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
                 //logInfo.text = "croppedTexture time:" + elMs + "ms \n";
 
                 //File.WriteAllBytes("test.jpg", croppedTexture.EncodeToJPG());
 
-                if (resizeTexture == null)
-                {
-                    resizeTexture = ResizeTextureOnnx(croppedTexture);
-                }
+                //if (resizeTexture == null)
+                //{
+                //    resizeTexture = new Texture2D(224, 224); //ResizeTextureOnnx(croppedTexture);
+                //}
+
+                Mat resizedMat = new Mat(croppedTexture.height, croppedTexture.width, CvType.CV_8UC4);
+                Utils.texture2DToMat(croppedTexture, resizedMat);
+
+                // Resize the Mat
+                Imgproc.resize(resizedMat, resizedMat, new Size(width, height));
+
+                //Imgcodecs.imwrite("test.jpg", resizedMat);
+
+                //Imgproc.cvtColor(resizedMat, resizedMat, Imgproc.COLOR_RGB2BGR);
+                Utils.matToTexture2D(resizedMat, resizeTextureOnnx);
 
                 //string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
                 //System.IO.File.WriteAllBytes(filePath, resizeTexture.EncodeToJPG());
 
-                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
+                //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
                 //logInfo.text += "resize time:" + elMs + "ms \n";
 
-                ImageFloatValues = NormalizeImageWithComputeShader(resizeTexture);
+                //ImageFloatValues = NormalizeImageWithComputeShader(resizeTextureOnnx);
+
+                //StartCoroutine(EdgeInferenceBarracuda.ImageRecognitionCoroutine());
+                //logInfo.text = ImageFloatValues.Length.ToString();
 
                 Destroy(croppedTexture);
                 //inputTensor.Dispose();
-                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; //UnityEngine.Debug.Log("NormalizeImage time:" + elMs + "ms");
+                //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; //UnityEngine.Debug.Log("NormalizeImage time:" + elMs + "ms");
                                                                         //logInfo.text = "toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync finish";
             }
 
@@ -438,16 +459,16 @@ public class ARCameraScript : MonoBehaviour
         }
     }
 
-    Texture2D ResizeTextureOnnx(Texture2D texture2D)
-    {
-        //result = null;
-        RenderTexture.active = resizeRenderTextureOnnx;
-        Graphics.Blit(texture2D, resizeRenderTextureOnnx);
-        resizeTextureOnnx.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        resizeTextureOnnx.Apply();
-        RenderTexture.active = null;
-        return resizeTextureOnnx;
-    }
+    //Texture2D ResizeTextureOnnx(Texture2D texture2D)
+    //{
+    //    //result = null;
+    //    RenderTexture.active = resizeRenderTextureOnnx;
+    //    Graphics.Blit(texture2D, resizeRenderTextureOnnx);
+    //    resizeTextureOnnx.ReadPixels(new UnityEngine.Rect(0, 0, width, height), 0, 0);
+    //    resizeTextureOnnx.Apply();
+    //    RenderTexture.active = null;
+    //    return resizeTextureOnnx;
+    //}
 
     float[] NormalizeImageWithComputeShader(Texture2D imageTexture)
     {
@@ -476,40 +497,40 @@ public class ARCameraScript : MonoBehaviour
         // Now you have the normalized floatValues array
     }
 
-    Texture2D NormalizeImageWithComputeShaderOutTexture(Texture2D imageTexture)
-    {
-        int kernelIndex = normalizeShader.FindKernel("ComputeNormalizationOutTexture");
+    //Texture2D NormalizeImageWithComputeShaderOutTexture(Texture2D imageTexture)
+    //{
+    //    int kernelIndex = normalizeShader.FindKernel("ComputeNormalizationOutTexture");
 
-        RenderTexture outputTexture = new RenderTexture(imageTexture.width, imageTexture.height, 0, RenderTextureFormat.ARGBFloat);
-        outputTexture.enableRandomWrite = true;
-        outputTexture.Create();
+    //    RenderTexture outputTexture = new RenderTexture(imageTexture.width, imageTexture.height, 0, RenderTextureFormat.ARGBFloat);
+    //    outputTexture.enableRandomWrite = true;
+    //    outputTexture.Create();
 
-        normalizeShader.SetTexture(kernelIndex, "InputImage", imageTexture);
-        normalizeShader.SetTexture(kernelIndex, "OutputTexture", outputTexture);
-        normalizeShader.SetFloats("Mean", mean);
-        normalizeShader.SetFloats("Std", std);
-        normalizeShader.SetVector("TextureDimensions", new Vector2(imageTexture.width, imageTexture.height));
+    //    normalizeShader.SetTexture(kernelIndex, "InputImage", imageTexture);
+    //    normalizeShader.SetTexture(kernelIndex, "OutputTexture", outputTexture);
+    //    normalizeShader.SetFloats("Mean", mean);
+    //    normalizeShader.SetFloats("Std", std);
+    //    normalizeShader.SetVector("TextureDimensions", new Vector2(imageTexture.width, imageTexture.height));
 
-        uint maxThreadGroupSizeX, maxThreadGroupSizeY, maxThreadGroupSizeZ;
-        normalizeShader.GetKernelThreadGroupSizes(kernelIndex, out maxThreadGroupSizeX, out maxThreadGroupSizeY, out maxThreadGroupSizeZ);
+    //    uint maxThreadGroupSizeX, maxThreadGroupSizeY, maxThreadGroupSizeZ;
+    //    normalizeShader.GetKernelThreadGroupSizes(kernelIndex, out maxThreadGroupSizeX, out maxThreadGroupSizeY, out maxThreadGroupSizeZ);
 
-        int threadGroupsX = (int)Mathf.CeilToInt(imageTexture.width / maxThreadGroupSizeX);
-        int threadGroupsY = (int)Mathf.CeilToInt(imageTexture.height / maxThreadGroupSizeY);
+    //    int threadGroupsX = (int)Mathf.CeilToInt(imageTexture.width / maxThreadGroupSizeX);
+    //    int threadGroupsY = (int)Mathf.CeilToInt(imageTexture.height / maxThreadGroupSizeY);
 
-        normalizeShader.Dispatch(kernelIndex, threadGroupsX, threadGroupsY, 1);
+    //    normalizeShader.Dispatch(kernelIndex, threadGroupsX, threadGroupsY, 1);
 
-        // Create a new Texture2D and read the RenderTexture data into it
-        Texture2D resultTexture = new Texture2D(imageTexture.width, imageTexture.height, TextureFormat.RGBAFloat, false);
-        RenderTexture.active = outputTexture;
-        resultTexture.ReadPixels(new Rect(0, 0, outputTexture.width, outputTexture.height), 0, 0);
-        resultTexture.Apply();
-        RenderTexture.active = null;
-        // Memory leak in resultTexture
-        // Release the RenderTexture
-        outputTexture.Release();
+    //    // Create a new Texture2D and read the RenderTexture data into it
+    //    Texture2D resultTexture = new Texture2D(imageTexture.width, imageTexture.height, TextureFormat.RGBAFloat, false);
+    //    RenderTexture.active = outputTexture;
+    //    resultTexture.ReadPixels(new Rect(0, 0, outputTexture.width, outputTexture.height), 0, 0);
+    //    resultTexture.Apply();
+    //    RenderTexture.active = null;
+    //    // Memory leak in resultTexture
+    //    // Release the RenderTexture
+    //    outputTexture.Release();
 
-        return resultTexture;
-    }
+    //    return resultTexture;
+    //}
 
 
     public float[] NormalizeImage(Texture2D image)
@@ -588,7 +609,7 @@ public class ARCameraScript : MonoBehaviour
         RenderTexture.active = renderTexture;
 
         // Read the pixels from the specified rectangle in the capture texture
-        capturedTexture.ReadPixels(new Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
+        capturedTexture.ReadPixels(new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
 
         // Apply the changes made to the capture texture
         capturedTexture.Apply();
@@ -626,7 +647,7 @@ public class ARCameraScript : MonoBehaviour
             RenderTexture.active = renderTexture;
 
             // Read the pixels from the specified rectangle in the capture texture
-            capturedTexture.ReadPixels(new Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
+            capturedTexture.ReadPixels(new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
 
             // Apply the changes made to the capture texture
             capturedTexture.Apply();
