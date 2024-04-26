@@ -1546,6 +1546,36 @@ PrefabInstance:
       propertyPath: m_Materials.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.133
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.166
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200839547736746932, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.024
+      objectReference: {fileID: 0}
     - target: {fileID: 5860728134042929251, guid: bcd0ea6e425f24445813f1d3d8b4c1e0,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1864,7 +1894,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1172492231
 Transform:
   m_ObjectHideFlags: 0
@@ -2348,10 +2378,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1557103665}
-    - targetCorrespondingSourceObject: {fileID: 8766024634595469697, guid: 8f2c1ffdafd49a943ac79dc0ff480220,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 8f2c1ffdafd49a943ac79dc0ff480220, type: 3}
 --- !u!1 &1557103652 stripped
 GameObject:
@@ -2448,7 +2474,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   modelAsset: {fileID: 5022602860645237092, guid: ce978e616963a44688bb2c3423cf7e13,
     type: 3}
-  logInfo: {fileID: 8803637016335030214}
 --- !u!114 &1557103666
 MonoBehaviour:
   m_ObjectHideFlags: 0

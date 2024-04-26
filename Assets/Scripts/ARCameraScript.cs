@@ -18,6 +18,7 @@ using OpenCVForUnity.UtilsModule;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ImgcodecsModule;
+using OpenCVForUnity.DnnModule;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -95,7 +96,8 @@ public class ARCameraScript : MonoBehaviour
     private void ResetBoundingBox(object sender, EventManager.OnStageIndexEventArgs e)
     {
         // Reset bbox when stage change
-        guiStyle.normal.background = redBBox;
+        guiStyle.normal.background = grayBBox;
+        smoothInference = Enumerable.Repeat(0, 20).ToList();
     }
 
         private void OnInferenceResponse(object sender, MetaService.OnInferenceResponseEventArgs e)
@@ -200,7 +202,7 @@ public class ARCameraScript : MonoBehaviour
         {
             if (inferenceClass == 0)
             {
-                UpdateIfClassChange(redBBox, false);
+                UpdateIfClassChange(grayBBox, false);
                 return;
             }
 
@@ -220,7 +222,7 @@ public class ARCameraScript : MonoBehaviour
                     }
                     else
                     {
-                        UpdateIfClassChange(redBBox, false);// original is gray
+                        UpdateIfClassChange(grayBBox, false);// original is gray
                     }
                 }
             }
@@ -422,29 +424,28 @@ public class ARCameraScript : MonoBehaviour
                 Mat resizedMat = new Mat(croppedTexture.height, croppedTexture.width, CvType.CV_8UC4);
                 Utils.texture2DToMat(croppedTexture, resizedMat);
 
+                //resizedMat = Imgcodecs.imread("/Users/hungnguyencong/Downloads/2_20230912150544983.jpg", Imgcodecs.IMREAD_UNCHANGED);
+
                 // Resize the Mat
                 Imgproc.resize(resizedMat, resizedMat, new Size(width, height));
 
-                //Imgcodecs.imwrite("test.jpg", resizedMat);
-
                 //Imgproc.cvtColor(resizedMat, resizedMat, Imgproc.COLOR_RGB2BGR);
+
+                //resizedMat = NormalizeImage(resizedMat);
+
+                
                 Utils.matToTexture2D(resizedMat, resizeTextureOnnx);
 
-                //string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
-                //System.IO.File.WriteAllBytes(filePath, resizeTexture.EncodeToJPG());
+                string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
+                System.IO.File.WriteAllBytes(filePath, resizeTextureOnnx.EncodeToJPG());
+                //System.IO.File.WriteAllBytes("test.jpg", resizeTextureOnnx.EncodeToJPG());
 
                 //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
                 //logInfo.text += "resize time:" + elMs + "ms \n";
 
-                //ImageFloatValues = NormalizeImageWithComputeShader(resizeTextureOnnx);
-
-                //StartCoroutine(EdgeInferenceBarracuda.ImageRecognitionCoroutine());
-                //logInfo.text = ImageFloatValues.Length.ToString();
+                ImageFloatValues = NormalizeImageWithComputeShader(resizeTextureOnnx);
 
                 Destroy(croppedTexture);
-                //inputTensor.Dispose();
-                //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; //UnityEngine.Debug.Log("NormalizeImage time:" + elMs + "ms");
-                                                                        //logInfo.text = "toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync finish";
             }
 
             UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag EdgeInferenceAsync finish");
@@ -454,6 +455,37 @@ public class ARCameraScript : MonoBehaviour
             logInfo.text = ex.Message;
             UnityEngine.Debug.LogError( ex.Message);
         }
+    }
+
+    //Mat NormalizeImage(Mat imageMat)
+    //{
+    //    Mat normalizedMat = new Mat();
+    //    Scalar mean = new Scalar(0.485 * 255, 0.456 * 255, 0.406 * 255);
+    //    Scalar std = new Scalar(0.229 * 255, 0.224 * 255, 0.225 * 255);
+
+    //    Core.subtract(imageMat, mean, normalizedMat);
+    //    Core.divide(normalizedMat, std, normalizedMat);
+    //    //Core.normalize(normalizedMat, normalizedMat, 0, 255, Core.NORM_MINMAX);
+
+    //    return normalizedMat;
+    //}
+
+    Mat NormalizeImage(Mat inputMat)
+    {
+        Mat floatMat = new Mat();
+        inputMat.convertTo(floatMat, CvType.CV_32FC3);
+
+        // Normalize the image
+        Scalar mean = new Scalar(0.485, 0.456, 0.406);
+        Scalar std = new Scalar(0.229, 0.224, 0.225);
+
+        Core.subtract(floatMat, mean, floatMat);
+        Core.divide(floatMat, std, floatMat);
+
+        // Convert back to original type
+        floatMat.convertTo(inputMat, CvType.CV_8UC3);
+
+        return inputMat;
     }
 
     void GetOutputTensor()

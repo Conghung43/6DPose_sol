@@ -12,7 +12,7 @@ public class EdgeInferenceBarracuda : MonoBehaviour
     protected Model model;                 // Runtime model wrapper (binary)
     protected IWorker modelWorker;       // Barracuda worker for inference
     public NNModel modelAsset;
-    [SerializeField] private TMPro.TextMeshProUGUI logInfo;
+    //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
     public static int stepsPerFrame = 30;
     //private Stopwatch inferenceWatch = new Stopwatch();
     //int counttime = 0;
@@ -43,7 +43,9 @@ public class EdgeInferenceBarracuda : MonoBehaviour
     {
         isRunningInference = true;
 
-        //var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
+
+        if (ARCameraScript.ImageFloatValues == null) yield return null;
+        var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
 
         //counttime += 1;
 
@@ -52,7 +54,7 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         //    stepsPerFrame += 1;
         //}
 
-        var input = new Tensor(ARCameraScript.resizeTextureOnnx, 3);
+        //var input = new Tensor(ARCameraScript.resizeTextureOnnx, 3);
 
         //ARCameraScript.ImageFloatValues = null;
 
@@ -80,7 +82,7 @@ public class EdgeInferenceBarracuda : MonoBehaviour
 
         // Create log message with date and time information
         //string logMessage = $"[{dateTimeInfo}] {message}";
-        logInfo.text = dateTimeInfo + " Step per frame = " + stepsPerFrame.ToString();//string.Join(", ", ARCameraScript.prb);
+        //logInfo.text = dateTimeInfo + " prb=  "  + string.Join(", ", ARCameraScript.prb);
 
         //File.WriteAllBytes("test2.png", ConvertTensorToByteArray(input));
 

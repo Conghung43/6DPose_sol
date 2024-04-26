@@ -65,6 +65,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public GameObject box3D;
 
+        Vector3 lastCamPos = Vector3.zero;
+
 #if UNITY_EDITOR
         XRCpuImage.Transformation m_Transformation = XRCpuImage.Transformation.None;
 #else
@@ -163,11 +165,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         OnCameraIntrinsicsUpdated();
                     }
 #endif
-                    StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                    if (Inference.objectInitialSet)
+                    {
+                        float distance = Vector3.Distance(lastCamPos, Camera.main.transform.position);
+                        logInfo.text = distance.ToString();
+                        if (distance  > 0.02f)
+                        {
+                            lastCamPos = Camera.main.transform.position;
+                            StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                            isInferenceAvailable = false;
+                        }
+                    }
+                    else
+                    {
+                        StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                        isInferenceAvailable = false;
+                    }
+                    
                 }
-                isInferenceAvailable = false;
             }
-            return;
+            //return;
         }
 
         void OnDisable()
