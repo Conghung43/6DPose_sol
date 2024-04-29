@@ -295,9 +295,33 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             int[] tlrbBox = GetTopLeftRightBottom(bbox);
 
-            if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
+            //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
+
+            int top = tlrbBox[0];
+            int left = tlrbBox[1];
+            int right = tlrbBox[2];
+            int bottom = tlrbBox[3];
+
+            // Check if the bounding box is entirely outside the image boundaries
+            if (left >= Screen.width || right <= 0 || top >= Screen.height || bottom <= 0)
+            {
+                return null;
+            }
+
+
+
+
+
+            // Adjust the bounding box if any part is outside the image boundaries
+            if (left < 0) left = 0;
+            if (top < 0) top = 0;
+            if (right > Screen.width) right = Screen.width;
+            if (bottom > Screen.height) bottom = Screen.height;
+
+
+
             //trackedImage.SetActive(false);
-            return tlrbBox;
+            return new int[] { top, left, right, bottom };
         }
 
         int[] GetTopLeftRightBottom(Vector2[] bbox)
