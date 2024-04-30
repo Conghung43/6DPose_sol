@@ -251,7 +251,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 if (PoseInference.activeSelf)
                 {
                     TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
-                    cpuImageTexture = UpdateCPUImage(TrackedImageCorner);
+                    cpuImageTexture = UpdateCPUImage();
                 }
             }
         }
@@ -366,7 +366,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
         }
         //private int count = 0;
-        unsafe Texture2D UpdateCPUImage(int[] tlrbBox)
+        unsafe Texture2D UpdateCPUImage()
         {
 
             // Attempt to get the latest camera image. If this method succeeds,
@@ -405,6 +405,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             // Apply the updated texture data to our texture
             m_CameraTexture.Apply();
+
+            // Save image
+            //byte[] jpgImage = m_CameraTexture.EncodeToJPG();
+            //float timeInSeconds = Time.time;
+            //float timeInMilliseconds = timeInSeconds * 1000;
+            //File.WriteAllBytes($"Images/{timeInMilliseconds}.jpg", jpgImage);
 
             return m_CameraTexture;
         }

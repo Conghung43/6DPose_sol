@@ -96,8 +96,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
             bboxData += "],";
 #if UNITY_EDITOR
-            focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
-            principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
+            //focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
+            //principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
+            // New camera intrinsic
+            focalLength = new Vector2(936.2321683838078f, 936.1081714012856f);
+            principalPoint = new Vector2(959.2009481268866f, 538.9017422822632f);
 #endif
             if (arPoseToInference != null)
             {
