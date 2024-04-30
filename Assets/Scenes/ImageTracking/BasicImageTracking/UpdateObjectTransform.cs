@@ -11,7 +11,7 @@ public class UpdateObjectTransform : MonoBehaviour
 
     public static float positionThreshold = 0.05f; // Adjust as needed
     public static float rotationThreshold = 2f;    // Adjust as needed
-    public static int GroupCountThreshold = 6;
+    public static int GroupCountThreshold = 5;
 
     public static Transform UpdateTransformToGroup(Transform currentTransform)
     {
@@ -91,13 +91,12 @@ public class UpdateObjectTransform : MonoBehaviour
         float rotationDifference = Quaternion.Angle(t1.rotation, t2.rotation);
         if (Inference.objectInitialSet)
         {
-            return (positionDifference <= positionThreshold * 4 && rotationDifference <= rotationThreshold * 4);
+            return (positionDifference <= positionThreshold && rotationDifference <= rotationThreshold);
         }
         else
         {
             return (positionDifference <= positionThreshold && rotationDifference <= rotationThreshold );
         }
-        
     }
 
     public static Transform GetTransformAverage(List<Transform> transforms)

@@ -135,30 +135,28 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
             {
-                byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
                 int[] bbox = TrackedImageCorner;
 
-                // filter bbox
+                // If object already settle down, consider to use object 3D box to generate 2D bbox for 6D pose inference input
                 if (!Inference.objectInitialSet)
                 {
                     if (box3D != null)
                     {
-
                         Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
                         bbox = GetTopLeftRightBottom(megaPoseCorner);
                     }
-
-                    //Compare bbox
-
                 }
 
-
                 bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
+
+                // This function may return null if 2D bbox doesn't have any intersection part with screen => Hungnc also need to review if ar environment jumped 
                 bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
+
                 if (bbox != null)
                 {
+                    byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
 #if !UNITY_EDITOR
                     if (intrinsics.focalLength.x == 0)
                     {
@@ -168,8 +166,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     if (Inference.objectInitialSet)
                     {
                         float distance = Vector3.Distance(lastCamPos, Camera.main.transform.position);
-                        logInfo.text = distance.ToString();
-                        if (distance  > 0.02f)
+                        //logInfo.text = distance.ToString();
+#if UNITY_EDITOR
+                        distance = 1f;
+#endif
+
+                        // Let camera move 1 cm for better inference result
+                        if (distance  > 0.01f)
                         {
                             lastCamPos = Camera.main.transform.position;
                             StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));

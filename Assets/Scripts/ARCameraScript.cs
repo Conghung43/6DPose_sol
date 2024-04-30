@@ -248,7 +248,7 @@ public class ARCameraScript : MonoBehaviour
                 guiStyle.normal.background = redBBox;
             }
         }
-
+        //GUI.depth = 3;
         // Draw bounding box
         GUI.Box(bBoxRect, "", guiStyle);
 
