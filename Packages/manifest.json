@@ -12,7 +12,6 @@
     "com.unity.recorder": "5.0.0-pre.1",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.1",
-    "com.unity.xr-content.xr-sim-environments": "file:../ContentPackages/com.unity.xr-content.xr-sim-environments-1.0.0.tgz",
     "com.unity.xr.arcore": "6.0.0-pre.5",
     "com.unity.xr.arfoundation": "6.0.0-pre.5",
     "com.unity.xr.arkit": "6.0.0-pre.3",

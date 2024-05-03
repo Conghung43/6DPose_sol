@@ -127,8 +127,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             form.AddField("data", bboxData);
 
-            string jsonBox = "[" + string.Join(",", tlrbBox) + "]";
-            form.AddField("data", jsonBox);
+            //string jsonBox = "[" + string.Join(",", tlrbBox) + "]";
+            //form.AddField("data", jsonBox);
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
@@ -219,7 +219,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static void ConvertARposeToMegaPose()
         {
-            GameObject filterObj = GameObject.Find("AirPump3dBox");
+            GameObject filterObj = GameObject.Find("ModelTarget");
             if (filterObj != null)//(objectInitialSet)
             {
                 Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
