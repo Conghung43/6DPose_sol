@@ -162,7 +162,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             return intersectingHorizontally && intersectingVertically;
         }
 
-        private bool IsObjectInScreen(GameObject obj)
+        public static bool IsObjectInScreen(GameObject obj)
         {
             // Get the viewport position of the object
             Vector3 viewportPosition = Camera.main.WorldToViewportPoint(obj.transform.position);
@@ -182,7 +182,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 int[] bboxTrackedImage = TrackedImageCorner;
                 int[] bboxMegaPose = null;
                 int[] bbox = null;
-                bool isIntersecting = true;
+                //bool isIntersecting = true;
 
                 // Transformation
 
@@ -244,7 +244,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         }
                     }
                 }
-                else
+                else if (IsObjectInScreen(stickWithImageTargetObject))
                 {
                     bbox = bboxTrackedImage;
                 }

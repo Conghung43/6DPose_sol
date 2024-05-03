@@ -212,7 +212,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 Display3DBox("ModelTarget", position, rotation);
                 //StationStageIndex.ModelTargetFound = true;
             }
-            Display3DBox("AirPump3DModel", position, rotation);
+            //Display3DBox("AirPump3DModel", position, rotation);
 
             TrackedImageInfoManager.isInferenceAvailable = true;
         }
@@ -220,7 +220,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static void ConvertARposeToMegaPose()
         {
             GameObject filterObj = GameObject.Find("ModelTarget");
-            if (filterObj != null)//(objectInitialSet)
+            if (filterObj != null && TrackedImageInfoManager.IsObjectInScreen(filterObj))//(objectInitialSet)
             {
                 Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
                 Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
