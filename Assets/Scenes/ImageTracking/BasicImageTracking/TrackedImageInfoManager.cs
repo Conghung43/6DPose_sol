@@ -55,7 +55,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private RenderTexture renderTexture;
         private Texture2D capturedTexture;
         bool init = false;
-        bool drawCorner = false;
+        //bool drawCorner = false;
         private Texture2D m_CameraTexture;
         [SerializeField] private TMPro.TextMeshProUGUI logInfo;
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
@@ -64,6 +64,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject PoseInference;
 
         public GameObject box3D;
+        public GameObject stickWithImageTargetObject;
+
+        int count = 0;
 
         Vector3 lastCamPos = Vector3.zero;
 
@@ -131,28 +134,136 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
+        public static bool AreRectanglesIntersecting(int[] rect1, int[] rect2)
+        {
+            // Check if either rectangle is null or has fewer than 4 elements
+            if (rect1 == null || rect2 == null || rect1.Length < 4 || rect2.Length < 4)
+            {
+                Debug.LogError("Invalid rectangle arrays.");
+                return false;
+            }
+
+            // Extract the top, left, right, and bottom values for each rectangle
+            int rect1Top = rect1[0];
+            int rect1Left = rect1[1];
+            int rect1Right = rect1[2];
+            int rect1Bottom = rect1[3];
+
+            int rect2Top = rect2[0];
+            int rect2Left = rect2[1];
+            int rect2Right = rect2[2];
+            int rect2Bottom = rect2[3];
+
+            // Check for intersection
+            bool intersectingHorizontally = rect1Left < rect2Right && rect1Right > rect2Left;
+            bool intersectingVertically = rect1Top < rect2Bottom && rect1Bottom > rect2Top;
+
+            // Return true if both horizontally and vertically intersecting
+            return intersectingHorizontally && intersectingVertically;
+        }
+
+        private bool IsObjectInScreen(GameObject obj)
+        {
+            // Get the viewport position of the object
+            Vector3 viewportPosition = Camera.main.WorldToViewportPoint(obj.transform.position);
+
+            // Check if the viewport position is within the screen boundaries
+            return viewportPosition.x >= 0 && viewportPosition.x <= 1 &&
+                   viewportPosition.y >= 0 && viewportPosition.y <= 1 &&
+                   viewportPosition.z > 0; // Ensure the object is in front of the camera
+        }
+
         private void Update()
         {
             if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
             {
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
-                int[] bbox = TrackedImageCorner;
+                int[] bboxTrackedImage = TrackedImageCorner;
+                int[] bboxMegaPose = null;
+                int[] bbox = null;
+                bool isIntersecting = true;
+
+                // Transformation
+
+                bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
+                // This function may return null if 2D bbox doesn't have any intersection part with screen
+                bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
 
                 // If object already settle down, consider to use object 3D box to generate 2D bbox for 6D pose inference input
                 if (!Inference.objectInitialSet)
                 {
-                    if (box3D != null)
+                    Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
+                    bboxMegaPose = GetTopLeftRightBottom(megaPoseCorner);
+
+                    bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
+                    // This function may return null if 2D bbox doesn't have any intersection part with screen
+                    bboxMegaPose = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxMegaPose);
+
+                    //isIntersecting = AreRectanglesIntersecting(bboxMegaPose, bboxTrackedImage);
+
+                    //Comparision
+                    if (bboxMegaPose != null && IsObjectInScreen(box3D))
                     {
-                        Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
-                        bbox = GetTopLeftRightBottom(megaPoseCorner);
+                        logInfo.text = "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
+
+                        //if (bboxTrackedImage != null)
+                        //{
+                        //    if (isIntersecting)
+                        //    {
+                        //        bbox = bboxMegaPose;
+                        //    }
+                        //    else
+                        //    {
+                        //        count += 1;
+                        //        if (count > 10)
+                        //        {
+                        //            count = 0;
+                        //            bbox = bboxTrackedImage;
+                        //        }
+                        //    }
+                        //}
+                        bbox = bboxMegaPose;
+                    }
+                    else
+                    {
+                        if (bboxTrackedImage != null && IsObjectInScreen(stickWithImageTargetObject))
+                        {
+                            logInfo.text = "bboxMegaPose null, bboxTrackedImage";
+                            count += 1;
+                            if (count > 10)
+                            {
+                                count = 0;
+                                bbox = bboxTrackedImage;
+                                Inference.objectInitialSet = true;
+                            }
+                        }
+                        else
+                        {
+                            logInfo.text = "bboxMegaPose null, bboxTrackedImage null";
+                        }
                     }
                 }
+                else
+                {
+                    bbox = bboxTrackedImage;
+                }
 
-                bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
+                // if 3D box is not in screen and bbox not intersect with trackedimage
+                //if (bbox == null)
+                //{
 
-                // This function may return null if 2D bbox doesn't have any intersection part with screen => Hungnc also need to review if ar environment jumped 
-                bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
+                //    bbox = TrackedImageCorner;
+                //    bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
+
+                //    // This function may return null if 2D bbox doesn't have any intersection part with screen => Hungnc also need to review if ar environment jumped 
+                //    bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
+
+                //    if (bbox != null)
+                //    {
+                //        Inference.objectInitialSet = true;
+                //    }
+                //}
 
                 if (bbox != null)
                 {
@@ -186,6 +297,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     }
                     
                 }
+                logInfo.text += "inference time = " + Inference.elMs.ToString();
             }
             //return;
         }
@@ -250,12 +362,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //{
                 //    textLength = 50;
                 //}
-                //logInfo.text = trackedImage.name.Substring(0,3) + logInfo.text.Substring(0, textLength);
+                
                 if (PoseInference.activeSelf)
                 {
+                    //logInfo.text = trackedImage.referenceImage.name + logInfo.text;
                     TrackedImageCorner = GetTrackedImageCorner(trackedImage.gameObject);
-                    cpuImageTexture = UpdateCPUImage();
+                    stickWithImageTargetObject.transform.position = trackedImage.transform.position;
+                    stickWithImageTargetObject.transform.rotation = trackedImage.transform.rotation;
+                    
                 }
+                cpuImageTexture = UpdateCPUImage();
             }
         }
 
@@ -285,16 +401,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
 
                 Vector3 position = trackedImage.transform.position + trackedImage.transform.rotation * Vector3.Scale(scale * 0.5f, cornerOffsets[i]);
-                if (!drawCorner)
+                if (i == 0)
                 {
-                    GameObject cornerObject = Instantiate(sphere, position, sphere.transform.rotation);
+                    sphere.transform.position = position;
                 }
 
                 bbox[i] = Camera.main.WorldToScreenPoint(position);
                 bbox[i][1] = Screen.height - bbox[i][1];
                 //Debug.Log();
             }
-            drawCorner = true;
+            //drawCorner = true;
 
             int[] tlrbBox = GetTopLeftRightBottom(bbox);
 

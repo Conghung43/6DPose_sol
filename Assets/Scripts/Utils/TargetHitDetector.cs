@@ -16,7 +16,7 @@ public class TargetHitDetector : MonoBehaviour
     public static Vector3[] lineBasedPoints = new Vector3[4];
     //public GameObject testObject0;
     //public GameObject testObject1;
-    [SerializeField] private TMPro.TextMeshProUGUI logInfo;
+    //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
     Vector3 startPoint;
     // Define a delegate type for the event (no parameters)
     //public delegate void CheckpointUpdateEvent();

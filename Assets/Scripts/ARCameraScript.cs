@@ -32,7 +32,7 @@ public class ARCameraScript : MonoBehaviour
     [SerializeField] private GameObject captureBtn;
     [SerializeField] private int bBoxBorderSize = -1;
     [SerializeField] private TMPro.TextMeshProUGUI titleInfo;
-    [SerializeField] private TMPro.TextMeshProUGUI logInfo;
+    //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
     private GameObject checkListGameObject;
@@ -290,7 +290,7 @@ public class ARCameraScript : MonoBehaviour
             Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
             if (screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1 || screenPoint.z < 0)
             {
-                logInfo.text = "return";
+                //logInfo.text = "return";
                 return;
             }
             //Update stage position
@@ -317,7 +317,7 @@ public class ARCameraScript : MonoBehaviour
         // Edge inference
         if (toggleAP.isOn)
         {
-            UnityEngine.Debug.Log("toggleAP.isOn: start");
+            //UnityEngine.Debug.Log("toggleAP.isOn: start");
             if (inferenceResponseFlag)
             {
                 inferenceWatch.Restart();
@@ -327,7 +327,7 @@ public class ARCameraScript : MonoBehaviour
                 EdgeInferenceAsync();
                 //StartCoroutine(EdgeInferenceAsync());
             }
-            UnityEngine.Debug.Log("toggleAP.isOn: finish");
+            //UnityEngine.Debug.Log("toggleAP.isOn: finish");
         }
         // If inferenceResponseFlag is true, perform necessary actions
         else if (inferenceResponseFlag)
@@ -336,7 +336,7 @@ public class ARCameraScript : MonoBehaviour
             // Check if triggerAPIresponseData.result is null or false then reconnect
             if (MetaService.stageData == null || !MetaService.stageData.requestResult)
             {
-                logInfo.text = "Reconnect triggerAPIresponseData" + MetaService.stageData;
+                //logInfo.text = "Reconnect triggerAPIresponseData" + MetaService.stageData;
                 reconnectedCount++;
 
                 // If reconnectedCount exceeds 100, reset it and connect to Meta based on project ID
@@ -360,7 +360,7 @@ public class ARCameraScript : MonoBehaviour
         if (inferenceWatch.ElapsedMilliseconds > 300)
         {
             inferenceResponseFlag = true;
-            logInfo.text += "===========reset===========";
+            //logInfo.text += "===========reset===========";
         }
         else
         {
@@ -384,7 +384,7 @@ public class ARCameraScript : MonoBehaviour
         float bboxH = (float)bBoxRect.height;
         if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= Screen.width || bboxY <= 0 || bboxY + bboxH >= Screen.height)
         {
-            logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
+            //logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
             inferenceResponseFlag = true;
             return ;
         }
@@ -452,7 +452,7 @@ public class ARCameraScript : MonoBehaviour
         }
         catch (Exception ex)
         {
-            logInfo.text = ex.Message;
+            //logInfo.text = ex.Message;
             UnityEngine.Debug.LogError( ex.Message);
         }
     }

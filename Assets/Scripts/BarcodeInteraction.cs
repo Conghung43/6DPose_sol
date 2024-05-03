@@ -6,8 +6,12 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using UnityEngine.XR.ARFoundation.Samples;
-using ZXing;
-using ZXing.QrCode;
+//using ZXing;
+//using ZXing.QrCode;
+using OpenCVForUnity.ObjdetectModule;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.ImgprocModule;
 
 public class BarcodeInteraction : MonoBehaviour
 {
@@ -19,11 +23,11 @@ public class BarcodeInteraction : MonoBehaviour
     public Toggle edgeInferenceToggle;
     private string[] qrFiixData;
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
-    private IBarcodeReader barcodeReader;
+    BarcodeDetector detector;
     // public MetaAPI metaAPI;
     void Start()
     {
-        barcodeReader = new BarcodeReader();
+        detector = new BarcodeDetector();
     }
 
     void OnDisable()
@@ -56,10 +60,20 @@ public class BarcodeInteraction : MonoBehaviour
             {
                 var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
                 //File.WriteAllBytes("test1.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
-                var result = barcodeReader.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
-                if (result != null)
+                //var result = barcodeReader?.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+
+                List<string> decoded_info = new List<string>();
+                List<string> decoded_type = new List<string>();
+                Mat corners = new Mat();
+                Mat rgbaMat = new Mat(TrackedImageInfoManager.cpuImageTexture.height, TrackedImageInfoManager.cpuImageTexture.width, CvType.CV_8UC3);
+                Utils.texture2DToMat(TrackedImageInfoManager.cpuImageTexture, rgbaMat);
+                Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
+                string result_detection = detector.detectAndDecode(rgbaMat);
+
+                if (result_detection != null)
                 {
-                    barcodeTxt = result.Text;
+                    barcodeTxt = result_detection;
+                    uiMessage.text = barcodeTxt;
                     // Do something with the decoded QR code here
                 }
             }
@@ -78,6 +92,7 @@ public class BarcodeInteraction : MonoBehaviour
         if (StationStageIndex.barcodeMetaOn) //&& StationStageIndex.barcodeFiixOn)
         {
             // barcodeObject.SetActive(false);
+            edgeInferenceToggle.isOn = true;
             StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
             uiMessage.text = "Scan META success";
             //MetaApiStatic.ConnectMetaBasedProjectID(1678700647);
@@ -103,28 +118,30 @@ public class BarcodeInteraction : MonoBehaviour
             barcodeObject.SetActive(false);
             if (!StationStageIndex.barcodeMetaOn)
             {
-                MetaService.qrMetaData = barcodeStringArray;
-                // Set Config
-                try
-                {
-                    MetaService.serverIP = MetaService.qrMetaData[0] + ":" + port;
-                    MetaService.ConnectWithMetaProjectID();
-                    //StartCoroutine(MetaApiStatic.ConnectMetaBasedProjectID_coroutine());
-                    if (MetaService.projectData.data.Count == ConfigRead.configData.DataStation[0].Datastage.Count - 1)
-                    {
-                        StationStageIndex.barcodeMetaOn = true;
-                        //nextButton.gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        uiMessage.text = "Wrong Project! " + MetaService.projectData.data.Count.ToString() + ConfigRead.configData.DataStation[0].Datastage.Count.ToString();
-                    }
-                }
-                catch
-                {
-                    uiMessage.text = "Connection error!";
+                Inference.ip = barcodeStringArray[0];
+                OnBarCodeDetectedHandler();
+                //MetaService.qrMetaData = barcodeStringArray;
+                //// Set Config
+                //try
+                //{
+                //    MetaService.serverIP = MetaService.qrMetaData[0] + ":" + port;
+                //    MetaService.ConnectWithMetaProjectID();
+                //    //StartCoroutine(MetaApiStatic.ConnectMetaBasedProjectID_coroutine());
+                //    if (MetaService.projectData.data.Count == ConfigRead.configData.DataStation[0].Datastage.Count - 1)
+                //    {
+                //        StationStageIndex.barcodeMetaOn = true;
+                //        //nextButton.gameObject.SetActive(true);
+                //    }
+                //    else
+                //    {
+                //        uiMessage.text = "Wrong Project! " + MetaService.projectData.data.Count.ToString() + ConfigRead.configData.DataStation[0].Datastage.Count.ToString();
+                //    }
+                //}
+                //catch
+                //{
+                //    uiMessage.text = "Connection error!";
 
-                }
+                //}
                 // string projectFile = $"Project/{MetaApiStatic.qrMetaData[2]}.json";
                 // StartCoroutine(ConfigRead.LoadJSONFileProject(Path.Combine(Application.streamingAssetsPath,projectFile)));
             }

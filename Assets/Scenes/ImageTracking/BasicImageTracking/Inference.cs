@@ -9,6 +9,7 @@ using System.Net.NetworkInformation;
 using UnityEngine.XR.ARFoundation.Samples;
 using UnityEngine.UIElements;
 using TMPro;
+using System.Diagnostics;
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
@@ -45,6 +46,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static Matrix4x4 CameraMatrix = new Matrix4x4();
         public static bool objectInitialSet = true;
         public static float[] arPoseToInference = null;
+        public static long elMs;
+        public static string ip = "10.1.2.148";
 
         //[SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -67,7 +70,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static IEnumerator ServerInference(byte[] imageData, Vector2 imageSize, int[] tlrbBox, Vector2 focalLength, Vector2 principalPoint)
         {
-            string url = $"https://10.1.2.148:5000/sol_server/inference/6dpose";
+            string url = $"https://{ip}:5000/sol_server/inference/6dpose";
 
             // Get current camera matrix:
             CameraMatrix = Camera.main.transform.localToWorldMatrix;
@@ -127,7 +130,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             string jsonBox = "[" + string.Join(",", tlrbBox) + "]";
             form.AddField("data", jsonBox);
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-
+            Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
                 request.certificateHandler = new CertificateVS();
@@ -150,6 +153,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         TrackedImageInfoManager.isInferenceAvailable = true;
                     }
                 }
+                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds;
             }
         }
 
