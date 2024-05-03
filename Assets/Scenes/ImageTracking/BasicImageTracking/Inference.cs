@@ -10,6 +10,11 @@ using UnityEngine.XR.ARFoundation.Samples;
 using UnityEngine.UIElements;
 using TMPro;
 using System.Diagnostics;
+using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.ImgcodecsModule;
+using OpenCVForUnity.ImgprocModule;
+//using OpenCVForUnity.
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
@@ -40,6 +45,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject arCam;
         public GameObject megaPose;
         public GameObject box3D;
+        public static GameObject modelTarget;
         private Dictionary<string, GameObject> CamWorldDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
@@ -48,6 +54,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static float[] arPoseToInference = null;
         public static long elMs;
         public static string ip = "10.1.2.148";
+        private static bool firstInferenceSuccess = false;
 
         //[SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -67,10 +74,25 @@ namespace UnityEngine.XR.ARFoundation.Samples
             objectInitialSet = true;
         }
 
+        //IEnumerator Texture2DToByteOpenCV(Texture2D tex, Action<byte> )
 
-        public static IEnumerator ServerInference(byte[] imageData, Vector2 imageSize, int[] tlrbBox, Vector2 focalLength, Vector2 principalPoint)
+        public static IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox, Vector2 focalLength, Vector2 principalPoint)
         {
+            yield return null;
+
             string url = $"https://{ip}:5000/sol_server/inference/6dpose";
+
+            Mat newMat = new Mat(cpuImageTexture.height, cpuImageTexture.width, CvType.CV_8UC3);
+
+            Utils.texture2DToMat(cpuImageTexture, newMat);
+            Imgproc.cvtColor(newMat, newMat, 2);
+            MatOfByte buf = new MatOfByte();
+            MatOfInt parameters = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 70);
+            Imgcodecs.imencode(".jpg", newMat, buf, parameters);
+            byte[] imageData = buf.toArray();
+
+            //File.WriteAllBytes("opencv.jpg", imageData);
+            //File.WriteAllBytes("encodeToJPG.jpg", cpuImageTexture.EncodeToJPG());
 
             // Get current camera matrix:
             CameraMatrix = Camera.main.transform.localToWorldMatrix;
@@ -79,9 +101,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //System.IO.File.WriteAllBytes(filePath, imageData);
             //File.WriteAllBytes("test.jpg", imageData);
             //Debug.Log(tlrbBox.ToString());
+            arPoseToInference = null;
             if (!objectInitialSet)
             {
-                arPoseToInference = null;
                 ConvertARposeToMegaPose();
             }
 
@@ -89,10 +111,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             form.AddBinaryData("img", imageData, "image.jpg", "image/jpeg");
 
             string bboxData = "{\"bboxes\": [";
-            for (int i = 0; i < tlrbBox.Length; i += 4)
+            for (int i = 0; i < ltrbBox.Length; i += 4)
             {
-                bboxData += "[" + tlrbBox[i] + "," + tlrbBox[i + 1] + "," + tlrbBox[i + 2] + "," + tlrbBox[i + 3] + "]";
-                if (i < tlrbBox.Length - 4)
+                bboxData += "[" + ltrbBox[i] + "," + ltrbBox[i + 1] + "," + ltrbBox[i + 2] + "," + ltrbBox[i + 3] + "]";
+                if (i < ltrbBox.Length - 4)
                 {
                     bboxData += ",";
                 }
@@ -147,6 +169,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     if (result.data.obj_pose != null)
                     {
                         Inference.Set3DBox(result.data.obj_pose);
+                        firstInferenceSuccess = true;
                     }
                     else
                     {
@@ -219,10 +242,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static void ConvertARposeToMegaPose()
         {
-            GameObject filterObj = GameObject.Find("ModelTarget");
-            if (filterObj != null && TrackedImageInfoManager.IsObjectInScreen(filterObj))//(objectInitialSet)
+            //GameObject filterObj = GameObject.Find("ModelTarget");
+            if (modelTarget != null)//(objectInitialSet)
             {
-                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
+                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(modelTarget.transform.position, modelTarget.transform.rotation, Vector3.one);
                 Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
                 MatrixToQuaternionTranslation(camToObjectMatrix, out Quaternion rotation, out Vector3 position);
                 (rotation, position) = ConvertToOppositeHandedness(rotation, position);
@@ -232,8 +255,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
         {
-            GameObject filterObj = GameObject.Find(objName);
-            if (filterObj != null)//(objectInitialSet)
+            //GameObject filterObj = GameObject.Find(objName);
+            if (modelTarget != null)//(objectInitialSet)
             {
                 //if (objectInitialSet)
                 //{
@@ -246,10 +269,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //    Debug.Log(" Display3DBox Smooth movement ");
                 //    filterObj.transform.position = Vector3.Lerp(filterObj.transform.position, position, 0.1f * Time.deltaTime);
                 //}
-                filterObj.transform.position = position;
-                filterObj.transform.rotation = rotation;
+                modelTarget.transform.position = position;
+                modelTarget.transform.rotation = rotation;
                 Debug.Log(rotation.eulerAngles.ToString());
             }
+            else
+            {
+                modelTarget = GameObject.Find(objName);
+            }
+                
         }
 
         string[] RemoveFirstElementFromArray(string[] array)

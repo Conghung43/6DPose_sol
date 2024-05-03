@@ -194,7 +194,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 if (!Inference.objectInitialSet)
                 {
                     Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
-                    bboxMegaPose = GetTopLeftRightBottom(megaPoseCorner);
+                    bboxMegaPose = GetLeftTopRightBottom(megaPoseCorner);
 
                     bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
                     // This function may return null if 2D bbox doesn't have any intersection part with screen
@@ -203,9 +203,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     //isIntersecting = AreRectanglesIntersecting(bboxMegaPose, bboxTrackedImage);
 
                     //Comparision
-                    if (bboxMegaPose != null && IsObjectInScreen(box3D))
+                    if (bboxMegaPose != null)
                     {
-                        logInfo.text = "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
+                        logInfo.text = "";// "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
 
                         //if (bboxTrackedImage != null)
                         //{
@@ -229,7 +229,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     {
                         if (bboxTrackedImage != null && IsObjectInScreen(stickWithImageTargetObject))
                         {
-                            logInfo.text = "bboxMegaPose null, bboxTrackedImage";
+                            logInfo.text = "null,";
                             count += 1;
                             if (count > 10)
                             {
@@ -240,7 +240,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         }
                         else
                         {
-                            logInfo.text = "bboxMegaPose null, bboxTrackedImage null";
+                            logInfo.text = "null, null";
                         }
                     }
                 }
@@ -249,25 +249,24 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     bbox = bboxTrackedImage;
                 }
 
-                // if 3D box is not in screen and bbox not intersect with trackedimage
-                //if (bbox == null)
-                //{
-
-                //    bbox = TrackedImageCorner;
-                //    bbox = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bbox);
-
-                //    // This function may return null if 2D bbox doesn't have any intersection part with screen => Hungnc also need to review if ar environment jumped 
-                //    bbox = CheckBboxPositionOnCPUImage(cpuImageTexture, bbox);
-
-                //    if (bbox != null)
-                //    {
-                //        Inference.objectInitialSet = true;
-                //    }
-                //}
+                //if bbox width < height => return null: in small size will return bad result
+                if (bbox != null)
+                {
+                    //top left right bottom
+                    if (!Inference.objectInitialSet)
+                    {
+                        float angle = Vector3.Angle(box3D.transform.forward, Camera.main.transform.position - box3D.transform.position);
+                        //Debug.Log(angle.ToString());
+                        if (Mathf.Abs(angle - 90) < 20)
+                        {
+                            bbox = null;
+                        }
+                    }
+                }
 
                 if (bbox != null)
                 {
-                    byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
+                    //byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
 #if !UNITY_EDITOR
                     if (intrinsics.focalLength.x == 0)
                     {
@@ -286,18 +285,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         if (distance  > 0.01f)
                         {
                             lastCamPos = Camera.main.transform.position;
-                            StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                            StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                             isInferenceAvailable = false;
                         }
                     }
                     else
                     {
-                        StartCoroutine(Inference.ServerInference(cpuImageEncode, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                        StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
                     
                 }
-                logInfo.text += "inference time = " + Inference.elMs.ToString();
+                logInfo.text += Inference.elMs.ToString();
             }
             //return;
         }
@@ -412,14 +411,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
             //drawCorner = true;
 
-            int[] tlrbBox = GetTopLeftRightBottom(bbox);
+            int[] ltrbBox = GetLeftTopRightBottom(bbox);
 
             //if (tlrbBox[0] <= 0 || tlrbBox[1] <= 0 || tlrbBox[2] >= Screen.width || tlrbBox[3] >= Screen.height) return null ;
 
-            int top = tlrbBox[0];
-            int left = tlrbBox[1];
-            int right = tlrbBox[2];
-            int bottom = tlrbBox[3];
+            int left = ltrbBox[0];
+            int top = ltrbBox[1];
+            int right = ltrbBox[2];
+            int bottom = ltrbBox[3];
 
             // Check if the bounding box is entirely outside the image boundaries
             if (left >= Screen.width || right <= 0 || top >= Screen.height || bottom <= 0)
@@ -440,40 +439,40 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
 
             //trackedImage.SetActive(false);
-            return new int[] { top, left, right, bottom };
+            return new int[] { left, top, right, bottom };
         }
 
-        int[] GetTopLeftRightBottom(Vector2[] bbox)
+        int[] GetLeftTopRightBottom(Vector2[] bbox)
         {
-            int[] tlrbBox = new int[4];
-            tlrbBox[0] = Mathf.FloorToInt(bbox[0].x);
-            tlrbBox[1] = Mathf.FloorToInt(bbox[0].y);
-            tlrbBox[2] = Mathf.FloorToInt(bbox[0].x);
-            tlrbBox[3] = Mathf.FloorToInt(bbox[0].y);
+            int[] ltrbBox = new int[4];
+            ltrbBox[0] = Mathf.FloorToInt(bbox[0].x);
+            ltrbBox[1] = Mathf.FloorToInt(bbox[0].y);
+            ltrbBox[2] = Mathf.FloorToInt(bbox[0].x);
+            ltrbBox[3] = Mathf.FloorToInt(bbox[0].y);
 
             for (int i = 1; i < bbox.Length; i++)
             {
-                if (bbox[i].x < tlrbBox[0])
+                if (bbox[i].x < ltrbBox[0])
                 {
-                    tlrbBox[0] = Mathf.FloorToInt(bbox[i].x);
+                    ltrbBox[0] = Mathf.FloorToInt(bbox[i].x);
                 }
-                if (bbox[i].y < tlrbBox[1])
+                if (bbox[i].y < ltrbBox[1])
                 {
-                    tlrbBox[1] = Mathf.FloorToInt(bbox[i].y);
-                }
-
-                if (bbox[i].x > tlrbBox[2])
-                {
-                    tlrbBox[2] = Mathf.FloorToInt(bbox[i].x);
+                    ltrbBox[1] = Mathf.FloorToInt(bbox[i].y);
                 }
 
-                if (bbox[i].y > tlrbBox[3])
+                if (bbox[i].x > ltrbBox[2])
                 {
-                    tlrbBox[3] = Mathf.FloorToInt(bbox[i].y);
+                    ltrbBox[2] = Mathf.FloorToInt(bbox[i].x);
+                }
+
+                if (bbox[i].y > ltrbBox[3])
+                {
+                    ltrbBox[3] = Mathf.FloorToInt(bbox[i].y);
                 }
 
             }
-            return tlrbBox;
+            return ltrbBox;
         }
 
         void OnCameraIntrinsicsUpdated()
@@ -534,7 +533,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             return m_CameraTexture;
         }
 
-        private int[] ConvertBboxScreenImageToCPUimage(Texture2D cpuTexture, int[] tlrbBox)
+        private int[] ConvertBboxScreenImageToCPUimage(Texture2D cpuTexture, int[] ltrbBox)
         {
             // Convert screen image points to cpu image points
             Vector2 cpuImageSize = new Vector2(cpuTexture.width, cpuTexture.height);
@@ -547,21 +546,21 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             for (int i = 0; i < 2; i++)
             {
-                Vector2 EdgePoint = new Vector2(tlrbBox[i * 2], screenImageSize.y - tlrbBox[i * 2 + 1]) / screenImageSize;
+                Vector2 EdgePoint = new Vector2(ltrbBox[i * 2], screenImageSize.y - ltrbBox[i * 2 + 1]) / screenImageSize;
                 EdgePoint = screenStartPointInCpuImage + EdgePoint * new Vector2(cpuImageSize.x, cpuImageSize.y - (screenStartPointInCpuImage.y * 2));
-                tlrbBox[i * 2] = Mathf.RoundToInt(EdgePoint.x);
-                tlrbBox[i * 2 + 1] = Mathf.RoundToInt(cpuImageSize.y - EdgePoint.y);
+                ltrbBox[i * 2] = Mathf.RoundToInt(EdgePoint.x);
+                ltrbBox[i * 2 + 1] = Mathf.RoundToInt(cpuImageSize.y - EdgePoint.y);
             }
 
-            return tlrbBox;
+            return ltrbBox;
         }
 
-        private int[] CheckBboxPositionOnCPUImage(Texture2D cpuTexture, int[] tlrbBox)
+        private int[] CheckBboxPositionOnCPUImage(Texture2D cpuTexture, int[] ltrbBox)
         {
-            int left = tlrbBox[0];
-            int top = tlrbBox[1];
-            int right = tlrbBox[2];
-            int bottom = tlrbBox[3];
+            int left = ltrbBox[0];
+            int top = ltrbBox[1];
+            int right = ltrbBox[2];
+            int bottom = ltrbBox[3];
             int width = cpuTexture.width;
             int height = cpuTexture.height;
 
