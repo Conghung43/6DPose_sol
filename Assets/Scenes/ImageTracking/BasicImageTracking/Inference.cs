@@ -79,7 +79,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox, Vector2 focalLength, Vector2 principalPoint)
         {
-            yield return null;
+            //yield return null;
 
             string url = $"https://{ip}:5000/sol_server/inference/6dpose";
 
@@ -160,31 +160,25 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 request.SetRequestHeader("Tool-Name", "6dpose");
                 yield return request.SendWebRequest();
 
-                try
+                if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
                 {
-                    if (request.result != UnityWebRequest.Result.Success)
+                    Debug.Log("Error: " + request.error);
+                    //yield return null;
+                }
+                else
+                {
+                    InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
+                    if (result.data.obj_pose != null)
                     {
-                        Debug.LogError("Error: " + request.error);
+                        Inference.Set3DBox(result.data.obj_pose);
+                        firstInferenceSuccess = true;
                     }
                     else
                     {
-                        InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
-                        if (result.data.obj_pose != null)
-                        {
-                            Inference.Set3DBox(result.data.obj_pose);
-                            firstInferenceSuccess = true;
-                        }
-                        else
-                        {
-                            TrackedImageInfoManager.isInferenceAvailable = true;
-                        }
+                        TrackedImageInfoManager.isInferenceAvailable = true;
                     }
+                }
 
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log(ex.ToString());
-                }
                 stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds;
             }
         }
