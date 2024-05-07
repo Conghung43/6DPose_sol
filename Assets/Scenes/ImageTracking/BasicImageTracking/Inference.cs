@@ -14,6 +14,7 @@ using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.ImgprocModule;
+using System;
 //using OpenCVForUnity.
 
 namespace UnityEngine.XR.ARFoundation.Samples
@@ -159,22 +160,30 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 request.SetRequestHeader("Tool-Name", "6dpose");
                 yield return request.SendWebRequest();
 
-                if (request.result != UnityWebRequest.Result.Success)
+                try
                 {
-                    Debug.LogError("Error: " + request.error);
-                }
-                else
-                {
-                    InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
-                    if (result.data.obj_pose != null)
+                    if (request.result != UnityWebRequest.Result.Success)
                     {
-                        Inference.Set3DBox(result.data.obj_pose);
-                        firstInferenceSuccess = true;
+                        Debug.LogError("Error: " + request.error);
                     }
                     else
                     {
-                        TrackedImageInfoManager.isInferenceAvailable = true;
+                        InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
+                        if (result.data.obj_pose != null)
+                        {
+                            Inference.Set3DBox(result.data.obj_pose);
+                            firstInferenceSuccess = true;
+                        }
+                        else
+                        {
+                            TrackedImageInfoManager.isInferenceAvailable = true;
+                        }
                     }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log(ex.ToString());
                 }
                 stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds;
             }
