@@ -173,11 +173,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         Inference.Set3DBox(result.data.obj_pose);
                         firstInferenceSuccess = true;
                     }
-                    else
-                    {
-                        TrackedImageInfoManager.isInferenceAvailable = true;
-                    }
                 }
+                TrackedImageInfoManager.isInferenceAvailable = true;
 
                 stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds;
             }
