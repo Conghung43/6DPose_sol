@@ -53,9 +53,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static Matrix4x4 CameraMatrix = new Matrix4x4();
         public static bool objectInitialSet = true;
         public static float[] arPoseToInference = null;
-        public static long elMs;
+        public static string elMs;
         public static string ip = "10.1.2.148";
         private static bool firstInferenceSuccess = false;
+
+        static int count = 0;
 
         //[SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
@@ -128,6 +130,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             focalLength = new Vector2(936.2321683838078f, 936.1081714012856f);
             principalPoint = new Vector2(959.2009481268866f, 538.9017422822632f);
 #endif
+            string inferenceType = "Coarse ";
             if (arPoseToInference != null)
             {
                 bboxData += "\"init_pose\": [";
@@ -140,6 +143,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     }
                 }
                 bboxData += "],";
+                inferenceType = "Refine";
             }
             else
             {
@@ -172,11 +176,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     {
                         Inference.Set3DBox(result.data.obj_pose);
                         firstInferenceSuccess = true;
+                        count += 1;
+                        Debug.Log(count);
                     }
                 }
                 TrackedImageInfoManager.isInferenceAvailable = true;
 
-                stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds;
+                stopwatch.Stop(); elMs = inferenceType + stopwatch.ElapsedMilliseconds.ToString();
             }
         }
 

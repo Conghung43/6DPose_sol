@@ -262,10 +262,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                             bbox = null;
                         }
                     }
-                }
 
-                if (bbox != null)
-                {
                     //byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
 #if !UNITY_EDITOR
                     if (intrinsics.focalLength.x == 0)
@@ -294,9 +291,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    
+                    logInfo.text += Inference.elMs;
                 }
-                logInfo.text += Inference.elMs.ToString();
             }
             //return;
         }

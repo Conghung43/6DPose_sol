@@ -56,7 +56,7 @@ public class ARCameraScript : MonoBehaviour
     private float[] mean = { 0.485f, 0.456f, 0.406f };
     private float[] std = { 0.229f, 0.224f, 0.225f };
     public static int inferenceClass = 0;
-    private int lastInferenceClass = 0;
+    public static int lastInferenceClass = 0;
     private List<int> smoothInference = Enumerable.Repeat(0, 20).ToList();
     public static float[] ImageFloatValues;
     public static float[] prb;
