@@ -54,7 +54,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static bool objectInitialSet = true;
         public static float[] arPoseToInference = null;
         public static string elMs;
-        public static string ip = "10.1.8.174";
+        public static string ip = "10.1.2.136";
         private static bool firstInferenceSuccess = false;
 
         static int count = 0;

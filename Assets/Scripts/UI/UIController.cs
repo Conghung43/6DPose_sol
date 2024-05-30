@@ -32,6 +32,7 @@ public class UIController : MonoBehaviour
     public GameObject flowInstruction;
     public LineRenderer lineRenderer;
     public Toggle toggleOnnx;
+    public GameObject inputField;
     //public DefaultObserverEventHandler observer;
     //public Vuforia.ModelTargetBehaviour targetBehaviour;
     // Start is called before the first frame update
@@ -67,6 +68,7 @@ public class UIController : MonoBehaviour
                     uiMessage.text = "Scan META QR code";
                     modelTargetBtn.gameObject.SetActive(false);
                     qrCodeFrame.SetActive(true);
+                    inputField.SetActive(false);
                     DisableMainUI();
                     break;
                 case "VuforiaTargetDetecting":
