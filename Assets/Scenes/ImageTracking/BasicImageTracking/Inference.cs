@@ -54,7 +54,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static bool objectInitialSet = true;
         public static float[] arPoseToInference = null;
         public static string elMs;
-        public static string ip = "10.1.2.148";
+        public static string ip = "10.1.8.174";
         private static bool firstInferenceSuccess = false;
 
         static int count = 0;
@@ -83,7 +83,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             //yield return null;
 
-            string url = $"https://{ip}:5000/sol_server/inference/6dpose";
+            string url = $"https://{ip}:5000/sol_server/inference/pose_service";
 
             Mat newMat = new Mat(cpuImageTexture.height, cpuImageTexture.width, CvType.CV_8UC3);
 
@@ -161,7 +161,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
                 request.certificateHandler = new CertificateVS();
-                request.SetRequestHeader("Tool-Name", "6dpose");
+                request.SetRequestHeader("Tool-Name", "pose_service");
                 yield return request.SendWebRequest();
 
                 if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
