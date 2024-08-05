@@ -12,6 +12,7 @@ using OpenCVForUnity.ObjdetectModule;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.ImgcodecsModule;
 
 public class BarcodeInteraction : MonoBehaviour
 {
@@ -23,11 +24,25 @@ public class BarcodeInteraction : MonoBehaviour
     public Toggle edgeInferenceToggle;
     private string[] qrFiixData;
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
-    BarcodeDetector detector;
+    QRCodeDetector detector;
+    /// <summary>
+    /// The points.
+    /// </summary>
+    Mat points;
+
+    /// <summary>
+    /// The decoded info
+    /// </summary>
+    List<string> decodedInfo;
+
+    /// <summary>
+    /// The straight qrcode
+    /// </summary>
+    List<Mat> straightQrcode;
     // public MetaAPI metaAPI;
     void Start()
     {
-        detector = new BarcodeDetector();
+        detector = new QRCodeDetector();
     }
 
     void OnDisable()
@@ -38,6 +53,9 @@ public class BarcodeInteraction : MonoBehaviour
     void OnEnable()
     {
         EventManager.OnBarCodeDetectedEvent += OnBarCodeDetectedHandler;
+        points = new Mat();
+        decodedInfo = new List<string>();
+        straightQrcode = new List<Mat>();
     }
 
     void Update()
@@ -52,10 +70,10 @@ public class BarcodeInteraction : MonoBehaviour
 
         if (edgeInferenceToggle.isOn)
         {
-            OnBarCodeDetectedHandler();
-        }
-        else if (TrackedImageInfoManager.cpuImageTexture != null)
-        {
+        //    OnBarCodeDetectedHandler();
+        //}
+        //else if (TrackedImageInfoManager.cpuImageTexture != null)
+        //{
             try
             {
                 var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
@@ -67,12 +85,18 @@ public class BarcodeInteraction : MonoBehaviour
                 Mat corners = new Mat();
                 Mat rgbaMat = new Mat(TrackedImageInfoManager.cpuImageTexture.height, TrackedImageInfoManager.cpuImageTexture.width, CvType.CV_8UC3);
                 Utils.texture2DToMat(TrackedImageInfoManager.cpuImageTexture, rgbaMat);
-                Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
-                string result_detection = detector.detectAndDecode(rgbaMat);
 
-                if (result_detection != null)
+                Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
+
+                // Save Mat to file
+                string path = "SavedImage.jpg";
+                Imgcodecs.imwrite(path, rgbaMat);
+
+                bool result_detection = detector.detectAndDecodeMulti(rgbaMat,decodedInfo, points, straightQrcode);
+
+                if (result_detection)
                 {
-                    barcodeTxt = result_detection;
+                    barcodeTxt = decodedInfo[0];
                     uiMessage.text = barcodeTxt;
                     // Do something with the decoded QR code here
                 }
