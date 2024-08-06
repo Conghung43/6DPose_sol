@@ -39,6 +39,8 @@ public class BarcodeInteraction : MonoBehaviour
     /// The straight qrcode
     /// </summary>
     List<Mat> straightQrcode;
+
+    public TrackedImageInfoManager trackedImageInfoManager;
     // public MetaAPI metaAPI;
     void Start()
     {
@@ -76,6 +78,7 @@ public class BarcodeInteraction : MonoBehaviour
         //{
             try
             {
+                trackedImageInfoManager.UpdateCPUImage();
                 var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
                 //File.WriteAllBytes("test1.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
                 //var result = barcodeReader?.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
