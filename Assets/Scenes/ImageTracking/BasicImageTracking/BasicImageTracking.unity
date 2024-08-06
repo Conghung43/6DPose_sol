@@ -397,6 +397,7 @@ MonoBehaviour:
   barcodeObject: {fileID: 156259917}
   edgeInferenceToggle: {fileID: 9088049142010413961}
   uiMessage: {fileID: 2289558225682086171}
+  trackedImageInfoManager: {fileID: 1557103654}
 --- !u!1 &245948524
 GameObject:
   m_ObjectHideFlags: 0
