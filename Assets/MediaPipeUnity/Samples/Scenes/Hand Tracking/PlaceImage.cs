@@ -22,13 +22,10 @@ public class PlaceImage : MonoBehaviour
     {
         imageRectTransform.gameObject.SetActive(true);
         _sphere.SetActive(true);
-#if !UNITY_EDITOR
+
         float pixelX = (1-x) * canvasRectTransform.rect.width;
         float pixelY = (1-y) * canvasRectTransform.rect.height;
-#else
-        float pixelX = x * canvasRectTransform.rect.width;
-        float pixelY = (1-y) * canvasRectTransform.rect.height;
-#endif
+
         imageRectTransform.anchoredPosition = new Vector2(pixelX, pixelY);
         _sphere.transform.position = camera.ScreenToWorldPoint(new Vector3(pixelX, pixelY,0.5f));
     }
