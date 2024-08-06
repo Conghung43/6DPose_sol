@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/ImageTracking/BasicImageTracking/MediapipeBasicImage.unity
+    guid: 91dec1c0999e85d4ca2ea4c8b0f36d81
+  - enabled: 1
     path: Assets/Scenes/ImageTracking/BasicImageTracking/BasicImageTracking.unity
     guid: e0b018a3c3b5cfd4c8e316706ec0a18c
   m_configObjects:

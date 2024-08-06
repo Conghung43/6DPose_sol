@@ -1083,7 +1083,7 @@ PrefabInstance:
     - target: {fileID: 3259285889726014649, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
       propertyPath: m_Color.a
-      value: 0.53333336
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
@@ -4362,6 +4362,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvasRectTransform: {fileID: 1501352663194897804}
   imageRectTransform: {fileID: 1203558897}
+  _rawImage: {fileID: 381121679}
   _sphere: {fileID: 527558672}
   camera: {fileID: 1552236371}
 --- !u!4 &1778572070
