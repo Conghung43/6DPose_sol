@@ -480,7 +480,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
         }
         //private int count = 0;
-        unsafe Texture2D UpdateCPUImage()
+        public unsafe Texture2D UpdateCPUImage()
         {
 
             // Attempt to get the latest camera image. If this method succeeds,

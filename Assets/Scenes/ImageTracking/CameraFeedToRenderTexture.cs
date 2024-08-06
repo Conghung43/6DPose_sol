@@ -5,9 +5,11 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
+using UnityEngine.XR.ARFoundation.Samples;
 
 public class CameraFeedToRenderTexture : MonoBehaviour
 {
+    public TrackedImageInfoManager _trackedImageInfoManager;
     public Solution _solution;
     public AppSettings _AppSettings;
     public static CameraFeedToRenderTexture instance;
@@ -55,42 +57,9 @@ public class CameraFeedToRenderTexture : MonoBehaviour
 
     void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
     {
-        if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
-        {
-            var format = TextureFormat.RGBA32; 
-            if (cameraTexture == null || cameraTexture.width != image.width || cameraTexture.height != image.height)
-            {
-                if (cameraTexture != null)
-                {
-                    Destroy(cameraTexture);
-                }
-                cameraTexture = new Texture2D(image.width, image.height, format, false);
-                if (renderTexture != null)
-                {
-                    renderTexture.Release();
-                }
-                renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
-            }
-
-            var conversionParams = new XRCpuImage.ConversionParams
-            {
-                inputRect = new RectInt(0, 0, image.width, image.height),
-                outputDimensions = new Vector2Int(image.width, image.height),
-                outputFormat = TextureFormat.RGBA32,
-                transformation = XRCpuImage.Transformation.None
-            };
-
-            var rawTextureData = new NativeArray<byte>(image.GetConvertedDataSize(conversionParams), Allocator.Temp);
-            
-            image.Convert(conversionParams, rawTextureData);
-            cameraTexture.LoadRawTextureData(rawTextureData);
-            cameraTexture.Apply();
-
-            rawTextureData.Dispose();
-            image.Dispose();
-
-            WriteTextureToRenderTexture(cameraTexture, renderTexture);
-        }
+        
+            renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
+            WriteTextureToRenderTexture(_trackedImageInfoManager.UpdateCPUImage(), renderTexture);
     }
 
     void WriteTextureToRenderTexture(Texture2D texture, RenderTexture renderTexture)

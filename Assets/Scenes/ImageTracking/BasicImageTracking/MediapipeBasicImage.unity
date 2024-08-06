@@ -1083,7 +1083,7 @@ PrefabInstance:
     - target: {fileID: 3259285889726014649, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
       propertyPath: m_Color.a
-      value: 0
+      value: 0.53333336
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
@@ -1133,7 +1133,7 @@ PrefabInstance:
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: -1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
@@ -1199,6 +1199,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Annotatable Screen
+      objectReference: {fileID: 0}
+    - target: {fileID: 3259285889726014655, guid: 5713b959e3c77a58fb258133fc8e4aef,
+        type: 3}
+      propertyPath: _fitMode
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4386,6 +4391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ff644c7973e4d45bf49851b9b4d3c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _trackedImageInfoManager: {fileID: 1557103654}
   _solution: {fileID: 1778572066}
   _AppSettings: {fileID: 11400000, guid: c1dea6c0f46f82342ac6b11989a0fb74, type: 2}
   arCameraManager: {fileID: 501678716}
