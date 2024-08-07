@@ -70,7 +70,7 @@ public class BarcodeInteraction : MonoBehaviour
 
         if (edgeInferenceToggle.isOn)
         {
-        //    OnBarCodeDetectedHandler();
+            OnBarCodeDetectedHandler();
         //}
         //else if (TrackedImageInfoManager.cpuImageTexture != null)
         //{
