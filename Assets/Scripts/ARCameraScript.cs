@@ -19,6 +19,7 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.DnnModule;
+using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -108,6 +109,7 @@ public class ARCameraScript : MonoBehaviour
         // Check if the function index is not "Detect"
         if (StationStageIndex.FunctionIndex != "Detect")
         {
+            inferenceResponseFlag = true;
             return;
         }
 
@@ -288,11 +290,11 @@ public class ARCameraScript : MonoBehaviour
         {
             // Ignore object out of view
             Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
-            if (screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1 || screenPoint.z < 0)
-            {
-                //logInfo.text = "return";
-                return;
-            }
+            //if (screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1 || screenPoint.z < 0)
+            //{
+            //    //logInfo.text = "return";
+            //    return;
+            //}
             //Update stage position
             EventManager.OnCheckpointUpdateEvent?.Invoke(this, new EventManager.OnCheckpointUpdateEventArgs
             {
@@ -334,7 +336,7 @@ public class ARCameraScript : MonoBehaviour
         {
             UnityEngine.Debug.Log("else if (inferenceResponseFlag)");
             // Check if triggerAPIresponseData.result is null or false then reconnect
-            if (MetaService.stageData == null || !MetaService.stageData.requestResult)
+            if (MetaService.stageData == null)
             {
                 //logInfo.text = "Reconnect triggerAPIresponseData" + MetaService.stageData;
                 reconnectedCount++;
@@ -350,9 +352,12 @@ public class ARCameraScript : MonoBehaviour
                 MetaService.ConnectWithMetaStageID();
                 return;
             }
+            if (StationStageIndex.FunctionIndex == "Detect")
+            {
+                inferenceResponseFlag = false;
+                SendImage2Meta();
+            }
 
-            inferenceResponseFlag = false;
-            SendImage2Meta();
             //Debug.Log("Object is within the screen's view.");
         }
         // Check if inference may stop
@@ -435,11 +440,11 @@ public class ARCameraScript : MonoBehaviour
 
                 
                 Utils.matToTexture2D(resizedMat, resizeTextureOnnx);
-
+#if UNITY_EDITOR
                 string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
                 System.IO.File.WriteAllBytes(filePath, resizeTextureOnnx.EncodeToJPG());
                 //System.IO.File.WriteAllBytes("test.jpg", resizeTextureOnnx.EncodeToJPG());
-
+#endif
                 //stopwatch.Stop(); elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
                 //logInfo.text += "resize time:" + elMs + "ms \n";
 
@@ -598,6 +603,8 @@ public class ARCameraScript : MonoBehaviour
 
         // Encode the capture texture as JPG and assign it to the CapturedImage variable
         CapturedImage = capturedTexture.EncodeToJPG();
+
+        File.WriteAllBytes("meta.jpg", CapturedImage);
 
         // Check if there is a coroutine already running and stop it
         if (coroutineControler != null)

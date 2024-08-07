@@ -72,7 +72,7 @@ public class BarcodeInteraction : MonoBehaviour
 
         if (edgeInferenceToggle.isOn)
         {
-        //    OnBarCodeDetectedHandler();
+            OnBarCodeDetectedHandler();
         //}
         //else if (TrackedImageInfoManager.cpuImageTexture != null)
         //{
@@ -145,7 +145,7 @@ public class BarcodeInteraction : MonoBehaviour
             barcodeObject.SetActive(false);
             if (!StationStageIndex.barcodeMetaOn)
             {
-                Inference.ip = barcodeStringArray[0];
+                //Inference.ip = barcodeStringArray[0];
                 OnBarCodeDetectedHandler();
                 //MetaService.qrMetaData = barcodeStringArray;
                 //// Set Config
@@ -188,10 +188,10 @@ public class BarcodeInteraction : MonoBehaviour
     {
         string[] barcodeStringArray = new string[]
                     {
-                            "192.168.0.5",
+                            "125.227.130.191",
                             "MTIzMTIz",
-                            "compressor_vailidation",
-                            "1692266345",
+                            "engine_test",
+                            "1722942188",
                             "demo"
                     };
         //"1688627566"
@@ -204,7 +204,7 @@ public class BarcodeInteraction : MonoBehaviour
             if (ConfigRead.metaOnline)
             {
                 MetaService.serverIP = MetaService.qrMetaData[0] + ":" + port;
-                //MetaService.ConnectWithMetaProjectID();
+                MetaService.ConnectWithMetaProjectID();
             }
         }
     }

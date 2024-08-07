@@ -54,12 +54,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static bool objectInitialSet = true;
         public static float[] arPoseToInference = null;
         public static string elMs;
-        public static string ip = "10.1.2.136";
+        public static string ip = "10.1.2.81";
         private static bool firstInferenceSuccess = false;
 
         static int count = 0;
 
-        //[SerializeField] private static TMPro.TextMeshProUGUI logInfo;
         //float[] positions = new float[111];
         //float[] positions1 = new float[111];
         void Start()
@@ -100,9 +99,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Get current camera matrix:
             CameraMatrix = Camera.main.transform.localToWorldMatrix;
 
-            //string filePath = Path.Combine(Application.persistentDataPath, $"{tlrbBox[0]}_{tlrbBox[1]}_{tlrbBox[2]}_{tlrbBox[3]}.jpg");
-            //System.IO.File.WriteAllBytes(filePath, imageData);
-            //File.WriteAllBytes("test.jpg", imageData);
+            string filePath = Path.Combine(Application.persistentDataPath, $"{count}.jpg");
+            count += 1;
+            System.IO.File.WriteAllBytes(filePath, imageData);
+#if UNITY_EDITOR
+            File.WriteAllBytes("6dpose.jpg", imageData);
+#endif
             //Debug.Log(tlrbBox.ToString());
             arPoseToInference = null;
             if (!objectInitialSet)
@@ -134,7 +136,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (arPoseToInference != null)
             {
                 bboxData += "\"init_pose\": [";
-                for (int i = 0; i < arPoseToInference.Length; i ++)
+                for (int i = 0; i < arPoseToInference.Length; i++)
                 {
                     bboxData += arPoseToInference[i].ToString();
                     if (i < arPoseToInference.Length - 1)
@@ -149,8 +151,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 bboxData += "\"init_pose\":\"None\",";
             }
-            
-            bboxData += " \"project\":\"airpump\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0,"+ principalPoint.x.ToString() +"],[0.0,"+ focalLength.y.ToString() +"," +principalPoint.y.ToString() +"], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString()+"]}}";
+
+            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0," + principalPoint.x.ToString() + "],[0.0," + focalLength.y.ToString() + "," + principalPoint.y.ToString() + "], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
+
+            Debug.Log($"{ count} = " + bboxData);
 
             form.AddField("data", bboxData);
 
@@ -162,6 +166,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 request.certificateHandler = new CertificateVS();
                 request.SetRequestHeader("Tool-Name", "pose_service");
+                //request.timeout = 2;
                 yield return request.SendWebRequest();
 
                 if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
@@ -171,13 +176,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
                 else
                 {
+
+                    Debug.Log($"{count} = " + request.downloadHandler.text);
+
                     InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
                     if (result.data.obj_pose != null)
                     {
                         Inference.Set3DBox(result.data.obj_pose);
                         firstInferenceSuccess = true;
-                        count += 1;
-                        Debug.Log(count);
+                        
+                        //Debug.Log(count);
                     }
                 }
                 TrackedImageInfoManager.isInferenceAvailable = true;
@@ -235,7 +243,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 objectInitialSet = false;
                 StationStageIndex.ModelTargetFound = true;
             }
-            //Display3DBox("AirPump3DModel", position, rotation);
+            Display3DBox("AirPump3DModel", position, rotation);
             if (objectInitialSet)
             {
                 Display3DBox("ModelTarget", position, rotation);
