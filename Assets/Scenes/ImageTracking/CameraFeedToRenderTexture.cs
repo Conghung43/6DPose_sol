@@ -59,7 +59,7 @@ public class CameraFeedToRenderTexture : MonoBehaviour
     {
         
             renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
-            WriteTextureToRenderTexture(_trackedImageInfoManager.UpdateCPUImage(), renderTexture);
+            //WriteTextureToRenderTexture(_trackedImageInfoManager.UpdateCPUImage(), renderTexture);
     }
 
     void WriteTextureToRenderTexture(Texture2D texture, RenderTexture renderTexture)

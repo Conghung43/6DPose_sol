@@ -10,9 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-#if UNITY_ANDROID
+//#if UNITY_ANDROID
 using UnityEngine.Android;
-#endif
+using UnityEngine.XR.ARFoundation.Samples;
+//#endif
 
 namespace Mediapipe.Unity
 {
@@ -228,7 +229,7 @@ namespace Mediapipe.Unity
       webCamTexture = null;*/
     }
 
-    public override Texture GetCurrentTexture() => CameraFeedToRenderTexture.instance.renderTexture;
+        public override Texture GetCurrentTexture() => TrackedImageInfoManager.cpuImageTexture;//CameraFeedToRenderTexture.instance.renderTexture;
 
     private ResolutionStruct GetDefaultResolution()
     {
