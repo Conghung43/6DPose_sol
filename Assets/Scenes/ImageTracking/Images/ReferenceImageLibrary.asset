@@ -50,12 +50,32 @@ MonoBehaviour:
     m_Name: Front
     m_Texture: {fileID: 0}
   - m_SerializedGuid:
-      m_GuidLow: 4687790688775212556
-      m_GuidHigh: 4218916885440909458
+      m_GuidLow: 4818548086690088650
+      m_GuidHigh: 12246865566457946811
     m_SerializedTextureGuid:
-      m_GuidLow: 6105552093064881743
-      m_GuidHigh: 3632258404611240553
-    m_Size: {x: 0.06, y: 0.033435114}
-    m_SpecifySize: 1
-    m_Name: part
+      m_GuidLow: 14170627282378959332
+      m_GuidHigh: 114184159908229946
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: engine1
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5311913894919476774
+      m_GuidHigh: 6263490760458417556
+    m_SerializedTextureGuid:
+      m_GuidLow: 3755277618483453380
+      m_GuidHigh: 14673696884667739898
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: engine2
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4889303217865677345
+      m_GuidHigh: 17840787359013073576
+    m_SerializedTextureGuid:
+      m_GuidLow: 6116191377252374157
+      m_GuidHigh: 18074196285987877195
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 0
+    m_Name: Engine3
     m_Texture: {fileID: 0}
