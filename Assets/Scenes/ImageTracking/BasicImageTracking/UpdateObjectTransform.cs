@@ -11,7 +11,7 @@ public class UpdateObjectTransform : MonoBehaviour
 
     public static float positionThreshold = 0.05f; // Adjust as needed
     public static float rotationThreshold = 2f;    // Adjust as needed
-    public static int GroupCountThreshold = 3;
+    public static int GroupCountThreshold = 4;
 
     public static Transform UpdateTransformToGroup(Transform currentTransform)
     {

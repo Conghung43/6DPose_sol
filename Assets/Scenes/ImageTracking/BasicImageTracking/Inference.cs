@@ -238,15 +238,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
             if (updatedTransform != null)
             {
-                //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
-                Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
                 objectInitialSet = false;
+                //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
                 StationStageIndex.ModelTargetFound = true;
+                Display3DBox("AirPump3DModel", position, rotation);
+                Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
             }
-            Display3DBox("AirPump3DModel", position, rotation);
+            
             if (objectInitialSet)
             {
+                Display3DBox("AirPump3DModel", position, rotation);
                 Display3DBox("ModelTarget", position, rotation);
+                //Display3DBox("AirPump3DModel", position, rotation);
                 //StationStageIndex.ModelTargetFound = true;
             }
             //Display3DBox("AirPump3DModel", position, rotation);
