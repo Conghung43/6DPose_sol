@@ -24,10 +24,8 @@ public class CameraFeedToRenderTexture : MonoBehaviour
 
     void OnEnable()
     {
-        if (arCameraManager != null)
-        {
-            arCameraManager.frameReceived += OnCameraFrameReceived;
-        }
+        renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
+        
         StartCoroutine(SelectResolution(2f));
     }
 
@@ -47,19 +45,12 @@ public class CameraFeedToRenderTexture : MonoBehaviour
         }
     }
 
-    void OnDisable()
-    {
-        if (arCameraManager != null)
-        {
-            arCameraManager.frameReceived -= OnCameraFrameReceived;
-        }
-    }
+    
 
-    void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
+    public void UpdateTexture()
     {
         
-            renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
-            WriteTextureToRenderTexture(_trackedImageInfoManager.UpdateCPUImage(), renderTexture);
+        WriteTextureToRenderTexture(TrackedImageInfoManager.handTexture, renderTexture);
     }
 
     void WriteTextureToRenderTexture(Texture2D texture, RenderTexture renderTexture)

@@ -1089,7 +1089,7 @@ PrefabInstance:
     - target: {fileID: 3259285889726014649, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
       propertyPath: m_Color.a
-      value: 0
+      value: 0.50980395
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef,
         type: 3}
@@ -4145,6 +4145,7 @@ MonoBehaviour:
   PoseInference: {fileID: 816003150}
   box3D: {fileID: 105800678}
   stickWithImageTargetObject: {fileID: 1492933786}
+  _CameraFeedToRenderTexture: {fileID: 1778572071}
 --- !u!114 &1557103655
 MonoBehaviour:
   m_ObjectHideFlags: 0

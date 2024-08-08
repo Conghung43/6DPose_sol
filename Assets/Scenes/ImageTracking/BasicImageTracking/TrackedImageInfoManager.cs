@@ -61,10 +61,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
         public static int[] TrackedImageCorner;
         public static Texture2D cpuImageTexture;
+        public static Texture2D handTexture;
         public GameObject PoseInference;
 
         public GameObject box3D;
         public GameObject stickWithImageTargetObject;
+        public CameraFeedToRenderTexture _CameraFeedToRenderTexture;
 
         int count = 0;
 
@@ -127,11 +129,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
         {
+            handTexture = UpdateCPUImage();
+            _CameraFeedToRenderTexture.UpdateTexture();
             if (!init)
             {
                 cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1]; //In my case 0=640*480, 1= 1280*720, 2=1920*1080
                 init = true;
             }
+            
         }
 
         public static bool AreRectanglesIntersecting(int[] rect1, int[] rect2)
@@ -177,6 +182,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
             {
+                
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
                 int[] bboxTrackedImage = TrackedImageCorner;
@@ -366,7 +372,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     stickWithImageTargetObject.transform.rotation = trackedImage.transform.rotation;
                     
                 }
-                cpuImageTexture = UpdateCPUImage();
+                cpuImageTexture = handTexture;
             }
         }
 
