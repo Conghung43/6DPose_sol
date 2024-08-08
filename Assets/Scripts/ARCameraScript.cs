@@ -63,6 +63,8 @@ public class ARCameraScript : MonoBehaviour
     public static float[] prb;
     public EdgeInferenceBarracuda edgeInference;
     Stopwatch inferenceWatch = new Stopwatch();
+    JsonDeserialization.InferenceResult metaAPIinferenceData;
+
     private void Start()
     {
         // Set the StationStageIndex FunctionIndex to "Home"
@@ -116,7 +118,7 @@ public class ARCameraScript : MonoBehaviour
         try
         {
             // Deserialize the inference response
-            JsonDeserialization.InferenceResult metaAPIinferenceData = JsonConvert.DeserializeObject<JsonDeserialization.InferenceResult>(e.inferenceResponse);
+            metaAPIinferenceData = JsonConvert.DeserializeObject<JsonDeserialization.InferenceResult>(e.inferenceResponse);
 
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
@@ -159,7 +161,7 @@ public class ARCameraScript : MonoBehaviour
         UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
     }
 
-    public (Vector3, float) GetObjectCenterRadius()
+    public (Vector3, float) GetObjectCenterRadiusBaseAR()
     {
         // Get checkpoint position and scale
         Vector3 thisCheckpointPosition = StationStageIndex.gameObjectPoints[$"{StationStageIndex.stageIndex}"][0];
@@ -181,10 +183,29 @@ public class ARCameraScript : MonoBehaviour
         return (centerPoint, radiusOnScreen);
     }
 
+    public (Vector3, float) GetObjectCenterRadiusBaseAI()
+    {
+        if (metaAPIinferenceData.data.rois.Count > 0)
+        {
+            int x1 = metaAPIinferenceData.data.rois[0][0];
+            int y1 = metaAPIinferenceData.data.rois[0][1];
+            int x2 = metaAPIinferenceData.data.rois[0][2];
+            int y2 = metaAPIinferenceData.data.rois[0][3];
+            Vector3 centerPoint = new Vector3(((x1 + x2) / 2)*Screen.width/ MetaService.imageWidth2Meta, Screen.height - (((y1 + y2) / 2)*Screen.height/ MetaService.imageHeight2Meta), 0.3f);
+            float radiusOnScreen = x2 - x1;
+            return (centerPoint, radiusOnScreen);
+        }
+        else
+        {
+            return (Vector3.zero, 1f);
+        }
+        
+    }
+
     public UnityEngine.Rect GetObjectBBox()
     {
         Vector3 centerPoint; float radiusOnScreen;
-        (centerPoint, radiusOnScreen) = GetObjectCenterRadius();
+        (centerPoint, radiusOnScreen) = GetObjectCenterRadiusBaseAI();
         Vector3 corner1World2D = centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
         UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
         return unityRect;
