@@ -624,9 +624,9 @@ public class ARCameraScript : MonoBehaviour
 
         // Encode the capture texture as JPG and assign it to the CapturedImage variable
         CapturedImage = capturedTexture.EncodeToJPG();
-
+#if UNITY_EDITOR
         File.WriteAllBytes("meta.jpg", CapturedImage);
-
+#endif
         // Check if there is a coroutine already running and stop it
         if (coroutineControler != null)
         {
