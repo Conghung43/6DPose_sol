@@ -164,7 +164,7 @@ public static class MetaService
             request.SetRequestHeader("split_text", "0");
             request.SetRequestHeader("threshold", "0.1");
             request.certificateHandler = new CertificateVS();
-            request.timeout = 2;
+            //request.timeout = 2;
 
             // Send request and wait for response
             yield return request.SendWebRequest();
