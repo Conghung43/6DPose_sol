@@ -189,10 +189,10 @@ public class BarcodeInteraction : MonoBehaviour
     {
         string[] barcodeStringArray = new string[]
                     {
-                            "125.227.130.191",
+                            "10.1.30.18",
                             "MTIzMTIz",
-                            "test_02_0807",
-                            "1723030310",
+                            "object2",
+                            "1723185127",
                             "demo"
                     };
         //"1688627566"
