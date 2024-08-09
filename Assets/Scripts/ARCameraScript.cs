@@ -241,6 +241,8 @@ public class ARCameraScript : MonoBehaviour
             tempCamera.fieldOfView = savedFieldOfView;
             Vector3 centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
 
+            Destroy(tempCamera);
+
             float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
