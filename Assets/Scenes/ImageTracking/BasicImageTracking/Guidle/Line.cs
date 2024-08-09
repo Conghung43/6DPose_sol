@@ -13,7 +13,6 @@ using UnityEngine;
 
         private void Start()
         {
-            bezierCurve = FindFirstObjectByType<Guidle>();
             for (int i = 0; i < step; i++)
             {
                 GameObject item = Instantiate(sphere, null,true);
