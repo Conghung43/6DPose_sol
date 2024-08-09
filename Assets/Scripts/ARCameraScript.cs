@@ -33,6 +33,8 @@ public class ARCameraScript : MonoBehaviour
     [SerializeField] private GameObject captureBtn;
     [SerializeField] private int bBoxBorderSize = -1;
     [SerializeField] private TMPro.TextMeshProUGUI titleInfo;
+
+    public GameObject sphere;
     //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
@@ -62,8 +64,12 @@ public class ARCameraScript : MonoBehaviour
     public static float[] ImageFloatValues;
     public static float[] prb;
     public EdgeInferenceBarracuda edgeInference;
-    Stopwatch inferenceWatch = new Stopwatch();
+    //Stopwatch inferenceWatch = new Stopwatch();
     JsonDeserialization.InferenceResult metaAPIinferenceData;
+
+    private Vector3 savedPosition;
+    private Quaternion savedRotation;
+    private float savedFieldOfView;
 
     private void Start()
     {
@@ -123,6 +129,8 @@ public class ARCameraScript : MonoBehaviour
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
             {
+                GetObjectCenterRadiusBaseAI();
+
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule)
                 {
@@ -183,29 +191,67 @@ public class ARCameraScript : MonoBehaviour
         return (centerPoint, radiusOnScreen);
     }
 
-    public (Vector3, float) GetObjectCenterRadiusBaseAI()
+    void SaveCameraState()
     {
-        if (metaAPIinferenceData.data.rois.Count > 0)
+        if (Camera.main != null)
+        {
+            savedPosition = Camera.main.transform.position;
+            savedRotation = Camera.main.transform.rotation;
+            savedFieldOfView = Camera.main.fieldOfView;
+        }
+    }
+
+    public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI()
+    {
+        if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
             int x1 = metaAPIinferenceData.data.rois[0][0];
             int y1 = metaAPIinferenceData.data.rois[0][1];
             int x2 = metaAPIinferenceData.data.rois[0][2];
             int y2 = metaAPIinferenceData.data.rois[0][3];
-            Vector3 centerPoint = new Vector3(((x1 + x2) / 2)*Screen.width/ MetaService.imageWidth2Meta, Screen.height - (((y1 + y2) / 2)*Screen.height/ MetaService.imageHeight2Meta), 0.3f);
-            float radiusOnScreen = x2 - x1;
-            return (centerPoint, radiusOnScreen);
+
+            Vector2 centerPoint2D = new Vector3((x1 + x2) / 2,(y1 + y2) / 2);
+
+            //Convert cpuImage point to ScreenPoint
+            Vector2 screenPoint = Vector2.zero;
+            Vector2 xrImageSize = new Vector2(TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+            Vector2 ScreenImageSize = new Vector2(Screen.width, Screen.height);
+            ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
+
+            centerPoint2D = screenPoint;
+
+            //Get depth and convert 3d
+            Vector2 depthImageSize = new Vector2(PointCloudTracking.texture.width, PointCloudTracking.texture.height);
+            Vector2 depthPoint = Vector2.zero;
+            ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out depthPoint, xrImageSize, depthImageSize);
+
+            float depth = ReadDepthValue(PointCloudTracking.texture,
+                (int)(depthImageSize.x - depthPoint.x),
+                (int)(depthImageSize.y - depthPoint.y));
+
+            Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
+            // Set the temporary camera's properties to the saved state
+            tempCamera.transform.position = savedPosition;
+            tempCamera.transform.rotation = savedRotation;
+            tempCamera.fieldOfView = savedFieldOfView;
+            Vector3 centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
+
+            sphere.transform.position = centerPoint3D;
+
+            float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
+            return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
         else
         {
-            return (Vector3.zero, 1f);
+            return (Vector3.zero, 1f, Vector3.zero);
         }
         
     }
 
     public UnityEngine.Rect GetObjectBBox()
     {
-        Vector3 centerPoint; float radiusOnScreen;
-        (centerPoint, radiusOnScreen) = GetObjectCenterRadiusBaseAI();
+        Vector3 centerPoint; float radiusOnScreen;Vector3 centerPoint3D;
+        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
         Vector3 corner1World2D = centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
         UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
         return unityRect;
@@ -290,7 +336,7 @@ public class ARCameraScript : MonoBehaviour
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI()
+    void OnGUI_()
     {
         if (StationStageIndex.FunctionIndex == "Detect") {
             DrawRois(false);
@@ -343,7 +389,7 @@ public class ARCameraScript : MonoBehaviour
             //UnityEngine.Debug.Log("toggleAP.isOn: start");
             if (inferenceResponseFlag)
             {
-                inferenceWatch.Restart();
+                //inferenceWatch.Restart();
                 GetOutputTensor();
                 UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag");
                 inferenceResponseFlag = false;
@@ -382,16 +428,16 @@ public class ARCameraScript : MonoBehaviour
             //Debug.Log("Object is within the screen's view.");
         }
         // Check if inference may stop
-        inferenceWatch.Stop();
-        if (inferenceWatch.ElapsedMilliseconds > 300)
-        {
-            inferenceResponseFlag = true;
-            //logInfo.text += "===========reset===========";
-        }
-        else
-        {
-            inferenceWatch.Start();
-        }
+        //inferenceWatch.Stop();
+        //if (inferenceWatch.ElapsedMilliseconds > 300)
+        //{
+        //    inferenceResponseFlag = true;
+        //    //logInfo.text += "===========reset===========";
+        //}
+        //else
+        //{
+        //    inferenceWatch.Start();
+        //}
     }
     //Texture2D resizeTexture;
     private void EdgeInferenceAsync()
@@ -607,23 +653,30 @@ public class ARCameraScript : MonoBehaviour
 
     private void SendImage2Meta()
     {
-        // Set the target texture of the AR camera to the render texture
-        arCamera.targetTexture = renderTexture;
+        //// Set the target texture of the AR camera to the render texture
+        //arCamera.targetTexture = renderTexture;
 
-        // Render the AR camera
-        arCamera.Render();
+        //// Render the AR camera
+        //arCamera.Render();
 
-        // Set the active render texture
-        RenderTexture.active = renderTexture;
+        //// Set the active render texture
+        //RenderTexture.active = renderTexture;
 
-        // Read the pixels from the specified rectangle in the capture texture
-        capturedTexture.ReadPixels(new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
+        //// Read the pixels from the specified rectangle in the capture texture
+        //capturedTexture.ReadPixels(new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
 
-        // Apply the changes made to the capture texture
-        capturedTexture.Apply();
+        //// Apply the changes made to the capture texture
+        //capturedTexture.Apply();
 
         // Encode the capture texture as JPG and assign it to the CapturedImage variable
-        CapturedImage = capturedTexture.EncodeToJPG();
+        CapturedImage = TrackedImageInfoManager.cpuImageTexture.EncodeToJPG();//capturedTexture.EncodeToJPG();
+
+        //Also get depth image for convert 2D to 3D
+        PointCloudTracking.uploadDepthImage = true;
+
+        //Get current camera pose
+        SaveCameraState();
+
 #if UNITY_EDITOR
         File.WriteAllBytes("meta.jpg", CapturedImage);
 #endif
@@ -637,8 +690,19 @@ public class ARCameraScript : MonoBehaviour
         coroutineControler = StartCoroutine(MetaService.InferenceAPI(CapturedImage));
 
         // Reset the target and active render textures
-        arCamera.targetTexture = null;
-        RenderTexture.active = null;
+        //arCamera.targetTexture = null;
+        //RenderTexture.active = null;
+    }
+
+    private float ReadDepthValue(Texture2D depthTexture, int x, int y)
+    {
+        // Convert the pixel coordinates to the corresponding UV coordinates
+        Vector2 uv = new Vector2(x / (float)depthTexture.width, y / (float)depthTexture.height);
+
+        // Read the depth value at the UV coordinates from the depth texture
+        float depthValue = depthTexture.GetPixelBilinear(uv.x, uv.y).r;
+
+        return depthValue;
     }
 
     // Takes a screenshot and displays it on the result stage display image

@@ -99,9 +99,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Get current camera matrix:
             CameraMatrix = Camera.main.transform.localToWorldMatrix;
 
-            string filePath = Path.Combine(Application.persistentDataPath, $"{count}.jpg");
-            count += 1;
-            System.IO.File.WriteAllBytes(filePath, imageData);
+            //string filePath = Path.Combine(Application.persistentDataPath, $"{count}.jpg");
+            //count += 1;
+            //System.IO.File.WriteAllBytes(filePath, imageData);
 #if UNITY_EDITOR
             File.WriteAllBytes("6dpose.jpg", imageData);
 #endif
@@ -154,7 +154,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0," + principalPoint.x.ToString() + "],[0.0," + focalLength.y.ToString() + "," + principalPoint.y.ToString() + "], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
 
-            Debug.Log($"{ count} = " + bboxData);
+            //Debug.Log($"{ count} = " + bboxData);
 
             form.AddField("data", bboxData);
 
@@ -177,7 +177,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 else
                 {
 
-                    Debug.Log($"{count} = " + request.downloadHandler.text);
+                    //Debug.Log($"{count} = " + request.downloadHandler.text);
 
                     InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
                     if (result.data.obj_pose != null)
@@ -288,7 +288,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //}
                 modelTarget.transform.position = position;
                 modelTarget.transform.rotation = rotation;
-                Debug.Log(rotation.eulerAngles.ToString());
+                //Debug.Log(rotation.eulerAngles.ToString());
             }
             else
             {
