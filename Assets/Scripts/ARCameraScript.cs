@@ -129,7 +129,9 @@ public class ARCameraScript : MonoBehaviour
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
             {
-                GetObjectCenterRadiusBaseAI();
+                Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
+                (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
+                sphere.transform.position = centerPoint3D;
 
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule)
@@ -219,15 +221,18 @@ public class ARCameraScript : MonoBehaviour
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
 
             centerPoint2D = screenPoint;
-
+            float depth = 0.1f;
+            // Only available on phone
+#if !UNITY_EDITOR
             //Get depth and convert 3d
             Vector2 depthImageSize = new Vector2(PointCloudTracking.texture.width, PointCloudTracking.texture.height);
             Vector2 depthPoint = Vector2.zero;
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out depthPoint, xrImageSize, depthImageSize);
 
-            float depth = ReadDepthValue(PointCloudTracking.texture,
+            depth = ReadDepthValue(PointCloudTracking.texture,
                 (int)(depthImageSize.x - depthPoint.x),
                 (int)(depthImageSize.y - depthPoint.y));
+#endif
 
             Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
             // Set the temporary camera's properties to the saved state
@@ -235,8 +240,6 @@ public class ARCameraScript : MonoBehaviour
             tempCamera.transform.rotation = savedRotation;
             tempCamera.fieldOfView = savedFieldOfView;
             Vector3 centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
-
-            sphere.transform.position = centerPoint3D;
 
             float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
@@ -696,13 +699,21 @@ public class ARCameraScript : MonoBehaviour
 
     private float ReadDepthValue(Texture2D depthTexture, int x, int y)
     {
-        // Convert the pixel coordinates to the corresponding UV coordinates
-        Vector2 uv = new Vector2(x / (float)depthTexture.width, y / (float)depthTexture.height);
+        try
+        {
+            // Convert the pixel coordinates to the corresponding UV coordinates
+            Vector2 uv = new Vector2(x / (float)depthTexture.width, y / (float)depthTexture.height);
 
-        // Read the depth value at the UV coordinates from the depth texture
-        float depthValue = depthTexture.GetPixelBilinear(uv.x, uv.y).r;
+            // Read the depth value at the UV coordinates from the depth texture
+            float depthValue = depthTexture.GetPixelBilinear(uv.x, uv.y).r;
 
-        return depthValue;
+            return depthValue;
+        }
+        catch
+        {
+            return 0.5f;
+        }
+
     }
 
     // Takes a screenshot and displays it on the result stage display image

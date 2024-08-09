@@ -244,7 +244,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 Display3DBox("AirPump3DModel", position, rotation);
                 Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
             }
-            
+            StationStageIndex.ModelTargetFound = true; //Temporary
             if (objectInitialSet)
             {
                 Display3DBox("AirPump3DModel", position, rotation);
