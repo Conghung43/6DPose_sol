@@ -70,7 +70,7 @@ public class BarcodeInteraction : MonoBehaviour
             //StationStageIndex.FunctionIndex = "ScanBarcode";
         }
 
-        if (edgeInferenceToggle.isOn)
+        if (true)//(edgeInferenceToggle.isOn)
         {
             OnBarCodeDetectedHandler();
             edgeInferenceToggle.isOn = false;
@@ -120,7 +120,7 @@ public class BarcodeInteraction : MonoBehaviour
         if (StationStageIndex.barcodeMetaOn) //&& StationStageIndex.barcodeFiixOn)
         {
             // barcodeObject.SetActive(false);
-            edgeInferenceToggle.isOn = true;
+            //edgeInferenceToggle.isOn = true;
             StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
             uiMessage.text = "Scan META success";
             //MetaApiStatic.ConnectMetaBasedProjectID(1678700647);

@@ -4715,6 +4715,7 @@ MonoBehaviour:
   toggleAP: {fileID: 9088049142010413961}
   normalizeShader: {fileID: 7200000, guid: 744d41986db6140ea8958f9ef8fdde32, type: 3}
   edgeInference: {fileID: 1557103665}
+  nextStep: {fileID: 1157832859031248372}
 --- !u!114 &1557103671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14879,7 +14880,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!224 &9110111010014820580
 RectTransform:
   m_ObjectHideFlags: 0

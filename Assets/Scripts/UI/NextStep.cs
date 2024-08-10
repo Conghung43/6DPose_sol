@@ -18,7 +18,7 @@ public class NextStep : MonoBehaviour
     }
 
     // Handle button click event
-    private void RaiseButtonClick()
+    public void RaiseButtonClick()
     {
         switch (StationStageIndex.FunctionIndex)
         {

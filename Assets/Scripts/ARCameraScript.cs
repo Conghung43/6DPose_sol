@@ -73,6 +73,8 @@ public class ARCameraScript : MonoBehaviour
     private Quaternion savedRotation;
     private float savedFieldOfView;
 
+    public NextStep nextStep;
+
     private void Start()
     {
         // Set the StationStageIndex FunctionIndex to "Home"
@@ -117,11 +119,11 @@ public class ARCameraScript : MonoBehaviour
         UnityEngine.Debug.Log("START ARCameraScript/OnInferenceResponse ");
 
         // Check if the function index is not "Detect"
-        if (StationStageIndex.FunctionIndex != "Detect")
-        {
-            inferenceResponseFlag = true;
-            return;
-        }
+        //if (StationStageIndex.FunctionIndex != "Detect")
+        //{
+        //    inferenceResponseFlag = true;
+        //    return;
+        //}
 
         try
         {
@@ -137,7 +139,7 @@ public class ARCameraScript : MonoBehaviour
                 cap.SetActive(true);
 
                 // Set Detection result
-                if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule)
+                if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule && StationStageIndex.FunctionIndex == "Detect")
                 {
                     StationStageIndex.metaInferenceRule = metaAPIinferenceData.data.rule;
                     dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
@@ -146,6 +148,7 @@ public class ARCameraScript : MonoBehaviour
                     if (StationStageIndex.stageIndex < dataStages.Count - 1)
                     {
                         nextStepBtn.gameObject.SetActive(true);
+                        //nextStep.RaiseButtonClick();
                         captureBtn.gameObject.SetActive(false);
                     }
 
@@ -427,7 +430,7 @@ public class ARCameraScript : MonoBehaviour
                 MetaService.ConnectWithMetaStageID();
                 return;
             }
-            if (StationStageIndex.FunctionIndex == "Detect")
+            if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
             {
                 inferenceResponseFlag = false;
                 SendImage2Meta();
