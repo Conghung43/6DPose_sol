@@ -9,6 +9,7 @@ public class GameObjectController : MonoBehaviour
     public GameObject ImageTarget;
 
     public List<GameObject> objectList;
+    public Line detectionLine;
 
     void Start()
     {
@@ -76,6 +77,7 @@ public class GameObjectController : MonoBehaviour
                     StationStageIndex.imageTargetFound = false;
                 }
                 TurnOnAnimation();
+                detectionLine.SetShowLine();
                 break;
             case "Detect":
                 StationStageIndex.metaInferenceRule = false;
@@ -84,6 +86,7 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();
                 TurnOffAnimation();
+                detectionLine.SetHideLine();
                 break;
             case "Result":
                 break;

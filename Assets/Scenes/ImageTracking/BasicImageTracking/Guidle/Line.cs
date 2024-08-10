@@ -43,6 +43,11 @@ using UnityEngine;
             _isShow = false;
         }
 
+        public void SetShowLine()
+        {
+            _isShow = true;
+        }
+
         private void Update()
         {
             if (_isShow)
