@@ -35,6 +35,8 @@ public class ARCameraScript : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI titleInfo;
 
     public GameObject sphere;
+    public GameObject cap;
+
     //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
@@ -132,6 +134,7 @@ public class ARCameraScript : MonoBehaviour
                 Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
                 (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
                 sphere.transform.position = centerPoint3D;
+                cap.SetActive(true);
 
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule)
