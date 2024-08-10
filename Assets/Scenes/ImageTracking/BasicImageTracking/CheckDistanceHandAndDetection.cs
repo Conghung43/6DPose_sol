@@ -1,0 +1,45 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CheckDistanceHandAndDetection : MonoBehaviour
+{
+    [SerializeField] private RectTransform _handImage;
+    [SerializeField] private RectTransform _detectionImage;
+    [SerializeField] private NextStep _nextStep;
+    [SerializeField] private Line _detecionLine;
+    private bool _isChecked;
+    private float _time = 0.5f;
+    private readonly float _minDistance = 0.01f;
+
+    public void Init()
+    {
+        _isChecked = false;
+    }
+    private void Start()
+    {
+        Init();
+    }
+
+    private void Update()
+    {
+        if (_isChecked)
+        {
+            return;
+        }
+        if (_handImage.gameObject.activeInHierarchy && Vector2.Distance(_detectionImage.anchoredPosition,_handImage.anchoredPosition)<_minDistance )
+        {
+            _time -= Time.deltaTime;
+            if (_time <= 0)
+            {
+                _isChecked = true;
+                _time = 0.5f;
+                _detecionLine.SetHideLine();
+                _nextStep.RaiseButtonClick();
+            }
+        }
+    }
+
+    
+}

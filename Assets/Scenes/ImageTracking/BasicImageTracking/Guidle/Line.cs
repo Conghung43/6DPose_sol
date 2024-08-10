@@ -10,7 +10,7 @@ using UnityEngine;
         public int step = 20;
         public List<Transform> items;
 
-
+        private bool _isShow;
         private void Start()
         {
             for (int i = 0; i < step; i++)
@@ -38,9 +38,21 @@ using UnityEngine;
             } 
         }
 
+        public void SetHideLine()
+        {
+            _isShow = false;
+        }
+
         private void Update()
         {
-            ShowLine();
+            if (_isShow)
+            {
+                ShowLine();
+            }
+            else
+            {
+                HideLine();
+            }
             
         }
 

@@ -35,6 +35,7 @@ public class ARCameraScript : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI titleInfo;
 
     public GameObject sphere;
+    [SerializeField] private RectTransform _imageDection;
     public GameObject cap;
 
     //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
@@ -136,6 +137,7 @@ public class ARCameraScript : MonoBehaviour
                 Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
                 (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
                 sphere.transform.position = centerPoint3D;
+                _imageDection.anchoredPosition = arCamera.WorldToScreenPoint(sphere.transform.position);
                 cap.SetActive(true);
 
                 // Set Detection result
