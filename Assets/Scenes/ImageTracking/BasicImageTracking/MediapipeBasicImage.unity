@@ -5599,7 +5599,11 @@ MonoBehaviour:
   barcode: {fileID: 156259917}
   arCameraScript: {fileID: 1557103666}
   ImageTarget: {fileID: 156259917}
-  objectList: []
+  objectList:
+  - {fileID: 387139373}
+  - {fileID: 1201148236}
+  - {fileID: 1201148236}
+  - {fileID: 1201148236}
   detectionLine: {fileID: 927359889}
 --- !u!1 &2017973560
 GameObject:
