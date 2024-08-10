@@ -240,15 +240,20 @@ public class ARCameraScript : MonoBehaviour
                 (int)(depthImageSize.x - depthPoint.x),
                 (int)(depthImageSize.y - depthPoint.y));
 #endif
+            Vector3 centerPoint3D = Vector3.zero;
+            // For optimize
+            if (StationStageIndex.FunctionIndex == "Sample")
+            {
+                //HungNC todoList change ScreenToWorldPoint >> ray to plane
+                Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
+                // Set the temporary camera's properties to the saved state
+                tempCamera.transform.position = savedPosition;
+                tempCamera.transform.rotation = savedRotation;
+                tempCamera.fieldOfView = savedFieldOfView;
+                centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
 
-            Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
-            // Set the temporary camera's properties to the saved state
-            tempCamera.transform.position = savedPosition;
-            tempCamera.transform.rotation = savedRotation;
-            tempCamera.fieldOfView = savedFieldOfView;
-            Vector3 centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
-
-            Destroy(tempCamera);
+                Destroy(tempCamera);
+            }
 
             float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
@@ -348,7 +353,7 @@ public class ARCameraScript : MonoBehaviour
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI_()
+    void OnGUI()
     {
         if (StationStageIndex.FunctionIndex == "Detect") {
             DrawRois(false);
