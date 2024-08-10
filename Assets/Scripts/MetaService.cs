@@ -47,7 +47,14 @@ public static class MetaService
     public static void ConnectWithMetaStageID(){
         try{
             int projectID = Int32.Parse(MetaService.qrMetaData[3]);
-            int stageID = projectData.data[StationStageIndex.stageIndex - 1].state_id;
+            // if in Sample function, index = (StationStageIndex.stageIndex - 1)*2 ;
+            // and in Detect function, index = (StationStageIndex.stageIndex - 1)*2 + 1
+            int stateIndex = (StationStageIndex.stageIndex - 1) * 2;
+            if (StationStageIndex.FunctionIndex == "Detect")
+            {
+                stateIndex = (StationStageIndex.stageIndex - 1) * 2 + 1;
+            }
+            int stageID = projectData.data[stateIndex].state_id;
             // Request stage API
             var triggerAPIresponse = RequestStageAPI(projectID, stageID);
 
@@ -141,9 +148,16 @@ public static class MetaService
     //AI Inference
     public static IEnumerator InferenceAPI(byte[] imageBytes )
     {
-        int modelID = projectData.data[StationStageIndex.stageIndex-1].model.model_id;
-        string toolName = projectData.data[StationStageIndex.stageIndex-1].tool;
-        int stageIDInference = projectData.data[StationStageIndex.stageIndex-1].state_id;
+        // if in Sample function, index = (StationStageIndex.stageIndex - 1)*2 ;
+        // and in Detect function, index = (StationStageIndex.stageIndex - 1)*2 + 1
+        int stateIndex = (StationStageIndex.stageIndex - 1)*2;
+        if (StationStageIndex.FunctionIndex == "Detect")
+        {
+            stateIndex = (StationStageIndex.stageIndex - 1)*2 + 1;
+        }
+        int modelID = projectData.data[stateIndex].model.model_id;
+        string toolName = projectData.data[stateIndex].tool;
+        int stageIDInference = projectData.data[stateIndex].state_id;
         int jobID = stageData.data.job_id;
         string apiUrl = $"https://{serverIP}/{inferenceApiEndPoint}";
 

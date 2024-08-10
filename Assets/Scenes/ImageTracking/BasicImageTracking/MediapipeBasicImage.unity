@@ -4711,7 +4711,6 @@ MonoBehaviour:
   bBoxBorderSize: -1
   titleInfo: {fileID: 70192331331346470}
   sphere: {fileID: 355579126}
-  cap: {fileID: 387139373}
   toggleAP: {fileID: 9088049142010413961}
   normalizeShader: {fileID: 7200000, guid: 744d41986db6140ea8958f9ef8fdde32, type: 3}
   edgeInference: {fileID: 1557103665}
@@ -5507,6 +5506,11 @@ MonoBehaviour:
   barcode: {fileID: 156259917}
   arCameraScript: {fileID: 1557103666}
   ImageTarget: {fileID: 156259917}
+  objectList:
+  - {fileID: 387139373}
+  - {fileID: 1201148236}
+  - {fileID: 1201148236}
+  - {fileID: 1201148236}
 --- !u!1 &2017973560
 GameObject:
   m_ObjectHideFlags: 0

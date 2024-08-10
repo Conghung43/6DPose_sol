@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 public class GameObjectController : MonoBehaviour
 {
     public GameObject barcode;
     public ARCameraScript arCameraScript;
     public GameObject ImageTarget;
+
+    public List<GameObject> objectList;
+
     void Start()
     {
         StationStageIndex.OnFunctionIndexChange += OnGameObjectControllerFunctionChangeHandler;
@@ -16,6 +20,22 @@ public class GameObjectController : MonoBehaviour
     void OnEnable(){
         StationStageIndex.OnFunctionIndexChange += OnGameObjectControllerFunctionChangeHandler;
     }
+
+    private void TurnOnAnimation()
+    {
+        objectList[StationStageIndex.stageIndex - 1].SetActive(true);
+        if (StationStageIndex.stageIndex < 4)// for the case click back button
+        {
+            objectList[StationStageIndex.stageIndex].SetActive(false);
+        }
+        
+    }
+
+    private void TurnOffAnimation()
+    {
+        objectList[StationStageIndex.stageIndex - 1].SetActive(false);
+    }
+
     private void OnGameObjectControllerFunctionChangeHandler(string functionName){
         if (StationStageIndex.metaTimeCount != null){
             StationStageIndex.metaTimeCount.Stop();
@@ -55,6 +75,7 @@ public class GameObjectController : MonoBehaviour
                     ImageTarget.SetActive(false);
                     StationStageIndex.imageTargetFound = false;
                 }
+                TurnOnAnimation();
                 break;
             case "Detect":
                 StationStageIndex.metaInferenceRule = false;
@@ -62,6 +83,7 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.FinalUI = false;
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();
+                TurnOffAnimation();
                 break;
             case "Result":
                 break;
