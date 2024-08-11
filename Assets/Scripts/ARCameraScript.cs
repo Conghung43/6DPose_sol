@@ -146,10 +146,10 @@ public class ARCameraScript : MonoBehaviour
                     dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
 
                     // Show/hide next step and capture buttons based on current stage
-                    if (StationStageIndex.stageIndex < dataStages.Count - 1)
+                    if (StationStageIndex.stageIndex < dataStages.Count)
                     {
                         nextStepBtn.gameObject.SetActive(true);
-                        //nextStep.RaiseButtonClick();
+                        CallAutoNextAfterDelay(3);
                         captureBtn.gameObject.SetActive(false);
                     }
 
@@ -176,6 +176,20 @@ public class ARCameraScript : MonoBehaviour
         inferenceResponseFlag = true;
 
         UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
+    }
+
+    // Coroutine to handle the delay
+    IEnumerator CallAutoNextAfterDelay(float delayInSeconds)
+    {
+        // Wait for the specified amount of time
+        yield return new WaitForSeconds(delayInSeconds);
+
+        // Call the function after the delay
+        if (StationStageIndex.FunctionIndex == "Detect")
+        {
+            nextStep.RaiseButtonClick();
+        }
+        
     }
 
     public (Vector3, float) GetObjectCenterRadiusBaseAR()

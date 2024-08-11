@@ -8,17 +8,17 @@ public class CheckListController : MonoBehaviour
     void OnDisable()
     {
         // Unsubscribe from the event when the script is disabled
-        EventManager.OnStageChange -= OnPlayAnimation;
+        EventManager.OnStageChange -= OnChangeCheckListUI;
     }
 
     void OnEnable()
     {
         // Subscribe to the event when the script is enabled
-        EventManager.OnStageChange += OnPlayAnimation;
+        EventManager.OnStageChange += OnChangeCheckListUI;
     }
 
     // This method is called when the stage changes
-    private void OnPlayAnimation(object sender, EventManager.OnStageIndexEventArgs e)
+    private void OnChangeCheckListUI(object sender, EventManager.OnStageIndexEventArgs e)
     {
         // Find the label game object based on the current stage index
         label = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
