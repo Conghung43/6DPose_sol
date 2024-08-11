@@ -137,6 +137,9 @@ public class ARCameraScript : MonoBehaviour
                 (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
                 sphere.transform.position = centerPoint3D;
 
+                //show bbox for "Detect", this function called in here to optimize performance
+                OnGUI_();
+
                 _imageDection.anchoredPosition = arCamera.WorldToScreenPoint(sphere.transform.position);
 
                 // Set Detection result
@@ -367,7 +370,7 @@ public class ARCameraScript : MonoBehaviour
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI()
+    void OnGUI_()
     {
         if (StationStageIndex.FunctionIndex == "Detect") {
             DrawRois(false);
