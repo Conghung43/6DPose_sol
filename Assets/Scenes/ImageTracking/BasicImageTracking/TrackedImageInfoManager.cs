@@ -178,6 +178,36 @@ namespace UnityEngine.XR.ARFoundation.Samples
                    viewportPosition.z > 0; // Ensure the object is in front of the camera
         }
 
+        // Check hand center is in Engine Rect
+        public bool ObjectCenterInOtherObjectRect(Vector2 objectCenter, Rect otherObjectRect)
+        {
+            // Check if the point is inside the rectangle
+            bool isInside = otherObjectRect.Contains(objectCenter);
+
+            if (isInside)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // Convert OpenCV rect to Unity Rect
+        Rect ConvertOpenCVRectToUnityRect(int[] bbox)
+        {
+            int left = bbox[0];
+            int top = bbox[1];
+            int right = bbox[2];
+            int bottom = bbox[3];
+            int width = right - left;
+            int height = bottom - top;
+
+            // Create a Unity Rect
+            return new Rect(left, top, width, height);
+        }
+
         private void Update()
         {
             if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
@@ -258,6 +288,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //if bbox width < height => return null: in small size will return bad result
                 if (bbox != null)
                 {
+                    // Luan If hand close to engine, skip 6D inference
+                    //Rect engineRect = ConvertOpenCVRectToUnityRect(bbox);
+                    //bool isHandInEngine = ObjectCenterInOtherObjectRect(handCenter, engineRect);
+                    //if (isHandInEngine) return;
+
                     //top left right bottom
                     if (!Inference.objectInitialSet)
                     {
