@@ -87,3 +87,13 @@ MonoBehaviour:
     m_SpecifySize: 1
     m_Name: Engine3
     m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5655151344816619286
+      m_GuidHigh: 5026912441738890675
+    m_SerializedTextureGuid:
+      m_GuidLow: 11876781758654104627
+      m_GuidHigh: 7515384815105430619
+    m_Size: {x: 0.35, y: 0.15934065}
+    m_SpecifySize: 1
+    m_Name: EngineTop
+    m_Texture: {fileID: 0}

@@ -66,6 +66,9 @@ public class ARCameraScript : MonoBehaviour
     private List<int> smoothInference = Enumerable.Repeat(0, 20).ToList();
     public static float[] ImageFloatValues;
     public static float[] prb;
+
+    int count = 0;
+
     public EdgeInferenceBarracuda edgeInference;
     //Stopwatch inferenceWatch = new Stopwatch();
     JsonDeserialization.InferenceResult metaAPIinferenceData;
@@ -702,6 +705,10 @@ public class ARCameraScript : MonoBehaviour
 
 #if UNITY_EDITOR
         File.WriteAllBytes("meta.jpg", CapturedImage);
+#else
+        string filePath = Path.Combine(Application.persistentDataPath, count.ToString() + ".jpg");
+        count += 1;
+        File.WriteAllBytes(filePath, CapturedImage);
 #endif
         // Check if there is a coroutine already running and stop it
         if (coroutineControler != null)
