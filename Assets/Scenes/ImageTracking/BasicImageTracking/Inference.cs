@@ -275,8 +275,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
         {
-            //GameObject filterObj = GameObject.Find(objName);
-            if (modelTarget != null)//(objectInitialSet)
+            GameObject filterObj = GameObject.Find(objName);
+            if (filterObj != null)//(objectInitialSet)
             {
                 //if (objectInitialSet)
                 //{
@@ -289,14 +289,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //    Debug.Log(" Display3DBox Smooth movement ");
                 //    filterObj.transform.position = Vector3.Lerp(filterObj.transform.position, position, 0.1f * Time.deltaTime);
                 //}
-                modelTarget.transform.position = position;
-                modelTarget.transform.rotation = rotation;
+                filterObj.transform.position = position;
+                filterObj.transform.rotation = rotation;
                 //Debug.Log(rotation.eulerAngles.ToString());
             }
-            else
-            {
-                modelTarget = GameObject.Find(objName);
-            }
+            //else
+            //{
+            //    modelTarget = GameObject.Find(objName);
+            //}
                 
         }
 
