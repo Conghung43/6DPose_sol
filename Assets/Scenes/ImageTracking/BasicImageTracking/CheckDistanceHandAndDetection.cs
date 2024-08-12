@@ -6,7 +6,7 @@ using UnityEngine;
 public class CheckDistanceHandAndDetection : MonoBehaviour
 {
     [SerializeField] private RectTransform _handImage;
-    [SerializeField] private Rect _detectionRect;
+    [SerializeField] private ARCameraScript arCameraScript;
     [SerializeField] private NextStep _nextStep;
     [SerializeField] private Line _detecionLine;
     private bool _isChecked;
@@ -27,7 +27,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
         {
             return;
         }
-        if (_handImage.gameObject.activeInHierarchy && _detectionRect.Contains(_handImage.anchoredPosition))
+        if (_handImage.gameObject.activeInHierarchy && arCameraScript.GetObjectBBox().Contains(_handImage.anchoredPosition))
         {
             _time -= Time.deltaTime;
             if (_time <= 0)
