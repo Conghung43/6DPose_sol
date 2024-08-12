@@ -44,10 +44,10 @@ using UnityEngine;
             _isShow = false;
         }
 
-        public void SetStartAndHideLine(Transform start)
+        public void SetStartAndHideLine(Transform start,float second)
         {
             bezierCurve.SetStartPoint(start);
-            StartCoroutine(HideCoroutine(3f));
+            StartCoroutine(HideCoroutine(second));
         }
 
         IEnumerator HideCoroutine(float second)

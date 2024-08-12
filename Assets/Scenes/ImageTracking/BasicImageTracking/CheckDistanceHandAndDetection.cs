@@ -37,7 +37,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
             {
                 _isChecked = true;
                 _time = 0.5f;
-                _detecionLine.SetStartAndHideLine(_paimSphere);
+                _detecionLine.SetStartAndHideLine(_paimSphere,5f);
                 _nextStep.RaiseButtonClick();
             }
         }
