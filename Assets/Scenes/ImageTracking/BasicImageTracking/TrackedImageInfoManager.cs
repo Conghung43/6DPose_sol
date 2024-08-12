@@ -43,6 +43,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public GameObject sphere;
 
+        public List<GameObject> sphereList;
+
         [SerializeField]
         [Tooltip("If an image is detected but no source texture can be found, this texture is used instead.")]
         Texture2D m_DefaultTexture;
@@ -437,10 +439,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
 
                 Vector3 position = trackedImage.transform.position + trackedImage.transform.rotation * Vector3.Scale(scale * 0.5f, cornerOffsets[i]);
-                if (i == 0)
-                {
-                    sphere.transform.position = position;
-                }
+                //if (i == 0)
+                //{
+                    sphereList[i].transform.position = position;
+                //}
 
                 bbox[i] = Camera.main.WorldToScreenPoint(position);
                 bbox[i][1] = Screen.height - bbox[i][1];
