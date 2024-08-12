@@ -28,14 +28,12 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
             return;
         }
 
-        Rect objectRect = arCameraScript.GetObjectBBox();
-        if (_handImage.gameObject.activeInHierarchy && objectRect.Contains(_handImage.anchoredPosition))
+        
+        if (_handImage.gameObject.activeInHierarchy && arCameraScript._dectionRect.Contains(_handImage.anchoredPosition))
         {
-            Debug.Log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
             _time -= Time.deltaTime;
             if (_time <= 0)
             {
-                Debug.Log("aaaaaaaaaaaaaaaaaaaaaaaaa");
                 _isChecked = true;
                 _time = 0.5f;
                 _detecionLine.SetHideLine();

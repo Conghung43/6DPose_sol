@@ -79,6 +79,7 @@ public class ARCameraScript : MonoBehaviour
     private float savedFieldOfView;
 
     public NextStep nextStep;
+    public Rect _dectionRect;
 
     private void Start()
     {
@@ -142,13 +143,18 @@ public class ARCameraScript : MonoBehaviour
                 (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
                 if (centerPoint != Vector3.zero)
                 {
+                    
+                    OnGUI_();
                     sphere.transform.position = centerPoint3D;
+                    Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
+                    _imageDection.anchoredPosition = screenPoint;
+                    _dectionRect = new Rect(screenPoint.x, screenPoint.y, w, h);
+
                 }
 
-                //show bbox for "Detect", this function called in here to optimize performance
-                OnGUI_();
+               
 
-                _imageDection.anchoredPosition = arCamera.WorldToScreenPoint(sphere.transform.position);
+                
 
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule && StationStageIndex.FunctionIndex == "Detect")
@@ -223,6 +229,7 @@ public class ARCameraScript : MonoBehaviour
         }
     }
 
+    private float w, h;
     public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI()
     {
         int x1=0, y1, x2=0, y2;
@@ -237,6 +244,8 @@ public class ARCameraScript : MonoBehaviour
                 x2 = metaAPIinferenceData.data.rois[i][2];
                 y2 = metaAPIinferenceData.data.rois[i][3];
                 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+                w = Mathf.Abs(x1 - x2);
+                h = Mathf.Abs(y2 - y1);
                 if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
                 {
                     break;
