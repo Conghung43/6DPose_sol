@@ -428,7 +428,7 @@ public class ARCameraScript : MonoBehaviour
                 status = true
             });
             // Set the titleInfo text to display elapsed minutes and seconds from metaTimeCount
-            titleInfo.text = $"{StationStageIndex.metaTimeCount.Elapsed.Minutes}:{StationStageIndex.metaTimeCount.Elapsed.Seconds}";// +  " " + usedMemory / 1024000 + " MB";
+            //titleInfo.text = $"{StationStageIndex.metaTimeCount.Elapsed.Minutes}:{StationStageIndex.metaTimeCount.Elapsed.Seconds}";// +  " " + usedMemory / 1024000 + " MB";
         }
         else
         {
@@ -729,6 +729,11 @@ public class ARCameraScript : MonoBehaviour
         //capturedTexture.Apply();
 
         // Encode the capture texture as JPG and assign it to the CapturedImage variable
+        if (TrackedImageInfoManager.cpuImageTexture == null)
+        {
+            inferenceResponseFlag = true;
+            return;
+        }
         CapturedImage = TrackedImageInfoManager.cpuImageTexture.EncodeToJPG();//capturedTexture.EncodeToJPG();
 
         //Also get depth image for convert 2D to 3D
