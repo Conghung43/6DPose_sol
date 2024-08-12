@@ -225,29 +225,23 @@ public class ARCameraScript : MonoBehaviour
 
     public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI()
     {
-        int select=0;
-        for (int i = 0; i < metaAPIinferenceData.data.rois.Count(); i++)
-        {
-            int x1 = metaAPIinferenceData.data.rois[0][0];
-            int y1 = metaAPIinferenceData.data.rois[0][1];
-            int x2 = metaAPIinferenceData.data.rois[0][2];
-            int y2 = metaAPIinferenceData.data.rois[0][3];
-            Vector2 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
-            if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
-            {
-                select = i;
-                break;
-            }
-        }
+        int x1=0, y1, x2=0, y2;
+        Vector2 currenPosition=Vector2.zero;
         if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
-            int x1 = metaAPIinferenceData.data.rois[select][0];
-            int y1 = metaAPIinferenceData.data.rois[select][1];
-            int x2 = metaAPIinferenceData.data.rois[select][2];
-            int y2 = metaAPIinferenceData.data.rois[select][3];
-    
             
-            Vector2 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+            for (int i = 0; i < metaAPIinferenceData.data.rois.Count(); i++)
+            {
+                x1 = metaAPIinferenceData.data.rois[i][0];
+                y1 = metaAPIinferenceData.data.rois[i][1];
+                x2 = metaAPIinferenceData.data.rois[i][2];
+                y2 = metaAPIinferenceData.data.rois[i][3];
+                currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+                if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
+                {
+                    break;
+                }
+            }
             //UpdateGroup
             
             Vector2 CheckedPoint=PositionOptimizer2D.UpdatePosition(currenPosition,Math.Abs(x2-x1));
@@ -298,7 +292,6 @@ public class ARCameraScript : MonoBehaviour
         {
             return (Vector3.zero, 1f, Vector3.zero);
         }
-        
     }
 
     public UnityEngine.Rect GetObjectBBox()
