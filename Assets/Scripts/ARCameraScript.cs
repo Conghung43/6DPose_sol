@@ -21,6 +21,7 @@ using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.DnnModule;
 using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
 using Debug = UnityEngine.Debug;
+using Rect = UnityEngine.Rect;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -139,7 +140,10 @@ public class ARCameraScript : MonoBehaviour
             {
                 Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
                 (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
-                sphere.transform.position = centerPoint3D;
+                if (centerPoint != Vector3.zero)
+                {
+                    sphere.transform.position = centerPoint3D;
+                }
 
                 //show bbox for "Detect", this function called in here to optimize performance
                 OnGUI_();
@@ -227,9 +231,13 @@ public class ARCameraScript : MonoBehaviour
             int y1 = metaAPIinferenceData.data.rois[0][1];
             int x2 = metaAPIinferenceData.data.rois[0][2];
             int y2 = metaAPIinferenceData.data.rois[0][3];
-
-            Vector2 centerPoint2D = new Vector3((x1 + x2) / 2,(y1 + y2) / 2);
-
+    
+            
+            Vector2 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+            //UpdateGroup
+            
+            Vector2 CheckedPoint=PositionOptimizer2D.UpdatePosition(currenPosition,Math.Abs(x2-x1));
+            Vector2 centerPoint2D = CheckedPoint;
             //Convert cpuImage point to ScreenPoint
             Vector2 screenPoint = Vector2.zero;
             Vector2 xrImageSize = new Vector2(TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
@@ -265,6 +273,11 @@ public class ARCameraScript : MonoBehaviour
             }
 
             float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
+            if (CheckedPoint == Vector2.zero)
+            {
+                centerPoint2D = Vector2.zero;
+                centerPoint3D = Vector3.zero;
+            }
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
         else
@@ -276,9 +289,14 @@ public class ARCameraScript : MonoBehaviour
 
     public UnityEngine.Rect GetObjectBBox()
     {
-        Vector3 centerPoint; float radiusOnScreen;Vector3 centerPoint3D;
+        Vector2 centerPoint;
+        float radiusOnScreen;Vector3 centerPoint3D;
         (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
-        Vector3 corner1World2D = centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
+        if (centerPoint == Vector2.zero)
+        {
+            return Rect.zero;
+        }
+        Vector3 corner1World2D =(Vector3) centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
         UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
         return unityRect;
     }
@@ -286,7 +304,7 @@ public class ARCameraScript : MonoBehaviour
     public void DrawRois(bool drawOnResultStage)
     {
 
-        if (!drawOnResultStage)
+        if (!drawOnResultStage&& bBoxRect!=Rect.zero)
         {
             // Update bounding box position
             bBoxRect = GetObjectBBox();

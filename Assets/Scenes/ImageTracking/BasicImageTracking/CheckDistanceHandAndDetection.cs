@@ -27,7 +27,9 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
         {
             return;
         }
-        if (_handImage.gameObject.activeInHierarchy && arCameraScript.GetObjectBBox().Contains(_handImage.anchoredPosition))
+
+        Rect objectRect = arCameraScript.GetObjectBBox();
+        if (_handImage.gameObject.activeInHierarchy && objectRect.Contains(_handImage.anchoredPosition))
         {
             _time -= Time.deltaTime;
             if (_time <= 0)
