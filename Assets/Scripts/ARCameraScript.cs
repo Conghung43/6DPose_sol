@@ -225,12 +225,26 @@ public class ARCameraScript : MonoBehaviour
 
     public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI()
     {
-        if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
+        int select=0;
+        for (int i = 0; i < metaAPIinferenceData.data.rois.Count(); i++)
         {
             int x1 = metaAPIinferenceData.data.rois[0][0];
             int y1 = metaAPIinferenceData.data.rois[0][1];
             int x2 = metaAPIinferenceData.data.rois[0][2];
             int y2 = metaAPIinferenceData.data.rois[0][3];
+            Vector2 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+            if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
+            {
+                select = i;
+                break;
+            }
+        }
+        if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
+        {
+            int x1 = metaAPIinferenceData.data.rois[select][0];
+            int y1 = metaAPIinferenceData.data.rois[select][1];
+            int x2 = metaAPIinferenceData.data.rois[select][2];
+            int y2 = metaAPIinferenceData.data.rois[select][3];
     
             
             Vector2 currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);

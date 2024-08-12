@@ -64,6 +64,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static int[] TrackedImageCorner;
         public static Texture2D cpuImageTexture;
         public static Texture2D handTexture;
+        public static Rect EngineRect;
         public GameObject PoseInference;
 
         public GameObject box3D;
@@ -182,7 +183,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         }
 
         // Check hand center is in Engine Rect
-        public bool ObjectCenterInOtherObjectRect(Vector2 objectCenter, Rect otherObjectRect)
+        private bool ObjectCenterInOtherObjectRect(Vector2 objectCenter, Rect otherObjectRect)
         {
             // Check if the point is inside the rectangle
             bool isInside = otherObjectRect.Contains(objectCenter);
@@ -292,8 +293,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 if (bbox != null)
                 {
                     // Luan If hand close to engine, skip 6D inference
-                    Rect engineRect = ConvertOpenCVRectToUnityRect(bbox);
-                    bool isHandInEngine = ObjectCenterInOtherObjectRect(_handRect.anchoredPosition, engineRect);
+                    EngineRect = ConvertOpenCVRectToUnityRect(bbox);
+                    bool isHandInEngine = ObjectCenterInOtherObjectRect(_handRect.anchoredPosition, EngineRect);
                     Debug.Log("hand inference engine"+isHandInEngine);
                     if (isHandInEngine) return;
 
