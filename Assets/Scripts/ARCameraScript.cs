@@ -20,6 +20,7 @@ using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.DnnModule;
 using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
+using Debug = UnityEngine.Debug;
 
 public class ARCameraScript : MonoBehaviour
 {
@@ -152,7 +153,7 @@ public class ARCameraScript : MonoBehaviour
                     if (StationStageIndex.stageIndex < dataStages.Count)
                     {
                         nextStepBtn.gameObject.SetActive(true);
-                        CallAutoNextAfterDelay(3);
+                        nextStep.CallAutoNextAfterDelay(3);
                         captureBtn.gameObject.SetActive(false);
                     }
 
@@ -181,19 +182,7 @@ public class ARCameraScript : MonoBehaviour
         UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
     }
 
-    // Coroutine to handle the delay
-    IEnumerator CallAutoNextAfterDelay(float delayInSeconds)
-    {
-        // Wait for the specified amount of time
-        yield return new WaitForSeconds(delayInSeconds);
-
-        // Call the function after the delay
-        if (StationStageIndex.FunctionIndex == "Detect")
-        {
-            nextStep.RaiseButtonClick();
-        }
-        
-    }
+    
 
     public (Vector3, float) GetObjectCenterRadiusBaseAR()
     {

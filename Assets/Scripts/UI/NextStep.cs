@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ public class NextStep : MonoBehaviour
     public Button nextStep;
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     public Toggle toggleAP;
+    private Coroutine _autoNext;
     private void OnDisable()
     {
         nextStep.onClick.RemoveListener(RaiseButtonClick);
@@ -17,9 +19,31 @@ public class NextStep : MonoBehaviour
         nextStep.onClick.AddListener(RaiseButtonClick);
     }
 
+    public void CallAutoNextAfterDelay(float delayInSeconds)
+    {
+        _autoNext = StartCoroutine(CallAutoNextAfterDelayCoroutine(delayInSeconds));
+    }
+    // Coroutine to handle the delay
+    IEnumerator CallAutoNextAfterDelayCoroutine(float delayInSeconds)
+    {
+        // Wait for the specified amount of time
+        yield return new WaitForSeconds(delayInSeconds);
+
+        // Call the function after the delay
+        if (StationStageIndex.FunctionIndex == "Detect")
+        {
+            RaiseButtonClick();
+        }
+        
+    }
+
     // Handle button click event
     public void RaiseButtonClick()
     {
+        if (_autoNext != null)
+        {
+            StopCoroutine(_autoNext);
+        }
         switch (StationStageIndex.FunctionIndex)
         {
             case "3dModel":

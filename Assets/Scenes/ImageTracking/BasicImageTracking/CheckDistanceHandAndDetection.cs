@@ -6,12 +6,11 @@ using UnityEngine;
 public class CheckDistanceHandAndDetection : MonoBehaviour
 {
     [SerializeField] private RectTransform _handImage;
-    [SerializeField] private RectTransform _detectionImage;
+    [SerializeField] private Rect _detectionRect;
     [SerializeField] private NextStep _nextStep;
     [SerializeField] private Line _detecionLine;
     private bool _isChecked;
     private float _time = 0.5f;
-    private readonly float _minDistance = 0.01f;
 
     public void Init()
     {
@@ -28,7 +27,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
         {
             return;
         }
-        if (_handImage.gameObject.activeInHierarchy && Vector2.Distance(_detectionImage.anchoredPosition,_handImage.anchoredPosition)<_minDistance )
+        if (_handImage.gameObject.activeInHierarchy && _detectionRect.Contains(_handImage.anchoredPosition))
         {
             _time -= Time.deltaTime;
             if (_time <= 0)

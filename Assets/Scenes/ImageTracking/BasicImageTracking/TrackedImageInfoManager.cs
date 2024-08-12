@@ -67,6 +67,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject box3D;
         public GameObject stickWithImageTargetObject;
         public CameraFeedToRenderTexture _CameraFeedToRenderTexture;
+        public RectTransform _handRect;
 
         int count = 0;
 
@@ -289,9 +290,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 if (bbox != null)
                 {
                     // Luan If hand close to engine, skip 6D inference
-                    //Rect engineRect = ConvertOpenCVRectToUnityRect(bbox);
-                    //bool isHandInEngine = ObjectCenterInOtherObjectRect(handCenter, engineRect);
-                    //if (isHandInEngine) return;
+                    Rect engineRect = ConvertOpenCVRectToUnityRect(bbox);
+                    bool isHandInEngine = ObjectCenterInOtherObjectRect(_handRect.anchoredPosition, engineRect);
+                    Debug.Log("hand inference engine"+isHandInEngine);
+                    if (isHandInEngine) return;
 
                     //top left right bottom
                     if (!Inference.objectInitialSet)
