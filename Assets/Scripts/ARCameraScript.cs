@@ -413,10 +413,10 @@ public class ARCameraScript : MonoBehaviour
     private void Update()
     {
         // Check if the current function index is "Detect"
-        if (StationStageIndex.FunctionIndex == "Detect" && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
+        if ((StationStageIndex.FunctionIndex == "Detect"|| StationStageIndex.FunctionIndex == "Sample") && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
         {
             // Ignore object out of view
-            Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
+            //Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
             //if (screenPoint.x < 0 || screenPoint.x > 1 || screenPoint.y < 0 || screenPoint.y > 1 || screenPoint.z < 0)
             //{
             //    //logInfo.text = "return";
