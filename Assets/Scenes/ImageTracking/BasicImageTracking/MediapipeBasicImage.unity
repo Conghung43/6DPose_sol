@@ -5241,6 +5241,12 @@ MonoBehaviour:
   normalizeShader: {fileID: 7200000, guid: 744d41986db6140ea8958f9ef8fdde32, type: 3}
   edgeInference: {fileID: 1557103665}
   nextStep: {fileID: 1157832859031248372}
+  _dectionRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0
 --- !u!114 &1557103671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5678,6 +5684,7 @@ MonoBehaviour:
   arCameraScript: {fileID: 1557103666}
   _nextStep: {fileID: 1157832859031248372}
   _detecionLine: {fileID: 927359889}
+  _paimSphere: {fileID: 527558675}
 --- !u!1001 &1817371369
 PrefabInstance:
   m_ObjectHideFlags: 0

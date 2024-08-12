@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,6 +43,19 @@ using UnityEngine;
         {
             _isShow = false;
         }
+
+        public void SetStartAndHideLine(Transform start)
+        {
+            bezierCurve.SetStartPoint(start);
+            StartCoroutine(HideCoroutine(3f));
+        }
+
+        IEnumerator HideCoroutine(float second)
+        {
+            yield return new WaitForSeconds(second);
+            SetHideLine();
+        }
+        
 
         public void SetShowLine()
         {

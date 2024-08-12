@@ -33,6 +33,10 @@ using UnityEngine;
             points[3] = _end.transform.position;
         }
 
+        public void SetStartPoint(Transform _transform)
+        {
+            _start = _transform;
+        }
         
 
         public Vector3 GetPoint (float t) {

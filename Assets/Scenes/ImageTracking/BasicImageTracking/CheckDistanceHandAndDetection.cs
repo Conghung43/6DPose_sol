@@ -9,6 +9,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
     [SerializeField] private ARCameraScript arCameraScript;
     [SerializeField] private NextStep _nextStep;
     [SerializeField] private Line _detecionLine;
+    [SerializeField] private Transform _paimSphere;
     private bool _isChecked;
     private float _time = 0.5f;
 
@@ -36,7 +37,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
             {
                 _isChecked = true;
                 _time = 0.5f;
-                _detecionLine.SetHideLine();
+                _detecionLine.SetStartAndHideLine(_paimSphere);
                 _nextStep.RaiseButtonClick();
             }
         }
