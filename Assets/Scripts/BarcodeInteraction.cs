@@ -191,8 +191,8 @@ public class BarcodeInteraction : MonoBehaviour
                     {
                             "10.1.30.18",
                             "MTIzMTIz",
-                            "object1_1_01",
-                            "1723447295",
+                            "engine_object1_2steps",
+                            "1723460712",
                             "demo"
                     };
         //"1688627566"

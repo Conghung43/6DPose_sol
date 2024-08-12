@@ -111,7 +111,7 @@ public class UIController : MonoBehaviour
                     }
                     break;
                 case "Sample":
-                    lineRenderer.gameObject.SetActive(true);
+                    //lineRenderer.gameObject.SetActive(true);
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
                     ResultCanvas.SetActive(false);
