@@ -5183,7 +5183,7 @@ MonoBehaviour:
   box3D: {fileID: 105800678}
   stickWithImageTargetObject: {fileID: 1492933786}
   _CameraFeedToRenderTexture: {fileID: 1778572071}
-  _handRect: {fileID: 0}
+  _handRect: {fileID: 1203558897}
 --- !u!114 &1557103655
 MonoBehaviour:
   m_ObjectHideFlags: 0
