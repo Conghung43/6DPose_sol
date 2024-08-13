@@ -1953,6 +1953,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 478497232}
   m_CullTransparentMesh: 1
+--- !u!1 &487793950 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fd848070c68e340dd89b3ec591f01916,
+    type: 3}
+  m_PrefabInstance: {fileID: 284015248}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &490419538
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5158,7 +5164,7 @@ MonoBehaviour:
   m_DefaultTexture: {fileID: 10305, guid: 0000000000000000f000000000000000, type: 0}
   logInfo: {fileID: 8803637016335030214}
   PoseInference: {fileID: 816003150}
-  box3D: {fileID: 105800678}
+  box3D: {fileID: 487793950}
   stickWithImageTargetObject: {fileID: 1492933786}
   _CameraFeedToRenderTexture: {fileID: 1778572071}
   _handRect: {fileID: 1203558897}
