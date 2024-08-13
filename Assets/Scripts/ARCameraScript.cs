@@ -743,13 +743,13 @@ public class ARCameraScript : MonoBehaviour
         //Get current camera pose
         SaveCameraState();
 
-#if UNITY_EDITOR
-        File.WriteAllBytes("meta.jpg", CapturedImage);
-#else
-        string filePath = Path.Combine(Application.persistentDataPath, count.ToString() + ".jpg");
-        count += 1;
-        File.WriteAllBytes(filePath, CapturedImage);
-#endif
+//#if UNITY_EDITOR
+//        File.WriteAllBytes("meta.jpg", CapturedImage);
+//#else
+//        string filePath = Path.Combine(Application.persistentDataPath, count.ToString() + ".jpg");
+//        count += 1;
+//        File.WriteAllBytes(filePath, CapturedImage);
+//#endif
         // Check if there is a coroutine already running and stop it
         if (coroutineControler != null)
         {

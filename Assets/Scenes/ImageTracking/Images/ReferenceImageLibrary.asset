@@ -18,82 +18,32 @@ MonoBehaviour:
     m_Storage: []
   m_Images:
   - m_SerializedGuid:
-      m_GuidLow: 5602505921028117032
-      m_GuidHigh: 208412801924047543
-    m_SerializedTextureGuid:
-      m_GuidLow: 4957130427921155942
-      m_GuidHigh: 17603663257252368475
-    m_Size: {x: 1, y: 0.6917073}
-    m_SpecifySize: 1
-    m_Name: Front_back
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 5459529644279497167
-      m_GuidHigh: 9183004257348580528
-    m_SerializedTextureGuid:
-      m_GuidLow: 16443245394284894005
-      m_GuidHigh: 4380034290401134874
-    m_Size: {x: 1, y: 0.7031924}
-    m_SpecifySize: 1
-    m_Name: Back
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 5711762266936012192
-      m_GuidHigh: 7666471584513620646
-    m_SerializedTextureGuid:
-      m_GuidLow: 12985364258071040732
-      m_GuidHigh: 15630742890686358027
-    m_Size: {x: 0.37, y: 0.28380468}
-    m_SpecifySize: 1
-    m_Name: Front
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 4687790688775212556
-      m_GuidHigh: 4218916885440909458
-    m_SerializedTextureGuid:
-      m_GuidLow: 6105552093064881743
-      m_GuidHigh: 3632258404611240553
-    m_Size: {x: 0.06, y: 0.033435114}
-    m_SpecifySize: 1
-    m_Name: part
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 5215551615244524682
-      m_GuidHigh: 744450577134305197
-    m_SerializedTextureGuid:
-      m_GuidLow: 14170627282378959332
-      m_GuidHigh: 114184159908229946
-    m_Size: {x: 0.37, y: 0.31925347}
-    m_SpecifySize: 1
-    m_Name: engine1
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 5185129078740396436
-      m_GuidHigh: 5248772560154186431
-    m_SerializedTextureGuid:
-      m_GuidLow: 3755277618483453380
-      m_GuidHigh: 14673696884667739898
-    m_Size: {x: 0.37, y: 0.27385828}
-    m_SpecifySize: 1
-    m_Name: engine2
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
-      m_GuidLow: 5454501592835877341
-      m_GuidHigh: 12990568530975059118
-    m_SerializedTextureGuid:
-      m_GuidLow: 6116191377252374157
-      m_GuidHigh: 18074196285987877195
-    m_Size: {x: 0.37, y: 0.3019971}
-    m_SpecifySize: 1
-    m_Name: Engine3
-    m_Texture: {fileID: 0}
-  - m_SerializedGuid:
       m_GuidLow: 5655151344816619286
       m_GuidHigh: 5026912441738890675
     m_SerializedTextureGuid:
       m_GuidLow: 11876781758654104627
       m_GuidHigh: 7515384815105430619
-    m_Size: {x: 0.35, y: 0.15934065}
+    m_Size: {x: 0.33, y: 0.15023549}
     m_SpecifySize: 1
     m_Name: EngineTop
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5096356929802067932
+      m_GuidHigh: 3734929783313757316
+    m_SerializedTextureGuid:
+      m_GuidLow: 12971676117905038795
+      m_GuidHigh: 8431606951234811355
+    m_Size: {x: 0.3, y: 0.15040214}
+    m_SpecifySize: 1
+    m_Name: top2
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5606695132738617516
+      m_GuidHigh: 14570373236352207755
+    m_SerializedTextureGuid:
+      m_GuidLow: 13012895127467210848
+      m_GuidHigh: 14210700408794335722
+    m_Size: {x: 0.3, y: 0.15704125}
+    m_SpecifySize: 1
+    m_Name: top3
     m_Texture: {fileID: 0}
