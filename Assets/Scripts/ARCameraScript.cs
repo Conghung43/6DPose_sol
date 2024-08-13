@@ -399,7 +399,7 @@ public class ARCameraScript : MonoBehaviour
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI()
+    void OnGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
         if (StationStageIndex.FunctionIndex == "Detect") {
             DrawRois(false);
