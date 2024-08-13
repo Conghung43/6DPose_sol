@@ -86,7 +86,7 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();
                 TurnOffAnimation();
-                detectionLine.SetHideLine();
+                //detectionLine.SetHideLine();
                 break;
             case "Result":
                 break;
