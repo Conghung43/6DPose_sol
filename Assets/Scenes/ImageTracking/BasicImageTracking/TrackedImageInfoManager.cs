@@ -224,8 +224,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 int[] bbox = null;
                 //bool isIntersecting = true;
 
-                // Transformation
+                //Display
+                sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], bboxTrackedImage[1], 0.5f));
+                sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], bboxTrackedImage[3], 0.5f));
 
+                // Transformation
                 bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
                 // This function may return null if 2D bbox doesn't have any intersection part with screen
                 bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
@@ -235,6 +238,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 {
                     Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
                     bboxMegaPose = GetLeftTopRightBottom(megaPoseCorner);
+
+                    sphereList[2].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[0], bboxMegaPose[1], 0.5f));
+                    sphereList[3].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[2], bboxMegaPose[3], 0.5f));
 
                     bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
                     // This function may return null if 2D bbox doesn't have any intersection part with screen
@@ -444,7 +450,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 Vector3 position = trackedImage.transform.position + trackedImage.transform.rotation * Vector3.Scale(scale * 0.5f, cornerOffsets[i]);
                 //if (i == 0)
                 //{
-                    sphereList[i].transform.position = position;
+                    //sphereList[i].transform.position = position;
                 //}
 
                 bbox[i] = Camera.main.WorldToScreenPoint(position);
