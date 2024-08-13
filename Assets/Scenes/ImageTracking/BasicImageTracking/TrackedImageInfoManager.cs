@@ -295,8 +295,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     // Luan If hand close to engine, skip 6D inference
                     EngineRect = ConvertOpenCVRectToUnityRect(bbox);
                     bool isHandInEngine = ObjectCenterInOtherObjectRect(_handRect.anchoredPosition, EngineRect);
-                    Debug.Log("hand inference engine"+isHandInEngine);
-                    if (isHandInEngine) return;
+                    //Debug.Log("hand inference engine"+isHandInEngine);
+                    //if (isHandInEngine) return;
 
                     //top left right bottom
                     if (!Inference.objectInitialSet)
@@ -325,7 +325,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 #endif
 
                         // Let camera move 1 cm for better inference result
-                        if (distance  > 0.01f)
+                        if (true)//(distance  > 0.01f)
                         {
                             lastCamPos = Camera.main.transform.position;
                             StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
