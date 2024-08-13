@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,7 +9,7 @@ using UnityEngine;
         public bool isQuadratic;
         public bool isRay;
         public Transform _start;
-        public Transform _end;
+        public List<Transform> _endList;
         private float _time = 0.5f;
 
         private void Update()
@@ -26,7 +27,7 @@ using UnityEngine;
             {
                 _time = 0.5f;
             }
-            points[3] = _end.transform.position;
+            points[3] = _endList[StationStageIndex.stageIndex].transform.position;
         }
 
         private void SetLinePoint()

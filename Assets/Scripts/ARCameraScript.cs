@@ -81,6 +81,8 @@ public class ARCameraScript : MonoBehaviour
     public NextStep nextStep;
     public Rect _dectionRect;
 
+    public Transform body;
+
     private void Start()
     {
         // Set the StationStageIndex FunctionIndex to "Home"
@@ -144,7 +146,7 @@ public class ARCameraScript : MonoBehaviour
                 if (centerPoint != Vector3.zero)
                 {
                     
-                    OnGUI_();
+                    //OnGUI_();
                     sphere.transform.position = centerPoint3D;
                     sphere.gameObject.SetActive(true);
                     Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
@@ -263,18 +265,18 @@ public class ARCameraScript : MonoBehaviour
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
 
             centerPoint2D = screenPoint;
-            float depth = 0.1f;
+            float depth = Vector3.Distance(arCamera.transform.position, body.position);
             // Only available on phone
-#if !UNITY_EDITOR
-            //Get depth and convert 3d
-            Vector2 depthImageSize = new Vector2(PointCloudTracking.texture.width, PointCloudTracking.texture.height);
-            Vector2 depthPoint = Vector2.zero;
-            ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out depthPoint, xrImageSize, depthImageSize);
+//#if !UNITY_EDITOR
+//            //Get depth and convert 3d
+//            Vector2 depthImageSize = new Vector2(PointCloudTracking.texture.width, PointCloudTracking.texture.height);
+//            Vector2 depthPoint = Vector2.zero;
+//            ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out depthPoint, xrImageSize, depthImageSize);
 
-            depth = ReadDepthValue(PointCloudTracking.texture,
-                (int)(depthImageSize.x - depthPoint.x),
-                (int)(depthImageSize.y - depthPoint.y));
-#endif
+//            depth = ReadDepthValue(PointCloudTracking.texture,
+//                (int)(depthImageSize.x - depthPoint.x),
+//                (int)(depthImageSize.y - depthPoint.y));
+//#endif
             Vector3 centerPoint3D = Vector3.zero;
             // For optimize
             if (StationStageIndex.FunctionIndex == "Sample")
@@ -321,7 +323,7 @@ public class ARCameraScript : MonoBehaviour
     public void DrawRois(bool drawOnResultStage)
     {
 
-        if (!drawOnResultStage&& bBoxRect!=Rect.zero)
+        if (!drawOnResultStage)
         {
             // Update bounding box position
             bBoxRect = GetObjectBBox();
@@ -397,7 +399,7 @@ public class ARCameraScript : MonoBehaviour
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI_()
+    void OnGUI()
     {
         if (StationStageIndex.FunctionIndex == "Detect") {
             DrawRois(false);
@@ -738,7 +740,7 @@ public class ARCameraScript : MonoBehaviour
         CapturedImage = TrackedImageInfoManager.cpuImageTexture.EncodeToJPG();//capturedTexture.EncodeToJPG();
 
         //Also get depth image for convert 2D to 3D
-        PointCloudTracking.uploadDepthImage = true;
+        //PointCloudTracking.uploadDepthImage = true;
 
         //Get current camera pose
         SaveCameraState();
