@@ -72,6 +72,11 @@ using UnityEngine;
             {
                 HideLine();
             }
+
+            if (!bezierCurve.IsStartEnable())
+            {
+                HideLine();
+            }
             
         }
 

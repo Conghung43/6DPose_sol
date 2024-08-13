@@ -146,6 +146,7 @@ public class ARCameraScript : MonoBehaviour
                     
                     OnGUI_();
                     sphere.transform.position = centerPoint3D;
+                    sphere.gameObject.SetActive(true);
                     Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
                     _imageDection.anchoredPosition = screenPoint;
                     _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);

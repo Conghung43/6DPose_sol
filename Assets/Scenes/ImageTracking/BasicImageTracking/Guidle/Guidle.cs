@@ -33,6 +33,11 @@ using UnityEngine;
             points[3] = _end.transform.position;
         }
 
+        public bool IsStartEnable()
+        {
+            return _start.gameObject.activeInHierarchy;
+        }
+
         public void SetStartPoint(Transform _transform)
         {
             _start = _transform;
