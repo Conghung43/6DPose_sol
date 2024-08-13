@@ -18,11 +18,7 @@ using UnityEngine;
                 _time -= Time.deltaTime;
                 if (_time <= 0)
                 {
-                    points[0] = _start.transform.position;
-                    float ds = Vector3.Distance(points[0], points[3]) / 2f < 0.5f
-                        ? Vector3.Distance(points[0], points[3]) / 2f
-                        : 0.5f;
-                    points[1] = CalculatePointOnBisector(points[0], points[3], ds);
+                    SetLinePoint();
                     //_time = 0.5f;
                 }
             }
@@ -33,6 +29,15 @@ using UnityEngine;
             points[3] = _end.transform.position;
         }
 
+        private void SetLinePoint()
+        {
+            points[0] = _start.transform.position;
+            float ds = Vector3.Distance(points[0], points[3]) / 2f < 0.5f
+                ? Vector3.Distance(points[0], points[3]) / 2f
+                : 0.5f;
+            points[1] = CalculatePointOnBisector(points[0], points[3], ds);
+        }
+
         public bool IsStartEnable()
         {
             return _start.gameObject.activeInHierarchy;
@@ -40,7 +45,9 @@ using UnityEngine;
 
         public void SetStartPoint(Transform _transform)
         {
+            
             _start = _transform;
+            SetLinePoint();
         }
         
 
