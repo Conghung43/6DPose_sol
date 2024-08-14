@@ -27,7 +27,7 @@ using UnityEngine;
             {
                 _time = 0.5f;
             }
-            points[3] = _endList[StationStageIndex.stageIndex].transform.position;
+            points[3] = _endList[StationStageIndex.stageIndex - 1].transform.position;
         }
 
         private void SetLinePoint()
