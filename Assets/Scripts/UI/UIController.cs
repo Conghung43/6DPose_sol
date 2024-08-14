@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation.Samples;
@@ -51,7 +52,7 @@ public class UIController : MonoBehaviour
     }
     private void OnFunctionIndexChangeActionHandler(string functionName)
     {
-        _descriptionController.UpdateDescription(functionName);
+        _descriptionController.UpdateDescription(functionName,StationStageIndex.stageIndex);
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         try
         {
@@ -113,7 +114,6 @@ public class UIController : MonoBehaviour
                     }
                     break;
                 case "Sample":
-                    //lineRenderer.gameObject.SetActive(true);
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
                     ResultCanvas.SetActive(false);
