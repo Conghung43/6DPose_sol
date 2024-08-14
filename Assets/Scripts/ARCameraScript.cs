@@ -141,23 +141,25 @@ public class ARCameraScript : MonoBehaviour
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
             {
-                Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
-                (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
-                if (centerPoint != Vector3.zero)
+
+                if (StationStageIndex.FunctionIndex == "Sample")
                 {
-                    
-                    //OnGUI_();
-                    sphere.transform.position = centerPoint3D;
-                    sphere.gameObject.SetActive(true);
-                    Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
-                    _imageDection.anchoredPosition = screenPoint;
-                    _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);
+                    Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
+                    List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids, StationStageIndex.stageIndex - 1);
+                    int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
+                    (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
+                    if (centerPoint != Vector3.zero)
+                    {
 
+                        //OnGUI_();
+                        sphere.transform.position = centerPoint3D;
+                        sphere.gameObject.SetActive(true);
+                        Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
+                        _imageDection.anchoredPosition = screenPoint;
+                        _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
+
+                    }
                 }
-
-               
-
-                
 
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule && StationStageIndex.FunctionIndex == "Detect")
@@ -198,7 +200,43 @@ public class ARCameraScript : MonoBehaviour
         UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
     }
 
-    
+    private List<int> FindIndicesOfValue(int[] array, int value)
+    {
+        List<int> indices = new List<int>();
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (array[i] == value)
+            {
+                indices.Add(i);
+            }
+        }
+
+        return indices;
+    }
+
+    private int FindBestScoreIndex(List<int> listIndices, float[] scores)
+    {
+        if (listIndices == null || listIndices.Count == 0)
+        {
+            Debug.LogWarning("List of indices is empty or null.");
+            return -1; // Indicating an invalid index
+        }
+
+        int bestIndex = listIndices[0];
+        float bestScore = scores[bestIndex];
+
+        foreach (int index in listIndices)
+        {
+            if (scores[index] > bestScore)
+            {
+                bestScore = scores[index];
+                bestIndex = index;
+            }
+        }
+
+        return bestIndex;
+    }
 
     public (Vector3, float) GetObjectCenterRadiusBaseAR()
     {
@@ -233,27 +271,25 @@ public class ARCameraScript : MonoBehaviour
     }
 
     private float w, h;
-    public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI()
+    public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI(int bestScoreIndex)
     {
         int x1=0, y1, x2=0, y2;
         Vector2 currenPosition=Vector2.zero;
         if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
-            
-            for (int i = 0; i < metaAPIinferenceData.data.rois.Count(); i++)
-            {
-                x1 = metaAPIinferenceData.data.rois[i][0];
-                y1 = metaAPIinferenceData.data.rois[i][1];
-                x2 = metaAPIinferenceData.data.rois[i][2];
-                y2 = metaAPIinferenceData.data.rois[i][3];
-                currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
-                w = Mathf.Abs(x1 - x2);
-                h = Mathf.Abs(y2 - y1);
-                if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
-                {
-                    break;
-                }
-            }
+            x1 = metaAPIinferenceData.data.rois[bestScoreIndex][0];
+            y1 = metaAPIinferenceData.data.rois[bestScoreIndex][1];
+            x2 = metaAPIinferenceData.data.rois[bestScoreIndex][2];
+            y2 = metaAPIinferenceData.data.rois[bestScoreIndex][3];
+            currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+            w = Mathf.Abs(x1 - x2);
+            h = Mathf.Abs(y2 - y1);
+            // AI model detect better now so temp comment this 
+            //if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
+            //{
+            //    break;
+            //}
+
             //UpdateGroup
             
             Vector2 CheckedPoint=PositionOptimizer2D.UpdatePosition(currenPosition,Math.Abs(x2-x1));
@@ -310,7 +346,7 @@ public class ARCameraScript : MonoBehaviour
     {
         Vector2 centerPoint;
         float radiusOnScreen;Vector3 centerPoint3D;
-        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI();
+        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(0);
         if (centerPoint == Vector2.zero)
         {
             return Rect.zero;
