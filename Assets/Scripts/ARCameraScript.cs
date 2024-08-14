@@ -144,7 +144,13 @@ public class ARCameraScript : MonoBehaviour
                 if (StationStageIndex.FunctionIndex == "Sample")
                 {
                     Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
-                    List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids, StationStageIndex.stageIndex - 1);
+                    //Base class id
+                    //List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
+                    //    StationStageIndex.stageIndex - 1);
+                    //base clase name
+                    int classid = FindClassIDfromName(StationStageIndex.stageIndex.ToString());
+                    List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
+                        classid);
                     int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
                     if (bestScoreIndex >= 0)
                     {
@@ -197,6 +203,22 @@ public class ARCameraScript : MonoBehaviour
         inferenceResponseFlag = true;
 
         UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
+    }
+
+    private int FindClassIDfromName(string name)
+    {
+        List<JsonDeserialization.Class> classList = MetaService.projectData.data[0].model.class_name;
+
+        for (int i = 0; i < classList.Count; i++)
+        {
+            if (classList[i].name == name)
+            {
+                return i;
+            }
+        }
+
+
+        return -1;
     }
 
     private List<int> FindIndicesOfValue(int[] array, int value)
@@ -274,6 +296,7 @@ public class ARCameraScript : MonoBehaviour
     {
         int x1=0, y1, x2=0, y2;
         Vector2 currenPosition=Vector2.zero;
+        //bestScoreIndex = metaAPIinferenceData.data.rois.Count - bestScoreIndex;
         if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
             x1 = metaAPIinferenceData.data.rois[bestScoreIndex][0];
