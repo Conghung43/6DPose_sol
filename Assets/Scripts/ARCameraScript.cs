@@ -25,9 +25,9 @@ using Rect = UnityEngine.Rect;
 
 public class ARCameraScript : MonoBehaviour
 {
-    [SerializeField] private Texture2D greenBBox;
-    [SerializeField] private Texture2D redBBox;
-    [SerializeField] private Texture2D grayBBox;
+    [SerializeField] private Sprite greenBBox;
+    [SerializeField] private Sprite redBBox;
+    [SerializeField] private Sprite grayBBox;
     [SerializeField] private Camera arCamera;
     [SerializeField] private RawImage resultStageDispalayImage;
     [SerializeField] private RawImage debugRawImage;
@@ -82,9 +82,11 @@ public class ARCameraScript : MonoBehaviour
     public Rect _dectionRect;
 
     public Transform body;
-
+    [SerializeField] private Image _detectImage;
+    private RectTransform _detectImageRectTransform;
     private void Start()
     {
+        _detectImageRectTransform = _detectImage.GetComponent<RectTransform>();
         // Set the StationStageIndex FunctionIndex to "Home"
         StationStageIndex.FunctionIndex = "Home";
 
@@ -117,7 +119,7 @@ public class ARCameraScript : MonoBehaviour
     private void ResetBoundingBox(object sender, EventManager.OnStageIndexEventArgs e)
     {
         // Reset bbox when stage change
-        guiStyle.normal.background = grayBBox;
+        _detectImage.sprite = grayBBox;
         smoothInference = Enumerable.Repeat(0, 20).ToList();
     }
 
@@ -384,8 +386,9 @@ public class ARCameraScript : MonoBehaviour
         if (!drawOnResultStage)
         {
             // Update bounding box position
-            bBoxRect = GetObjectBBox();
+            bBoxRect = _dectionRect;
         }
+        _detectImage.gameObject.SetActive(true);
 
         // Set GUI style and label based on meta inference rule
         if (toggleAP.isOn)
@@ -431,22 +434,24 @@ public class ARCameraScript : MonoBehaviour
         {
             if (StationStageIndex.metaInferenceRule)
             {
-                guiStyle.normal.background = greenBBox;
+                _detectImage.sprite = greenBBox;
             }
             else
             {
-                guiStyle.normal.background = redBBox;
+                _detectImage.sprite = redBBox;
             }
         }
         //GUI.depth = 3;
         // Draw bounding box
-        GUI.Box(bBoxRect, "", guiStyle);
+        //GUI.Box(bBoxRect, "", guiStyle);
+        _detectImageRectTransform.anchoredPosition = new Vector2(bBoxRect.x, bBoxRect.y);
+        _detectImageRectTransform.sizeDelta = new Vector2(bBoxRect.width, bBoxRect.height);
 
     }
 
-    void UpdateIfClassChange(Texture2D bboxTexture, bool isPass)
+    void UpdateIfClassChange(Sprite bboxTexture, bool isPass)
     {
-        guiStyle.normal.background = bboxTexture;
+        _detectImage.sprite = bboxTexture;
         if (StationStageIndex.stageIndex < 4)
         {
             nextStepBtn.gameObject.SetActive(isPass);
@@ -459,13 +464,8 @@ public class ARCameraScript : MonoBehaviour
 
     void OnGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
-        if (StationStageIndex.FunctionIndex == "Detect") {
-            DrawRois(false);
-        }
-        else if (StationStageIndex.FunctionIndex == "Result") {
-            DrawRois(true);
-        }
-        else if (StationStageIndex.FunctionIndex == "Sample")
+        
+        if (StationStageIndex.FunctionIndex == "Sample")
         {
             smoothInference = Enumerable.Repeat(0, 20).ToList();
         }
@@ -478,6 +478,23 @@ public class ARCameraScript : MonoBehaviour
             Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
             _imageDection.anchoredPosition = screenPoint;
             _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);
+            
+            /*
+            DrawRois(false);*/
+            if (StationStageIndex.FunctionIndex == "Detect") {
+                DrawRois(false);
+            }
+            else if (StationStageIndex.FunctionIndex == "Result") {
+                DrawRois(true);
+            }
+            else
+            {
+                _detectImage.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            _detectImage.gameObject.SetActive(false);
         }
         // Check if the current function index is "Detect"
         if ((StationStageIndex.FunctionIndex == "Detect"|| StationStageIndex.FunctionIndex == "Sample") && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
