@@ -36,6 +36,7 @@ public class UIController : MonoBehaviour
     //public DefaultObserverEventHandler observer;
     //public Vuforia.ModelTargetBehaviour targetBehaviour;
     // Start is called before the first frame update
+    [SerializeField] private DescriptionController _descriptionController;
 
     void OnDisable(){
         StationStageIndex.OnFunctionIndexChange -= OnFunctionIndexChangeActionHandler;
@@ -50,6 +51,7 @@ public class UIController : MonoBehaviour
     }
     private void OnFunctionIndexChangeActionHandler(string functionName)
     {
+        _descriptionController.UpdateDescription(functionName);
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         try
         {

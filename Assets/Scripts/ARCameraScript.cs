@@ -451,6 +451,12 @@ public class ARCameraScript : MonoBehaviour
 
     private void Update()
     {
+        if (sphere.gameObject.activeInHierarchy)
+        {
+            Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
+            _imageDection.anchoredPosition = screenPoint;
+            _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);
+        }
         // Check if the current function index is "Detect"
         if ((StationStageIndex.FunctionIndex == "Detect"|| StationStageIndex.FunctionIndex == "Sample") && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
         {
