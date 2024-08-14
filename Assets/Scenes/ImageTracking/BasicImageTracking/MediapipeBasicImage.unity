@@ -4612,6 +4612,91 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203558896}
   m_CullTransparentMesh: 1
+--- !u!1001 &1234242766
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1384577972}
+    m_Modifications:
+    - target: {fileID: 3180638276011038054, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_Name
+      value: cap0 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3180638276011038054, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.14386463
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.025185108
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5581801
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.42305705
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.5838145
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.4106318
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 72.129
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -97.421
+      objectReference: {fileID: 0}
+    - target: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -6.654
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610, type: 3}
+--- !u!4 &1234242767 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3555887913398845965, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+    type: 3}
+  m_PrefabInstance: {fileID: 1234242766}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1234242768 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3180638276011038054, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+    type: 3}
+  m_PrefabInstance: {fileID: 1234242766}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1292649580
 GameObject:
   m_ObjectHideFlags: 0
@@ -4827,6 +4912,7 @@ Transform:
   - {fileID: 814942026}
   - {fileID: 58753853}
   - {fileID: 758225196}
+  - {fileID: 1234242767}
   - {fileID: 1201148235}
   - {fileID: 1982305076}
   - {fileID: 387139372}
@@ -7169,7 +7255,7 @@ MonoBehaviour:
   arCameraScript: {fileID: 1557103666}
   ImageTarget: {fileID: 156259917}
   objectList:
-  - {fileID: 1201148236}
+  - {fileID: 1234242768}
   - {fileID: 1982305077}
   - {fileID: 387139373}
   - {fileID: 509639669}
@@ -15367,16 +15453,16 @@ MonoBehaviour:
   _descriptionPanel: {fileID: 1715319335}
   _desText: {fileID: 1657695493}
   _videoPlayer: {fileID: 1619645917}
-  _home:
+  _stage1:
     des: Put on the engine filter
     clip: {fileID: 32900000, guid: f851622561998354a8b65acf56962ebd, type: 3}
-  _sample:
+  _stage2:
     des: Flip the engine and put on the oil pump valve
     clip: {fileID: 32900000, guid: 2f7549a1ef4e42e47bf98e2ec0d30b07, type: 3}
-  _detect:
+  _stage3:
     des: Put on the cap and rotate it to the correct direction
     clip: {fileID: 32900000, guid: 199a767911671284792ee6f47d151905, type: 3}
-  _result:
+  _stage4:
     des: Put on the coil pipe and rotate it to the correctdirection
     clip: {fileID: 32900000, guid: e91c3aaa0262e1947b8b482e78968a56, type: 3}
 --- !u!1 &7955363561241685893
