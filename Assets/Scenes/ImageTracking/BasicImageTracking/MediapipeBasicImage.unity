@@ -5460,21 +5460,19 @@ VideoPlayer:
   m_RenderMode: 2
   m_AspectRatio: 5
   m_DataSource: 0
-  m_TimeUpdateMode: 1
+  m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 0
-  m_TargetAudioSources:
-  - {fileID: 0}
-  m_DirectAudioVolumes:
-  - 0
+  m_TargetAudioSources: []
+  m_DirectAudioVolumes: []
   m_Url: 
-  m_EnabledAudioTracks: 01
-  m_DirectAudioMutes: 01
-  m_ControlledAudioTrackCount: 1
-  m_PlayOnAwake: 1
-  m_SkipOnDrop: 1
+  m_EnabledAudioTracks: 
+  m_DirectAudioMutes: 
+  m_ControlledAudioTrackCount: 0
+  m_PlayOnAwake: 0
+  m_SkipOnDrop: 0
   m_Looping: 1
-  m_WaitForFirstFrame: 1
+  m_WaitForFirstFrame: 0
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
 --- !u!114 &1619645918
@@ -14939,7 +14937,7 @@ MonoBehaviour:
   _videoPlayer: {fileID: 1619645917}
   _home:
     des: Home
-    clip: {fileID: 32900000, guid: f566e3567937a3d49a8c9acad29aa6d7, type: 3}
+    clip: {fileID: 32900000, guid: 22b01fe883e621048a208bb890313456, type: 3}
   _sample:
     des: Sample
     clip: {fileID: 32900000, guid: a1ee1673208585f4789f4ef93238bf02, type: 3}
