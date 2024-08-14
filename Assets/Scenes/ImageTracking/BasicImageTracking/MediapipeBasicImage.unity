@@ -5458,7 +5458,7 @@ VideoPlayer:
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: <noninit>
   m_RenderMode: 2
-  m_AspectRatio: 5
+  m_AspectRatio: 3
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
@@ -14937,10 +14937,16 @@ MonoBehaviour:
   _videoPlayer: {fileID: 1619645917}
   _home:
     des: Home
-    clip: {fileID: 32900000, guid: 22b01fe883e621048a208bb890313456, type: 3}
+    clip: {fileID: 32900000, guid: f851622561998354a8b65acf56962ebd, type: 3}
   _sample:
     des: Sample
-    clip: {fileID: 32900000, guid: a1ee1673208585f4789f4ef93238bf02, type: 3}
+    clip: {fileID: 32900000, guid: 2f7549a1ef4e42e47bf98e2ec0d30b07, type: 3}
+  _detect:
+    des: Detect
+    clip: {fileID: 32900000, guid: 199a767911671284792ee6f47d151905, type: 3}
+  _result:
+    des: Result
+    clip: {fileID: 32900000, guid: e91c3aaa0262e1947b8b482e78968a56, type: 3}
 --- !u!1 &7955363561241685893
 GameObject:
   m_ObjectHideFlags: 0

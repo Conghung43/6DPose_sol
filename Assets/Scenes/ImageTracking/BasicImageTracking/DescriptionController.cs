@@ -19,14 +19,17 @@ public class DescriptionController : MonoBehaviour
     [SerializeField] private VideoPlayer _videoPlayer;
     [SerializeField] private TextAndVideo _home;
     [SerializeField] private TextAndVideo _sample;
+    [SerializeField] private TextAndVideo _detect;
+    [SerializeField] private TextAndVideo _result;
 
     private Dictionary<string, TextAndVideo> _desDictionary;
 
     void OnEnable()
     {
-        _desDictionary=new Dictionary<string, TextAndVideo>
+        _desDictionary = new Dictionary<string, TextAndVideo>
         {
-            {"Home",_home},{"Sample",_sample}
+            { "Home", _home }, { "Sample", _sample }, { "Detect", _detect },{ "Result", _result }
+
         };
     }
 
