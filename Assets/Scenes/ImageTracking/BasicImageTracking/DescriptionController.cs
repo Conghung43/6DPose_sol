@@ -22,7 +22,7 @@ public class DescriptionController : MonoBehaviour
 
     private Dictionary<string, TextAndVideo> _desDictionary;
 
-    private void Start()
+    void OnEnable()
     {
         _desDictionary=new Dictionary<string, TextAndVideo>
         {

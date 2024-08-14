@@ -141,23 +141,22 @@ public class ARCameraScript : MonoBehaviour
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
             {
-
                 if (StationStageIndex.FunctionIndex == "Sample")
                 {
                     Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
                     List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids, StationStageIndex.stageIndex - 1);
                     int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
-                    (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
-                    if (centerPoint != Vector3.zero)
+                    if (bestScoreIndex >= 0)
                     {
-
-                        //OnGUI_();
-                        sphere.transform.position = centerPoint3D;
-                        sphere.gameObject.SetActive(true);
-                        Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
-                        _imageDection.anchoredPosition = screenPoint;
-                        _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
-
+                        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
+                        if (centerPoint != Vector3.zero)
+                        {
+                            sphere.transform.position = centerPoint3D;
+                            sphere.gameObject.SetActive(true);
+                            Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
+                            _imageDection.anchoredPosition = screenPoint;
+                            _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
+                        }
                     }
                 }
 
