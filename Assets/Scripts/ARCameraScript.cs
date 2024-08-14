@@ -164,8 +164,20 @@ public class ARCameraScript : MonoBehaviour
                             Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
                             _imageDection.anchoredPosition = screenPoint;
                             _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
+                            
                         }
+                        
                     }
+                }
+                if (StationStageIndex.FunctionIndex == "Detect") {
+                    DrawRois(false);
+                }
+                else if (StationStageIndex.FunctionIndex == "Result") {
+                    DrawRois(true);
+                }
+                else
+                {
+                    _detectImage.gameObject.SetActive(false);
                 }
 
                 // Set Detection result
@@ -385,8 +397,7 @@ public class ARCameraScript : MonoBehaviour
 
         if (!drawOnResultStage)
         {
-            // Update bounding box position
-            bBoxRect = _dectionRect;
+            bBoxRect = GetObjectBBox();
         }
         _detectImage.gameObject.SetActive(true);
 
@@ -478,19 +489,6 @@ public class ARCameraScript : MonoBehaviour
             Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
             _imageDection.anchoredPosition = screenPoint;
             _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);
-            
-            /*
-            DrawRois(false);*/
-            if (StationStageIndex.FunctionIndex == "Detect") {
-                DrawRois(false);
-            }
-            else if (StationStageIndex.FunctionIndex == "Result") {
-                DrawRois(true);
-            }
-            else
-            {
-                _detectImage.gameObject.SetActive(false);
-            }
         }
         else
         {
