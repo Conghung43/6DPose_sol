@@ -7,6 +7,7 @@ public class BackButtonClickHandler : MonoBehaviour
     public Button backButton;
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     public GameObjectController gameObjectController;
+    [SerializeField] private DescriptionController _descriptionController;
 
     void OnDisable()
     {
@@ -73,7 +74,7 @@ public class BackButtonClickHandler : MonoBehaviour
             nextButtonClick = true,
             stageName = jump2StageName
         });
-
+        _descriptionController.UpdateDescription(StationStageIndex.stageName,StationStageIndex.stationIndex);
         Debug.Log("Back button clicked. Stage Index: " + StationStageIndex.stageIndex + ", Function Index: " + StationStageIndex.FunctionIndex + ", Jump to Stage: " + jump2StageName);
     }
 }

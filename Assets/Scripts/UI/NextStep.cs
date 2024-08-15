@@ -10,6 +10,7 @@ public class NextStep : MonoBehaviour
     public Toggle toggleAP;
     private Coroutine _autoNext;
     public CheckDistanceHandAndDetection _CheckDistanceHandAndDetection;
+    public DescriptionController _descriptionController;
     private void OnDisable()
     {
         nextStep.onClick.RemoveListener(RaiseButtonClick);
@@ -75,6 +76,7 @@ public class NextStep : MonoBehaviour
                 break;
         }
         _CheckDistanceHandAndDetection.Init();
+        _descriptionController.UpdateDescription(StationStageIndex.FunctionIndex, StationStageIndex.stationIndex);
     }
 
     // Go to the next state

@@ -8571,6 +8571,7 @@ MonoBehaviour:
   uiMessage: {fileID: 2289558225682086171}
   toggleAP: {fileID: 9088049142010413961}
   _CheckDistanceHandAndDetection: {fileID: 1778572072}
+  _descriptionController: {fileID: 7949251116710855727}
 --- !u!222 &1264143795493527136
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10212,6 +10213,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backButton: {fileID: 6417091997416583496}
   uiMessage: {fileID: 2289558225682086171}
+  gameObjectController: {fileID: 0}
+  _descriptionController: {fileID: 7949251116710855727}
 --- !u!114 &3214455536096369011
 MonoBehaviour:
   m_ObjectHideFlags: 0
