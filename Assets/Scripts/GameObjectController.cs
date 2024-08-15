@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Diagnostics;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 public class GameObjectController : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameObjectController : MonoBehaviour
 
     public List<GameObject> objectList;
     public Line detectionLine;
+    public GameObject _sphereDetection;
 
     void Start()
     {
@@ -77,7 +79,9 @@ public class GameObjectController : MonoBehaviour
                     StationStageIndex.imageTargetFound = false;
                 }
                 TurnOnAnimation();
+                
                 detectionLine.SetShowLine();
+                detectionLine.SetStart(_sphereDetection.transform);
                 break;
             case "Detect":
                 StationStageIndex.metaInferenceRule = false;

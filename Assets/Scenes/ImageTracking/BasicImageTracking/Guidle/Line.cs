@@ -50,6 +50,11 @@ using UnityEngine;
             StartCoroutine(HideCoroutine(second));
         }
 
+        public void SetStart(Transform start)
+        {
+            bezierCurve.SetStartPoint(start);
+        }
+
         IEnumerator HideCoroutine(float second)
         {
             yield return new WaitForSeconds(second);

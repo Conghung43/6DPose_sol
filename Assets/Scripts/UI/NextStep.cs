@@ -9,6 +9,7 @@ public class NextStep : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     public Toggle toggleAP;
     private Coroutine _autoNext;
+    public CheckDistanceHandAndDetection _CheckDistanceHandAndDetection;
     private void OnDisable()
     {
         nextStep.onClick.RemoveListener(RaiseButtonClick);
@@ -73,6 +74,7 @@ public class NextStep : MonoBehaviour
             default:
                 break;
         }
+        _CheckDistanceHandAndDetection.Init();
     }
 
     // Go to the next state

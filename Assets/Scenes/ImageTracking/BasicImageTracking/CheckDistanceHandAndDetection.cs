@@ -10,6 +10,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
     [SerializeField] private NextStep _nextStep;
     [SerializeField] private Line _detecionLine;
     [SerializeField] private Transform _paimSphere;
+    [SerializeField] private GameObject _detectionSphere;
     private bool _isChecked;
     private float _time = 0.5f;
 
@@ -30,7 +31,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
         }
 
         
-        if (_handImage.gameObject.activeInHierarchy && arCameraScript._dectionRect.Contains(_handImage.anchoredPosition))
+        if (StationStageIndex.FunctionIndex=="Sample"&&_handImage.gameObject.activeInHierarchy && arCameraScript._dectionRect.Contains(_handImage.anchoredPosition))
         {
             _time -= Time.deltaTime;
             if (_time <= 0)
@@ -38,6 +39,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
                 _isChecked = true;
                 _time = 0.5f;
                 _detecionLine.SetStartAndHideLine(_paimSphere,5f);
+                _detectionSphere.gameObject.SetActive(false);
                 _nextStep.RaiseButtonClick();
             }
         }
