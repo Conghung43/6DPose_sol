@@ -109,6 +109,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             m_TrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
 
             cameraManager.frameReceived += OnCameraFrameReceived;
+            //isInferenceAvailable = true;
             //cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
         }
 
@@ -134,6 +135,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
         {
             handTexture = UpdateCPUImage();
+            cpuImageTexture = handTexture;
+
             _CameraFeedToRenderTexture.UpdateTexture();
             if (!init)
             {
@@ -214,19 +217,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         private void Update()
         {
-            if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
+            if (isInferenceAvailable && PoseInference.activeSelf)
             {
                 
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
-                int[] bboxTrackedImage = TrackedImageCorner;
+                int[] bboxTrackedImage = new int[] { (int)Screen.width/3, (int)(Screen.height/6), (int)Screen.width *2/ 3, (int)(Screen.height *7/ 12) };//TrackedImageCorner;
                 int[] bboxMegaPose = null;
                 int[] bbox = null;
                 //bool isIntersecting = true;
 
                 //Display
-                sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], bboxTrackedImage[1], 0.5f));
-                sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], bboxTrackedImage[3], 0.5f));
+                sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], Screen.height - bboxTrackedImage[1], 0.5f));
+                sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], Screen.height - bboxTrackedImage[3], 0.5f));
 
                 // Transformation
                 bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
@@ -234,67 +237,67 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
 
                 // If object already settle down, consider to use object 3D box to generate 2D bbox for 6D pose inference input
-                if (!Inference.objectInitialSet)
-                {
-                    Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
-                    bboxMegaPose = GetLeftTopRightBottom(megaPoseCorner);
+                //if (!Inference.objectInitialSet)
+                //{
+                //    Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
+                //    bboxMegaPose = GetLeftTopRightBottom(megaPoseCorner);
 
-                    sphereList[2].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[0], bboxMegaPose[1], 0.5f));
-                    sphereList[3].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[2], bboxMegaPose[3], 0.5f));
+                //    sphereList[2].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[0], bboxMegaPose[1], 0.5f));
+                //    sphereList[3].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[2], bboxMegaPose[3], 0.5f));
 
-                    bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
-                    // This function may return null if 2D bbox doesn't have any intersection part with screen
-                    bboxMegaPose = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxMegaPose);
+                //    bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
+                //    // This function may return null if 2D bbox doesn't have any intersection part with screen
+                //    bboxMegaPose = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxMegaPose);
 
-                    //isIntersecting = AreRectanglesIntersecting(bboxMegaPose, bboxTrackedImage);
+                //    //isIntersecting = AreRectanglesIntersecting(bboxMegaPose, bboxTrackedImage);
 
-                    //Comparision
-                    if (bboxMegaPose != null)
-                    {
-                        logInfo.text = "";// "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
+                //    //Comparision
+                //    if (bboxMegaPose != null)
+                //    {
+                //        logInfo.text = "";// "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
 
-                        //if (bboxTrackedImage != null)
-                        //{
-                        //    if (isIntersecting)
-                        //    {
-                        //        bbox = bboxMegaPose;
-                        //    }
-                        //    else
-                        //    {
-                        //        count += 1;
-                        //        if (count > 10)
-                        //        {
-                        //            count = 0;
-                        //            bbox = bboxTrackedImage;
-                        //        }
-                        //    }
-                        //}
-                        bbox = bboxMegaPose;
-                    }
-                    else
-                    {
-                        if (bboxTrackedImage != null && IsObjectInScreen(stickWithImageTargetObject))
-                        {
-                            logInfo.text = "null,";
-                            count += 1;
-                            if (count > 10)
-                            {
-                                count = 0;
-                                bbox = bboxTrackedImage;
-                                Inference.objectInitialSet = true;
-                            }
-                        }
-                        else
-                        {
-                            logInfo.text = "null, null";
-                        }
-                    }
-                }
-                else if (IsObjectInScreen(stickWithImageTargetObject))
-                {
-                    bbox = bboxTrackedImage;
-                }
-
+                //        //if (bboxTrackedImage != null)
+                //        //{
+                //        //    if (isIntersecting)
+                //        //    {
+                //        //        bbox = bboxMegaPose;
+                //        //    }
+                //        //    else
+                //        //    {
+                //        //        count += 1;
+                //        //        if (count > 10)
+                //        //        {
+                //        //            count = 0;
+                //        //            bbox = bboxTrackedImage;
+                //        //        }
+                //        //    }
+                //        //}
+                //        bbox = bboxMegaPose;
+                //    }
+                //    else
+                //    {
+                //        if (bboxTrackedImage != null && IsObjectInScreen(stickWithImageTargetObject))
+                //        {
+                //            logInfo.text = "null,";
+                //            count += 1;
+                //            if (count > 10)
+                //            {
+                //                count = 0;
+                //                bbox = bboxTrackedImage;
+                //                Inference.objectInitialSet = true;
+                //            }
+                //        }
+                //        else
+                //        {
+                //            logInfo.text = "null, null";
+                //        }
+                //    }
+                //}
+                //else if (IsObjectInScreen(stickWithImageTargetObject))
+                //{
+                //    bbox = bboxTrackedImage;
+                //}
+                bbox = bboxTrackedImage;
                 //if bbox width < height => return null: in small size will return bad result
                 if (bbox != null)
                 {
@@ -418,7 +421,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     stickWithImageTargetObject.transform.rotation = trackedImage.transform.rotation;
                     
                 }
-                cpuImageTexture = handTexture;
             }
         }
 

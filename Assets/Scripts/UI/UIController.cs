@@ -113,6 +113,7 @@ public class UIController : MonoBehaviour
                     }
                     break;
                 case "Sample":
+                    TurnOnInferenceFlag();
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
                     ResultCanvas.SetActive(false);
@@ -232,6 +233,13 @@ public class UIController : MonoBehaviour
             skipButton.gameObject.SetActive(false);
         }
     }
+
+    private void TurnOnInferenceFlag()
+    {
+        if (StationStageIndex.stageIndex == 1)
+            TrackedImageInfoManager.isInferenceAvailable = true;
+    }
+
     private void OnImageTargetFoundActionHandler(bool imageTargetFound)
     {
         if (imageTargetFound)

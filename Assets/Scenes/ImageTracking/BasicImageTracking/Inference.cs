@@ -262,10 +262,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public static void ConvertARposeToMegaPose()
         {
-            //GameObject filterObj = GameObject.Find("ModelTarget");
-            if (modelTarget != null)//(objectInitialSet)
+            GameObject filterObj = GameObject.Find("AirPump3DModel");
+            if (filterObj != null)//(objectInitialSet)
             {
-                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(modelTarget.transform.position, modelTarget.transform.rotation, Vector3.one);
+                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
                 Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
                 MatrixToQuaternionTranslation(camToObjectMatrix, out Quaternion rotation, out Vector3 position);
                 (rotation, position) = ConvertToOppositeHandedness(rotation, position);
