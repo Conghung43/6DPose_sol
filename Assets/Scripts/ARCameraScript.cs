@@ -172,16 +172,16 @@ public class ARCameraScript : MonoBehaviour
                         
                     }
                 }
-                if (StationStageIndex.FunctionIndex == "Detect") {
-                    DrawRois(false);
-                }
-                else if (StationStageIndex.FunctionIndex == "Result") {
-                    DrawRois(true);
-                }
-                else
-                {
-                    _detectImage.gameObject.SetActive(false);
-                }
+                //if (StationStageIndex.FunctionIndex == "Detect") {
+                //    DrawRois(false);
+                //}
+                //else if (StationStageIndex.FunctionIndex == "Result") {
+                //    DrawRois(true);
+                //}
+                //else
+                //{
+                //    _detectImage.gameObject.SetActive(false);
+                //}
 
                 // Set Detection result
                 if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule && StationStageIndex.FunctionIndex == "Detect")
@@ -418,7 +418,7 @@ public class ARCameraScript : MonoBehaviour
         {
             bBoxRect = GetObjectBBox(bestScoreIndex);
         }
-        _detectImage.gameObject.SetActive(true);
+        //_detectImage.gameObject.SetActive(true);
 
         // Set GUI style and label based on meta inference rule
         if (toggleAP.isOn)
@@ -476,8 +476,8 @@ public class ARCameraScript : MonoBehaviour
         //GUI.depth = 3;
         // Draw bounding box
         GUI.Box(bBoxRect, "", guiStyle);
-        _detectImageRectTransform.anchoredPosition = new Vector2(bBoxRect.x, bBoxRect.y);
-        _detectImageRectTransform.sizeDelta = new Vector2(bBoxRect.width, bBoxRect.height);
+        //_detectImageRectTransform.anchoredPosition = new Vector2(bBoxRect.x,Screen.height - bBoxRect.y);
+        //_detectImageRectTransform.sizeDelta = new Vector2(bBoxRect.width, bBoxRect.height);
 
     }
 
@@ -496,7 +496,18 @@ public class ARCameraScript : MonoBehaviour
 
     void OnGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
-        
+        if (StationStageIndex.FunctionIndex == "Detect")
+        {
+            DrawRois(false);
+        }
+        else if (StationStageIndex.FunctionIndex == "Result")
+        {
+            DrawRois(true);
+        }
+        else
+        {
+            _detectImage.gameObject.SetActive(false);
+        }
         if (StationStageIndex.FunctionIndex == "Sample")
         {
             smoothInference = Enumerable.Repeat(0, 20).ToList();
