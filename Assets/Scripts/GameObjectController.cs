@@ -79,8 +79,6 @@ public class GameObjectController : MonoBehaviour
                     StationStageIndex.imageTargetFound = false;
                 }
                 TurnOnAnimation();
-                
-                detectionLine.SetShowLine();
                 detectionLine.SetStart(_sphereDetection.transform);
                 break;
             case "Detect":

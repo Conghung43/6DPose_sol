@@ -53,8 +53,14 @@ using UnityEngine;
         public void SetStart(Transform start)
         {
             bezierCurve.SetStartPoint(start);
+            StartCoroutine(SetShowAfterStartEnable(start.gameObject));
         }
 
+        IEnumerator SetShowAfterStartEnable(GameObject startGameObject)
+        {
+            yield return new WaitUntil(() => startGameObject.activeInHierarchy);
+            SetShowLine();
+        }
         IEnumerator HideCoroutine(float second)
         {
             yield return new WaitForSeconds(second);
