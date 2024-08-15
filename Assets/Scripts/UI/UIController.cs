@@ -75,6 +75,7 @@ public class UIController : MonoBehaviour
                     break;
                 case "VuforiaTargetDetecting":
                     uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detecting..";
+                    TurnOnInferenceFlag();
                     StationStageIndex.ModelTargetFound = false;
                     ModelTarget.gameObject.SetActive(false);
                     ModelTarget.gameObject.SetActive(true);
@@ -86,6 +87,7 @@ public class UIController : MonoBehaviour
                 case "VuforiaTarget":// Image target: all 3D model show up
                     //observer.enabled = true;
                     //targetBehaviour.enabled = true;
+                    TurnOnInferenceFlag();
                     lineRenderer.gameObject.SetActive(false);
                     flowInstruction.SetActive(true);
                     uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detected";
@@ -113,7 +115,6 @@ public class UIController : MonoBehaviour
                     }
                     break;
                 case "Sample":
-                    TurnOnInferenceFlag();
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
                     ResultCanvas.SetActive(false);

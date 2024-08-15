@@ -27,11 +27,18 @@ public class GameObjectController : MonoBehaviour
     public void TurnOnAnimation()
     {
         objectList[StationStageIndex.stageIndex - 1].SetActive(true);
-        if (StationStageIndex.stageIndex < 4)// for the case click back button
+        if (StationStageIndex.stageIndex == 0)// for the case click next from 4 to 1 
+        {
+            objectList[3].SetActive(false);
+        }
+        else if (StationStageIndex.stageIndex < 4)// for the case click next from 4 to 1
         {
             objectList[StationStageIndex.stageIndex].SetActive(false);
         }
-        
+
+
+
+
     }
 
     private void TurnOffAnimation()

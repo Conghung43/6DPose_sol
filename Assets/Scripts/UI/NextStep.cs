@@ -88,7 +88,7 @@ public class NextStep : MonoBehaviour
         ARCameraScript.lastInferenceClass = -1;
         StationStageIndex.stageIndex += 1;
         StationStageIndex.FunctionIndex = "Sample"; // 6D pose state or detect state always go to sample
-        if (StationStageIndex.stageIndex > dataStages.Count - 1)
+        if (StationStageIndex.stageIndex >= dataStages.Count - 1)
         {
             StationStageIndex.stageIndex = 0;//dataStages.Count - 1;
             //return;
