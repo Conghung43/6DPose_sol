@@ -331,19 +331,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
 #endif
 
                         // Let camera move 1 cm for better inference result
-                        if (true)//(distance  > 0.01f)
+                        if (bbox != null && bbox.Length == 4)//(distance  > 0.01f)
                         {
                             lastCamPos = Camera.main.transform.position;
                             StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                             isInferenceAvailable = false;
                         }
                     }
-                    else
+                    else if (bbox != null && bbox.Length == 4)
                     {
                         StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    logInfo.text += Inference.elMs;
+                    //logInfo.text += Inference.elMs;
                 }
             }
             //return;

@@ -25,6 +25,8 @@ using Rect = UnityEngine.Rect;
 
 public class ARCameraScript : MonoBehaviour
 {
+    [SerializeField] private Texture2D greenBBoxTexture;
+    [SerializeField] private Texture2D redBBoxTexture;
     [SerializeField] private Sprite greenBBox;
     [SerializeField] private Sprite redBBox;
     [SerializeField] private Sprite grayBBox;
@@ -150,7 +152,7 @@ public class ARCameraScript : MonoBehaviour
                     //List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                     //    StationStageIndex.stageIndex - 1);
                     //base clase name
-                    int classid = FindClassIDfromName(StationStageIndex.stageIndex.ToString());
+                    int classid = FindClassIDfromName((StationStageIndex.stageIndex -1).ToString());
                     List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                         classid);
                     int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
@@ -378,11 +380,11 @@ public class ARCameraScript : MonoBehaviour
         }
     }
 
-    public UnityEngine.Rect GetObjectBBox()
+    public UnityEngine.Rect GetObjectBBox(int bestScoreIndex)
     {
         Vector2 centerPoint;
         float radiusOnScreen;Vector3 centerPoint3D;
-        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(0);
+        (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
         if (centerPoint == Vector2.zero)
         {
             return Rect.zero;
@@ -394,10 +396,26 @@ public class ARCameraScript : MonoBehaviour
 
     public void DrawRois(bool drawOnResultStage)
     {
+        bool inferenceStatus = false;
+        List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
+            (StationStageIndex.stageIndex-1)*2 + 1);
+        if (indices != null && indices.Count == 0)
+        {
+            indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
+                (StationStageIndex.stageIndex - 1) * 2);
+            if (indices != null && indices.Count > 0) inferenceStatus = true;
+        }
+        int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
+
+        if (bestScoreIndex < 0)
+        {
+            _detectImage.gameObject.SetActive(false);
+            return;
+        }
 
         if (!drawOnResultStage)
         {
-            bBoxRect = GetObjectBBox();
+            bBoxRect = GetObjectBBox(bestScoreIndex);
         }
         _detectImage.gameObject.SetActive(true);
 
@@ -443,18 +461,20 @@ public class ARCameraScript : MonoBehaviour
         }
         else
         {
-            if (StationStageIndex.metaInferenceRule)
+            if (inferenceStatus)
             {
                 _detectImage.sprite = greenBBox;
+                guiStyle.normal.background = greenBBoxTexture;
             }
             else
             {
                 _detectImage.sprite = redBBox;
+                guiStyle.normal.background = redBBoxTexture;
             }
         }
         //GUI.depth = 3;
         // Draw bounding box
-        //GUI.Box(bBoxRect, "", guiStyle);
+        GUI.Box(bBoxRect, "", guiStyle);
         _detectImageRectTransform.anchoredPosition = new Vector2(bBoxRect.x, bBoxRect.y);
         _detectImageRectTransform.sizeDelta = new Vector2(bBoxRect.width, bBoxRect.height);
 

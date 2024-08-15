@@ -1414,7 +1414,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &332942319
 Transform:
   m_ObjectHideFlags: 0
@@ -2779,7 +2779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &697367176
 Transform:
   m_ObjectHideFlags: 0
@@ -3231,7 +3231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &814942026
 Transform:
   m_ObjectHideFlags: 0
@@ -3287,7 +3287,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &843216019
 Transform:
   m_ObjectHideFlags: 0
@@ -4758,7 +4758,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3180638276011038054, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1234242769}
   m_SourcePrefab: {fileID: 100100000, guid: 4bf5db1d58bbcdf4ba0275b5bbfb0610, type: 3}
 --- !u!4 &1234242767 stripped
 Transform:
@@ -4772,6 +4776,28 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1234242766}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &1234242769
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234242768}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e8fd84df4d4624ce4af1713fdf225dc0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1292649580
 GameObject:
   m_ObjectHideFlags: 0
@@ -5849,6 +5875,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2ac07f059dde3b409adc55443ecc54c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  greenBBoxTexture: {fileID: 2800000, guid: 52994a2e717d04c7e8146b76a3032051, type: 3}
+  redBBoxTexture: {fileID: 2800000, guid: 3d867adb56f2c4c0e8f0478be7e1a297, type: 3}
   greenBBox: {fileID: 21300000, guid: 52994a2e717d04c7e8146b76a3032051, type: 3}
   redBBox: {fileID: 21300000, guid: 3d867adb56f2c4c0e8f0478be7e1a297, type: 3}
   grayBBox: {fileID: 21300000, guid: 633e1e72002054544a71a12dbc297f66, type: 3}
