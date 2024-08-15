@@ -14,19 +14,10 @@ using UnityEngine;
 
         private void Update()
         {
-            if (_start.gameObject.activeInHierarchy)
-            {
-                _time -= Time.deltaTime;
-                if (_time <= 0)
-                {
-                    SetLinePoint();
-                    //_time = 0.5f;
-                }
-            }
-            else
-            {
-                _time = 0.5f;
-            }
+            
+            SetLinePoint();
+            //_time = 0.5f;
+              
             if (StationStageIndex.stageIndex >0)
                 points[3] = _endList[StationStageIndex.stageIndex - 1].transform.position;
         }
@@ -47,7 +38,6 @@ using UnityEngine;
 
         public void SetStartPoint(Transform _transform)
         {
-            
             _start = _transform;
             SetLinePoint();
         }
