@@ -24,7 +24,7 @@ public class GameObjectController : MonoBehaviour
         StationStageIndex.OnFunctionIndexChange += OnGameObjectControllerFunctionChangeHandler;
     }
 
-    private void TurnOnAnimation()
+    public void TurnOnAnimation()
     {
         objectList[StationStageIndex.stageIndex - 1].SetActive(true);
         if (StationStageIndex.stageIndex < 4)// for the case click back button

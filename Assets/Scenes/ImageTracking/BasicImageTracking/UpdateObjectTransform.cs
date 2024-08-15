@@ -9,8 +9,8 @@ public class UpdateObjectTransform : MonoBehaviour
 
     public static Dictionary<Transform, List<Transform>> groupedTransforms = new Dictionary<Transform, List<Transform>>();
 
-    public static float positionThreshold = 0.05f; // Adjust as needed
-    public static float rotationThreshold = 4f;    // Adjust as needed
+    public static float positionThreshold = 0.1f; // Adjust as needed
+    public static float rotationThreshold = 10f;    // Adjust as needed
     public static int GroupCountThreshold = 3;
 
     public static Transform UpdateTransformToGroup(Transform currentTransform)
