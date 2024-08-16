@@ -15616,8 +15616,8 @@ MonoBehaviour:
     des: Put on the engine filter
     clip: {fileID: 32900000, guid: f851622561998354a8b65acf56962ebd, type: 3}
   _stage2:
-    des: Flip the engine and put on the oil pump valve
-    clip: {fileID: 32900000, guid: 2f7549a1ef4e42e47bf98e2ec0d30b07, type: 3}
+    des: Place the oil pump valve
+    clip: {fileID: 32900000, guid: 05e897f2c9f932048bbd6d70abde74f0, type: 3}
   _stage3:
     des: Put on the cap and rotate it to the correct direction
     clip: {fileID: 32900000, guid: 199a767911671284792ee6f47d151905, type: 3}
