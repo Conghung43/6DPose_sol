@@ -32,7 +32,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
         }
 
         
-        if (_detectionImage.gameObject.activeInHierarchy&&_handImage.gameObject.activeInHierarchy && arCameraScript._dectionRect.Contains(_handImage.anchoredPosition))
+        if (_detectionImage.gameObject.activeInHierarchy&&_handImage.gameObject.activeInHierarchy && PlaceImage.Handbbox.Contains(_detectionImage.anchoredPosition))
         {
             _time -= Time.deltaTime;
             if (_time <= 0)
