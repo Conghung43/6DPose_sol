@@ -72,7 +72,7 @@ namespace Mediapipe.Unity.Sample.HandTracking
       yield return new WaitUntil(() => task.IsCompleted);
 
       var result = task.Result;
-      _palmDetectionsAnnotationController.DrawNow(result.palmDetections);
+      //_palmDetectionsAnnotationController.DrawNow(result.palmDetections);
       if (result.palmDetections != null)
       {
         float avgX = 0, avgY = 0;
@@ -87,11 +87,14 @@ namespace Mediapipe.Unity.Sample.HandTracking
         avgX /= count;
         avgY /= count;
         _placeImage.Draw(avgX,avgY);
+        IReadOnlyList<Detection> target = result.palmDetections;
+        _placeImage.DrawBBox(target[0].LocationData.RelativeBoundingBox);
       }
       else
       {
         _placeImage.Off();
       }
+      
       /*_handRectsFromPalmDetectionsAnnotationController.DrawNow(result.handRectsFromPalmDetections);
       _handLandmarksAnnotationController.DrawNow(result.handLandmarks, result.handedness);
       // TODO: render HandWorldLandmarks annotations

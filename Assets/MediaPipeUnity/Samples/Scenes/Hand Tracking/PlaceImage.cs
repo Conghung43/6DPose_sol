@@ -1,6 +1,9 @@
 using System;
+using Mediapipe;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 public class PlaceImage : MonoBehaviour
 {
@@ -10,6 +13,7 @@ public class PlaceImage : MonoBehaviour
     [SerializeField] private GameObject _sphere;
     public Camera camera;
     private Canvas canvas;
+    [FormerlySerializedAs("_image")] [SerializeField] private RectTransform _Bboximage;
 
     private void Start()
     {
@@ -34,5 +38,19 @@ public class PlaceImage : MonoBehaviour
     {
         imageRectTransform.gameObject.SetActive(false);
         _sphere.SetActive(false);
+        _Bboximage.gameObject.SetActive(false);
+    }
+
+    public void DrawBBox(LocationData.Types.RelativeBoundingBox locationDataRelativeBoundingBox)
+    {
+        _Bboximage.gameObject.SetActive(true);
+        var x = (1 - locationDataRelativeBoundingBox.Xmin)* canvasRectTransform.rect.width;
+        var y = (1 - locationDataRelativeBoundingBox.Ymin)* canvasRectTransform.rect.height;
+        var w = locationDataRelativeBoundingBox.Width * canvasRectTransform.rect.width;
+        var h = locationDataRelativeBoundingBox.Height * canvasRectTransform.rect.height;
+        _Bboximage.anchoredPosition = new Vector2(x-w ,
+            y-h);
+        _Bboximage.sizeDelta = new Vector2(w, h);
+
     }
 }
