@@ -212,7 +212,9 @@ public class ARCameraScript : MonoBehaviour
         }
         catch (Exception ex)
         {
+#if UNITY_EDITOR
             UnityEngine.Debug.LogError("ERROR ARCameraScript/OnInferenceResponse" + ex.ToString());
+#endif
         }
 
         // Clean up and set inferenceResponseFlag to true

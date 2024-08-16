@@ -198,14 +198,26 @@ public static class MetaService
                 }
             }
 
-            // Prepare response for deserialization
-            responseContent = PrepareResponseForDeserialization(responseContent);
-
-            // Invoke inference response event
-            OnInferenceResponse?.Invoke(null, new OnInferenceResponseEventArgs
+            try
             {
-                inferenceResponse = responseContent
-            });
+                // Prepare response for deserialization
+                responseContent = PrepareResponseForDeserialization(responseContent);
+
+                // Invoke inference response event
+                OnInferenceResponse?.Invoke(null, new OnInferenceResponseEventArgs
+                {
+                    inferenceResponse = responseContent
+                });
+            }
+            catch
+            {
+                // Invoke inference response event
+                OnInferenceResponse?.Invoke(null, new OnInferenceResponseEventArgs
+                {
+                    inferenceResponse = ""
+                }); ;
+            }
+
 
             // Dispose handlers
             request.disposeUploadHandlerOnDispose = true;
