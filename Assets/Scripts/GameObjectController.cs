@@ -74,6 +74,7 @@ public class GameObjectController : MonoBehaviour
             case "VuforiaTarget":// Image target: all 3D model show up
                 barcode.SetActive(false);
                 StationStageIndex.stageIndex = 0;
+                TurnOffAnimation();
                 break;
             case "Sample":// show single 3D model
                 if (StationStageIndex.stageIndex == 4)
