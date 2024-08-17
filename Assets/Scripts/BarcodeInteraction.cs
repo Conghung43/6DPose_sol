@@ -70,10 +70,10 @@ public class BarcodeInteraction : MonoBehaviour
             //StationStageIndex.FunctionIndex = "ScanBarcode";
         }
 
-        if (true)//(edgeInferenceToggle.isOn)
+        if (true)//(edgeInferrueenceToggle.isOn)
         {
-            OnBarCodeDetectedHandler();
-            edgeInferenceToggle.isOn = false;
+            //OnBarCodeDetectedHandler();
+            //edgeInferenceToggle.isOn = false;
         //}
         //else if (TrackedImageInfoManager.cpuImageTexture != null)
         //{
@@ -93,15 +93,15 @@ public class BarcodeInteraction : MonoBehaviour
                 Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
 
                 // Save Mat to file
-                string path = "SavedImage.jpg";
-                Imgcodecs.imwrite(path, rgbaMat);
+                //string path = "SavedImage.jpg";
+                //Imgcodecs.imwrite(path, rgbaMat);
 
                 bool result_detection = detector.detectAndDecodeMulti(rgbaMat,decodedInfo, points, straightQrcode);
 
                 if (result_detection)
                 {
-                    barcodeTxt = decodedInfo[0];
-                    uiMessage.text = barcodeTxt;
+                    barcodeTxt = "";
+                    //uiMessage.text = barcodeTxt;
                     // Do something with the decoded QR code here
                 }
             }
@@ -139,6 +139,8 @@ public class BarcodeInteraction : MonoBehaviour
 
     private void OnBarCodeDetectedHandler(object sender, EventManager.OnBarCodeClickEventArgs e)
     {
+        OnBarCodeDetectedHandler();
+        return;
         string[] barcodeStringArray;
         barcodeStringArray = e.barcodeText.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "").Trim('[', ']').Split(new[] { ',' }).Select(x => x.Trim('"')).ToArray();//
         if (barcodeStringArray.Length > 4)//(barcodeJsonString.Contains("project_id"))
@@ -147,7 +149,7 @@ public class BarcodeInteraction : MonoBehaviour
             if (!StationStageIndex.barcodeMetaOn)
             {
                 //Inference.ip = barcodeStringArray[0];
-                OnBarCodeDetectedHandler();
+                //OnBarCodeDetectedHandler();
                 //MetaService.qrMetaData = barcodeStringArray;
                 //// Set Config
                 //try
@@ -187,16 +189,27 @@ public class BarcodeInteraction : MonoBehaviour
     }
     private void OnBarCodeDetectedHandler()
     {
-        string[] barcodeStringArray = new string[]
+        string[] barcodeStringArray ;
+#if UNITY_EDITOR
+        barcodeStringArray = new string[]
                     {
-                            "10.1.30.18",
+                            "192.168.68.64",
                             "MTIzMTIz",
-                            "ENGINE_test_2",
-                            "1723629254",
+                            "Engine",
+                            "1723804527",
                             "demo"
                     };
+#else
+        barcodeStringArray = new string[decodedInfo.Count];
+#endif
+        for (int i = 0; i < decodedInfo.Count; i++)
+        {
+            string str = decodedInfo[i];
+            barcodeStringArray[i] = str.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "").Replace("[", "");
+        }
+
         //"1688627566"
-        if (!StationStageIndex.barcodeMetaOn)
+        if (!StationStageIndex.barcodeMetaOn && barcodeStringArray.Length > 4)
         {
             MetaService.qrMetaData = barcodeStringArray;
             StationStageIndex.barcodeMetaOn = true;

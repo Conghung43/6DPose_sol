@@ -272,11 +272,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //        //        }
                 //        //    }
                 //        //}
-                //        bbox = bboxMegaPose;
                 //    }
                 //    else
                 //    {
-                //        if (bboxTrackedImage != null && IsObjectInScreen(stickWithImageTargetObject))
+                //        if (bboxTrackedImage != null && IsObjectInScreen(box3D))
                 //        {
                 //            logInfo.text = "null,";
                 //            count += 1;
@@ -293,10 +292,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //        }
                 //    }
                 //}
-                //else if (IsObjectInScreen(stickWithImageTargetObject))
-                //{
-                //    bbox = bboxTrackedImage;
-                //}
+
+                // For the case target shiffting, detect again.
+                if (!Inference.objectInitialSet && !IsObjectInScreen(box3D))
+                {
+                    Inference.objectInitialSet = true;
+                    UpdateObjectTransform.groupedTransforms.Clear();
+                }
+               
                 bbox = bboxTrackedImage;
                 //if bbox width < height => return null: in small size will return bad result
                 if (bbox != null)
@@ -308,15 +311,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     //if (isHandInEngine) return;
 
                     //top left right bottom
-                    if (!Inference.objectInitialSet)
-                    {
-                        float angle = Vector3.Angle(box3D.transform.forward, Camera.main.transform.position - box3D.transform.position);
-                        //Debug.Log(angle.ToString());
-                        if (Mathf.Abs(angle - 90) < 20)
-                        {
-                            bbox = null;
-                        }
-                    }
+                    //if (!Inference.objectInitialSet)
+                    //{
+                    //    float angle = Vector3.Angle(box3D.transform.forward, Camera.main.transform.position - box3D.transform.position);
+                    //    //Debug.Log(angle.ToString());
+                    //    if (Mathf.Abs(angle - 90) < 20)
+                    //    {
+                    //        bbox = null;
+                    //    }
+                    //}
 
                     //byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
 #if !UNITY_EDITOR
@@ -346,7 +349,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    //logInfo.text += Inference.elMs;
+                    logInfo.text += Inference.elMs;
+                    if (logInfo.text.Length > 100) logInfo.text = "";
                 }
             }
             //return;

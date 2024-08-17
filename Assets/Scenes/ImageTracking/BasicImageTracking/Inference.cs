@@ -58,6 +58,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         private static bool firstInferenceSuccess = false;
 
         static int count = 0;
+        static Quaternion initialAngle = Quaternion.identity;
 
         //float[] positions = new float[111];
         //float[] positions1 = new float[111];
@@ -169,25 +170,33 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //request.timeout = 2;
                 yield return request.SendWebRequest();
 
-                if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
+                try
                 {
-                    Debug.Log("Error: " + request.error);
-                    //yield return null;
-                }
-                else
-                {
-
-                    //Debug.Log($"{count} = " + request.downloadHandler.text);
-
-                    InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
-                    if (result.data.obj_pose != null)
+                    if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
                     {
-                        Inference.Set3DBox(result.data.obj_pose);
-                        firstInferenceSuccess = true;
-                        
-                        //Debug.Log(count);
+                        Debug.Log("Error: " + request.error);
+                        //yield return null;
+                    }
+                    else
+                    {
+
+                        //Debug.Log($"{count} = " + request.downloadHandler.text);
+
+                        InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
+                        if (result.data.obj_pose != null)
+                        {
+                            Inference.Set3DBox(result.data.obj_pose);
+                            firstInferenceSuccess = true;
+
+                            //Debug.Log(count);
+                        }
                     }
                 }
+                catch
+                {
+
+                }
+
                 TrackedImageInfoManager.isInferenceAvailable = true;
 
                 stopwatch.Stop(); elMs = inferenceType + stopwatch.ElapsedMilliseconds.ToString();
@@ -236,14 +245,28 @@ namespace UnityEngine.XR.ARFoundation.Samples
             megaPoseEstimateGameObject.transform.localScale = Vector3.one;
 
             Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
+
             if (updatedTransform != null)
             {
-                objectInitialSet = false;
+                if (initialAngle == Quaternion.identity)
+                {
+                    initialAngle = rotation;
+                }
+                else if (Quaternion.Angle(initialAngle, rotation) > 40)
+                {
+                    objectInitialSet = true;
+                }
+                else
+                {
+
+                    objectInitialSet = false;
+                }
                 //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
                 StationStageIndex.ModelTargetFound = true;
-                Display3DBox("AirPump3DModel", position, rotation);
+                //Display3DBox("AirPump3DModel", position, rotation);
                 //Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
             }
+            Display3DBox("AirPump3DModel", position, rotation);
 #if UNITY_EDITOR
             // Only for testing on Editor
             StationStageIndex.ModelTargetFound = true; //Temporary
