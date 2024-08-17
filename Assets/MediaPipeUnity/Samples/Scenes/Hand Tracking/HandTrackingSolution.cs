@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mediapipe.Unity.Sample.HandTracking
@@ -73,7 +74,12 @@ namespace Mediapipe.Unity.Sample.HandTracking
 
       var result = task.Result;
       //_palmDetectionsAnnotationController.DrawNow(result.palmDetections);
-      if (result.palmDetections != null)
+      
+      
+      //_handRectsFromPalmDetectionsAnnotationController.DrawNow(result.handRectsFromPalmDetections);
+      //_handLandmarksAnnotationController.DrawNow(result.handLandmarks, result.handedness);
+
+      if (result is { palmDetections: not null, handLandmarks: not null })
       {
         float avgX = 0, avgY = 0;
         var keypoints = result.palmDetections[0].LocationData.RelativeKeypoints;
@@ -88,17 +94,14 @@ namespace Mediapipe.Unity.Sample.HandTracking
         avgY /= count;
         _placeImage.Draw(avgX,avgY);
         IReadOnlyList<Detection> target = result.palmDetections;
-        _placeImage.DrawBBox(target[0].LocationData.RelativeBoundingBox);
+        _placeImage.DrawBBox(result.handLandmarks[0].Landmark.ToList());
       }
       else
       {
         _placeImage.Off();
       }
-      
-      /*_handRectsFromPalmDetectionsAnnotationController.DrawNow(result.handRectsFromPalmDetections);
-      _handLandmarksAnnotationController.DrawNow(result.handLandmarks, result.handedness);
       // TODO: render HandWorldLandmarks annotations
-      _handRectsFromLandmarksAnnotationController.DrawNow(result.handRectsFromLandmarks);*/
+      //_handRectsFromLandmarksAnnotationController.DrawNow(result.handRectsFromLandmarks);
     }
 
     private void OnPalmDetectionsOutput(object stream, OutputStream<List<Detection>>.OutputEventArgs eventArgs)

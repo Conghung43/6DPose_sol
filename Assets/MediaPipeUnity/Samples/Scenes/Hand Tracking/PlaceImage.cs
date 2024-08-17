@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mediapipe;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -44,17 +45,19 @@ public class PlaceImage : MonoBehaviour
         _Bboximage.gameObject.SetActive(false);
     }
 
-    public void DrawBBox(LocationData.Types.RelativeBoundingBox locationDataRelativeBoundingBox)
+    public void DrawBBox(List<NormalizedLandmark> landmarkLists)
     {
         _Bboximage.gameObject.SetActive(true);
-        var x = (1 - locationDataRelativeBoundingBox.Xmin)* canvasRectTransform.rect.width;
+        List<Vector2> points = landmarkLists.Select(landmark => new Vector2((1 - landmark.X)*canvasRectTransform.rect.width, (1 - landmark.Y)*canvasRectTransform.rect.height)).ToList();
+        /*var x = (1 - locationDataRelativeBoundingBox.Xmin)* canvasRectTransform.rect.width;
         var y = (1 - locationDataRelativeBoundingBox.Ymin)* canvasRectTransform.rect.height;
         var w = locationDataRelativeBoundingBox.Width * canvasRectTransform.rect.width;
-        var h = locationDataRelativeBoundingBox.Height * canvasRectTransform.rect.height;
-        _Bboximage.anchoredPosition = new Vector2(x-w ,
-            y-h);
-        _Bboximage.sizeDelta = new Vector2(w, h);
-        Handbbox = new Rect(x - w, y - h, w, h);
+        var h = locationDataRelativeBoundingBox.Height * canvasRectTransform.rect.height;*/
+        Handbbox = GetBoundingBox(points);
+        _Bboximage.anchoredPosition = new Vector2(Handbbox.x ,
+            Handbbox.y);
+        _Bboximage.sizeDelta = new Vector2(Handbbox.width, Handbbox.height);
+        
 
     }
     public static Rect GetBoundingBox(List<Vector2> points)
@@ -85,4 +88,5 @@ public class PlaceImage : MonoBehaviour
         // Create and return the bounding box Rect
         return new Rect(minX, minY, maxX - minX, maxY - minY);
     }
+
 }
