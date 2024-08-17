@@ -15617,7 +15617,7 @@ MonoBehaviour:
     clip: {fileID: 32900000, guid: f851622561998354a8b65acf56962ebd, type: 3}
   _stage2:
     des: Place the oil pump valve
-    clip: {fileID: 32900000, guid: 05e897f2c9f932048bbd6d70abde74f0, type: 3}
+    clip: {fileID: 32900000, guid: 449b49e48df30b849bc428e4bdf958d4, type: 3}
   _stage3:
     des: Put on the cap and rotate it to the correct direction
     clip: {fileID: 32900000, guid: 199a767911671284792ee6f47d151905, type: 3}
