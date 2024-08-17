@@ -74,7 +74,7 @@ public class BackButtonClickHandler : MonoBehaviour
             nextButtonClick = true,
             stageName = jump2StageName
         });
-        _descriptionController.UpdateDescription(StationStageIndex.FunctionIndex,StationStageIndex.stationIndex);
+        _descriptionController.UpdateDescription(StationStageIndex.FunctionIndex,StationStageIndex.stageIndex);
         Debug.Log("Back button clicked. Stage Index: " + StationStageIndex.stageIndex + ", Function Index: " + StationStageIndex.FunctionIndex + ", Jump to Stage: " + jump2StageName);
     }
 }
