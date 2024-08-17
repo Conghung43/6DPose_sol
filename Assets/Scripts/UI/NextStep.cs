@@ -76,7 +76,7 @@ public class NextStep : MonoBehaviour
                 break;
         }
         _CheckDistanceHandAndDetection.Init();
-        //_descriptionController.UpdateDescription(StationStageIndex.FunctionIndex, StationStageIndex.stationIndex);
+        _descriptionController.UpdateDescription(StationStageIndex.FunctionIndex, StationStageIndex.stationIndex);
     }
 
     // Go to the next state
