@@ -222,7 +222,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
-                int[] bboxTrackedImage = new int[] { (int)Screen.width/3, (int)(Screen.height/6), (int)Screen.width *2/ 3, (int)(Screen.height *7/ 12) };//TrackedImageCorner;
+                int[] bboxTrackedImage = new int[] { (int)Screen.width/3, (int)(Screen.height/4), (int)Screen.width *2/ 3, (int)(Screen.height *7/ 12) };//TrackedImageCorner;
                 int[] bboxMegaPose = null;
                 int[] bbox = null;
                 //bool isIntersecting = true;

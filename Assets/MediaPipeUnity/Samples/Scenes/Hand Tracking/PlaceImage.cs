@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Mediapipe;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -55,5 +56,33 @@ public class PlaceImage : MonoBehaviour
         _Bboximage.sizeDelta = new Vector2(w, h);
         Handbbox = new Rect(x - w, y - h, w, h);
 
+    }
+    public static Rect GetBoundingBox(List<Vector2> points)
+    {
+        if (points == null || points.Count == 0)
+        {
+            return new Rect();
+        }
+
+        float minX = points[0].x;
+        float minY = points[0].y;
+        float maxX = points[0].x;
+        float maxY = points[0].y;
+
+        // Iterate through the points to find the min and max bounds
+        foreach (var point in points)
+        {
+            if (point.x < minX)
+                minX = point.x;
+            if (point.y < minY)
+                minY = point.y;
+            if (point.x > maxX)
+                maxX = point.x;
+            if (point.y > maxY)
+                maxY = point.y;
+        }
+
+        // Create and return the bounding box Rect
+        return new Rect(minX, minY, maxX - minX, maxY - minY);
     }
 }

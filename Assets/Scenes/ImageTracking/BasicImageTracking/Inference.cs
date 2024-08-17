@@ -248,13 +248,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             if (updatedTransform != null)
             {
-                if (initialAngle == Quaternion.identity)
-                {
-                    initialAngle = rotation;
-                }
-                else if (Quaternion.Angle(initialAngle, rotation) > 40)
+                //if (initialAngle == Quaternion.identity)
+                //{
+                //    initialAngle = rotation;
+                //}
+                //else
+                if (Quaternion.Angle(initialAngle, rotation) > 40)
                 {
                     objectInitialSet = true;
+                    initialAngle = rotation;
                 }
                 else
                 {
