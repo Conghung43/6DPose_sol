@@ -45,14 +45,14 @@ public class PlaceImage : MonoBehaviour
 
     public void DrawBBox(LocationData.Types.RelativeBoundingBox locationDataRelativeBoundingBox)
     {
-        //_Bboximage.gameObject.SetActive(true);
+        _Bboximage.gameObject.SetActive(true);
         var x = (1 - locationDataRelativeBoundingBox.Xmin)* canvasRectTransform.rect.width;
         var y = (1 - locationDataRelativeBoundingBox.Ymin)* canvasRectTransform.rect.height;
         var w = locationDataRelativeBoundingBox.Width * canvasRectTransform.rect.width;
         var h = locationDataRelativeBoundingBox.Height * canvasRectTransform.rect.height;
-        /*_Bboximage.anchoredPosition = new Vector2(x-w ,
+        _Bboximage.anchoredPosition = new Vector2(x-w ,
             y-h);
-        _Bboximage.sizeDelta = new Vector2(w, h);*/
+        _Bboximage.sizeDelta = new Vector2(w, h);
         Handbbox = new Rect(x - w, y - h, w, h);
 
     }
