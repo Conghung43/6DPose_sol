@@ -74,7 +74,7 @@ public class ARCameraScript : MonoBehaviour
 
     public EdgeInferenceBarracuda edgeInference;
     //Stopwatch inferenceWatch = new Stopwatch();
-    JsonDeserialization.InferenceResult metaAPIinferenceData;
+    public JsonDeserialization.InferenceResult metaAPIinferenceData;
 
     private Vector3 savedPosition;
     private Quaternion savedRotation;

@@ -11,6 +11,7 @@ public class NextStep : MonoBehaviour
     private Coroutine _autoNext;
     public CheckDistanceHandAndDetection _CheckDistanceHandAndDetection;
     public DescriptionController _descriptionController;
+    public ARCameraScript aRCameraScript;
     private void OnDisable()
     {
         nextStep.onClick.RemoveListener(RaiseButtonClick);
@@ -46,6 +47,7 @@ public class NextStep : MonoBehaviour
         {
             StopCoroutine(_autoNext);
         }
+        aRCameraScript.metaAPIinferenceData = null;
         switch (StationStageIndex.FunctionIndex)
         {
             case "3dModel":

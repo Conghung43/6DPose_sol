@@ -5862,6 +5862,15 @@ MonoBehaviour:
   toggleAP: {fileID: 9088049142010413961}
   normalizeShader: {fileID: 7200000, guid: 744d41986db6140ea8958f9ef8fdde32, type: 3}
   edgeInference: {fileID: 1557103665}
+  metaAPIinferenceData:
+    data:
+      class_ids: 
+      keypoints: []
+      rule: 0
+      scores: []
+      word: []
+    message: 
+    requestResult: 0
   nextStep: {fileID: 1157832859031248372}
   _dectionRect:
     serializedVersion: 2
@@ -8663,6 +8672,7 @@ MonoBehaviour:
   toggleAP: {fileID: 9088049142010413961}
   _CheckDistanceHandAndDetection: {fileID: 1778572072}
   _descriptionController: {fileID: 7949251116710855727}
+  aRCameraScript: {fileID: 1557103666}
 --- !u!222 &1264143795493527136
 CanvasRenderer:
   m_ObjectHideFlags: 0
