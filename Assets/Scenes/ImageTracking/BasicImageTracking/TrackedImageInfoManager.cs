@@ -349,8 +349,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    logInfo.text += Inference.elMs;
-                    if (logInfo.text.Length > 100) logInfo.text = "";
+                    logInfo.text = Inference.elMs;
                 }
             }
             //return;

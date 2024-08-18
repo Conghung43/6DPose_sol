@@ -199,7 +199,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                 TrackedImageInfoManager.isInferenceAvailable = true;
 
-                stopwatch.Stop(); elMs = inferenceType + stopwatch.ElapsedMilliseconds.ToString();
+                stopwatch.Stop(); elMs = inferenceType + " "+ stopwatch.ElapsedMilliseconds.ToString();
             }
         }
 
