@@ -26,7 +26,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
 
     private void Update()
     {
-        if (_isChecked)
+        if (_isChecked || StationStageIndex.FunctionIndex!="Sample")
         {
             return;
         }
