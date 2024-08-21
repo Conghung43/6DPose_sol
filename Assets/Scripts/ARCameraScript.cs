@@ -193,7 +193,7 @@ public class ARCameraScript : MonoBehaviour
                     if (StationStageIndex.stageIndex < dataStages.Count)
                     {
                         nextStepBtn.gameObject.SetActive(true);
-                        nextStep.CallAutoNextAfterDelay(3);
+                        nextStep.CallAutoNextAfterDelay(1);
                         captureBtn.gameObject.SetActive(false);
                     }
 
@@ -418,7 +418,8 @@ public class ARCameraScript : MonoBehaviour
 
         if (!drawOnResultStage)
         {
-            bBoxRect = GetObjectBBox(bestScoreIndex);
+            Rect tempBBoxRect = GetObjectBBox(bestScoreIndex);
+            if (tempBBoxRect != Rect.zero) bBoxRect = tempBBoxRect;
         }
         //_detectImage.gameObject.SetActive(true);
 
