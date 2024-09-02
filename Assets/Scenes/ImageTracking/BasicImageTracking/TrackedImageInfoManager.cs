@@ -110,7 +110,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             cameraManager.frameReceived += OnCameraFrameReceived;
             //isInferenceAvailable = true;
-            //cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
+            cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 2];
         }
 
         private void Start()
@@ -140,7 +140,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             _CameraFeedToRenderTexture.UpdateTexture();
             if (!init)
             {
-                cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1]; //In my case 0=640*480, 1= 1280*720, 2=1920*1080
+                cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 2]; //In my case 0=640*480, 1= 1280*720, 2=1920*1080
                 init = true;
             }
             
