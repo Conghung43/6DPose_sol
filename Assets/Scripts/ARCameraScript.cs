@@ -201,8 +201,11 @@ public class ARCameraScript : MonoBehaviour
                         if (StationStageIndex.stageIndex < dataStages.Count)
                         {
                             nextStepBtn.gameObject.SetActive(true);
-                            nextStep.CallAutoNextAfterDelay(1);
                             captureBtn.gameObject.SetActive(false);
+                            if (StationStageIndex.stageIndex != 4)
+                            {
+                                nextStep.CallAutoNextAfterDelay(1);
+                            }
                         }
 
                         // Stop the metaTimeCount if it's not null
