@@ -80,6 +80,9 @@ public class ARCameraScript : MonoBehaviour
     private Quaternion savedRotation;
     private float savedFieldOfView;
 
+    bool isInferenceFromSample = false;
+    int count_inference = 0;
+
     public NextStep nextStep;
     public Rect _dectionRect;
 
@@ -184,29 +187,39 @@ public class ARCameraScript : MonoBehaviour
                 //}
 
                 // Set Detection result
-                if (!StationStageIndex.metaInferenceRule && metaAPIinferenceData.data.rule && StationStageIndex.FunctionIndex == "Detect")
+                if (!StationStageIndex.metaInferenceRule &&
+                    metaAPIinferenceData.data.rule &&
+                    StationStageIndex.FunctionIndex == "Detect" &&
+                    !isInferenceFromSample)
                 {
-                    StationStageIndex.metaInferenceRule = metaAPIinferenceData.data.rule;
-                    dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
-
-                    // Show/hide next step and capture buttons based on current stage
-                    if (StationStageIndex.stageIndex < dataStages.Count)
+                    if (count_inference >= 3)
                     {
-                        nextStepBtn.gameObject.SetActive(true);
-                        nextStep.CallAutoNextAfterDelay(1);
-                        captureBtn.gameObject.SetActive(false);
-                    }
+                        StationStageIndex.metaInferenceRule = metaAPIinferenceData.data.rule;
+                        dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
 
-                    // Stop the metaTimeCount if it's not null
-                    if (StationStageIndex.metaTimeCount != null)
-                    {
-                        StationStageIndex.metaTimeCount.Stop();
-                    }
+                        // Show/hide next step and capture buttons based on current stage
+                        if (StationStageIndex.stageIndex < dataStages.Count)
+                        {
+                            nextStepBtn.gameObject.SetActive(true);
+                            nextStep.CallAutoNextAfterDelay(1);
+                            captureBtn.gameObject.SetActive(false);
+                        }
 
-                    // Find the checkListGameObject and show the checkmark
-                    checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
-                    checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
-                    checkMarkTransform.gameObject.SetActive(true);
+                        // Stop the metaTimeCount if it's not null
+                        if (StationStageIndex.metaTimeCount != null)
+                        {
+                            StationStageIndex.metaTimeCount.Stop();
+                        }
+
+                        // Find the checkListGameObject and show the checkmark
+                        checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
+                        checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
+                        checkMarkTransform.gameObject.SetActive(true);
+                        count_inference = 0;
+                    }
+                    count_inference += 1;
+
+
                 }
             }
         }
@@ -598,6 +611,14 @@ public class ARCameraScript : MonoBehaviour
             }
             if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
             {
+                if (StationStageIndex.FunctionIndex == "Sample")
+                {
+                    isInferenceFromSample = true;
+                }
+                else
+                {
+                    isInferenceFromSample = false;
+                }
                 inferenceResponseFlag = false;
                 SendImage2Meta();
             }
