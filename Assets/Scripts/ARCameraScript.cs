@@ -41,7 +41,7 @@ public class ARCameraScript : MonoBehaviour
     public GameObject sphere;
     [SerializeField] private RectTransform _imageDection;
 
-    //[SerializeField] private TMPro.TextMeshProUGUI logInfo;
+    [SerializeField] private TMPro.TextMeshProUGUI logInfo;
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
     private GameObject checkListGameObject;
@@ -82,6 +82,7 @@ public class ARCameraScript : MonoBehaviour
 
     bool isInferenceFromSample = false;
     int count_inference = 0;
+    int count_detect_mode = 0;
 
     public NextStep nextStep;
     public Rect _dectionRect;
@@ -155,7 +156,7 @@ public class ARCameraScript : MonoBehaviour
                     //List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                     //    StationStageIndex.stageIndex - 1);
                     //base clase name
-                    int classid = FindClassIDfromName((StationStageIndex.stageIndex -1).ToString());
+                    int classid = FindClassIDfromName((StationStageIndex.stageIndex - 1).ToString());
                     List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                         classid);
                     int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
@@ -166,14 +167,24 @@ public class ARCameraScript : MonoBehaviour
                         {
                             sphere.transform.position = centerPoint3D;
                             sphere.gameObject.SetActive(true);
-                            Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
+                            //Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
                             _imageDection.gameObject.SetActive(true);
-                            _imageDection.anchoredPosition = screenPoint;
-                            _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
-                            
+                            _imageDection.anchoredPosition = centerPoint;
+                            _dectionRect = new Rect(centerPoint.x - w / 2, centerPoint.y - h / 2, w, h);
+
                         }
-                        
+
                     }
+                    logInfo.text = "Meta rule = ";
+                }
+                else
+                {
+                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() + TrackedImageInfoManager.cpuImageTexture.height.ToString();
+                    if (count_detect_mode == 0)
+                    {
+                        metaAPIinferenceData = null;
+                    }
+                    count_detect_mode += 1;
                 }
                 //if (StationStageIndex.FunctionIndex == "Detect") {
                 //    DrawRois(false);
@@ -187,6 +198,7 @@ public class ARCameraScript : MonoBehaviour
                 //}
 
                 // Set Detection result
+
                 if (!StationStageIndex.metaInferenceRule &&
                     metaAPIinferenceData.data.rule &&
                     StationStageIndex.FunctionIndex == "Detect" &&
@@ -204,7 +216,7 @@ public class ARCameraScript : MonoBehaviour
                             captureBtn.gameObject.SetActive(false);
                             if (StationStageIndex.stageIndex != 4)
                             {
-                                nextStep.CallAutoNextAfterDelay(1);
+                                nextStep.CallAutoNextAfterDelay(2);
                             }
                         }
 
@@ -219,6 +231,7 @@ public class ARCameraScript : MonoBehaviour
                         checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
                         checkMarkTransform.gameObject.SetActive(true);
                         count_inference = 0;
+                        count_detect_mode = 0;
                     }
                     count_inference += 1;
 

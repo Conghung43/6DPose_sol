@@ -42,7 +42,7 @@ public class CheckDistanceHandAndDetection : MonoBehaviour
                 stateNumber = StationStageIndex.stageIndex;
                 _isChecked = true;
                 _time = 0.5f;
-                _detecionLine.SetStartAndHideLine(_paimSphere,5f);
+                _detecionLine.SetStartAndHideLine(_paimSphere,3f);
                 _detectionSphere.gameObject.SetActive(false);
                 _detectionImage.gameObject.SetActive(false);
                 _nextStep.RaiseButtonClick();
