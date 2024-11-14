@@ -58,7 +58,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //bool drawCorner = false;
         private Texture2D m_CameraTexture;
         [SerializeField] private TMPro.TextMeshProUGUI logInfo;
-        private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
+        public static XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
         public static int[] TrackedImageCorner;
         public static Texture2D cpuImageTexture;
         public GameObject PoseInference;
@@ -175,6 +175,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         private void Update()
         {
+            OnCameraIntrinsicsUpdated();
             if (isInferenceAvailable && TrackedImageCorner != null && PoseInference.activeSelf)
             {
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
@@ -264,12 +265,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     }
 
                     //byte[] cpuImageEncode = cpuImageTexture.EncodeToJPG();
-#if !UNITY_EDITOR
-                    if (intrinsics.focalLength.x == 0)
-                    {
-                        OnCameraIntrinsicsUpdated();
-                    }
-#endif
+//#if !UNITY_EDITOR
+//                    if (intrinsics.focalLength.x == 0)
+//                    {
+//                        OnCameraIntrinsicsUpdated();
+//                    }
+//#endif
                     if (Inference.objectInitialSet)
                     {
                         float distance = Vector3.Distance(lastCamPos, Camera.main.transform.position);
@@ -295,6 +296,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
             }
             //return;
+            cpuImageTexture = UpdateCPUImage();
         }
 
         void OnDisable()
@@ -366,8 +368,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     stickWithImageTargetObject.transform.rotation = trackedImage.transform.rotation;
                     
                 }
-                cpuImageTexture = UpdateCPUImage();
+                
             }
+            
         }
 
 
