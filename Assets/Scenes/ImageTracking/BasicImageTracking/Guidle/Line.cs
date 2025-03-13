@@ -39,8 +39,12 @@ using UnityEngine;
             } 
         }
 
-        public void SetHideLine()
+        private void SetHideLine()
         {
+            if (StationStageIndex.FunctionIndex == "Sample")
+            {
+                return;
+            }
             _isShow = false;
         }
 
@@ -66,26 +70,18 @@ using UnityEngine;
             yield return new WaitForSeconds(second);
             SetHideLine();
         }
-        
 
-        public void SetShowLine()
+
+        private void SetShowLine()
         {
             _isShow = true;
         }
 
         private void Update()
         {
-            if (_isShow)
-            {
+            if (_isShow && bezierCurve.IsStartEnable()) {
                 ShowLine();
-            }
-            else
-            {
-                HideLine();
-            }
-
-            if (!bezierCurve.IsStartEnable())
-            {
+            } else {
                 HideLine();
             }
             
