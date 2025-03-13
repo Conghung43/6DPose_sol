@@ -90,6 +90,7 @@ public class GameObjectController : MonoBehaviour
                 detectionLine.SetStart(_sphereDetection.transform);
                 break;
             case "Detect":
+                MetaService.ConnectWithMetaStageID();
                 StationStageIndex.metaInferenceRule = false;
                 ARCameraScript.inferenceResponseFlag = true;
                 StationStageIndex.FinalUI = false;
