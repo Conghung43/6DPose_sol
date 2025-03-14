@@ -110,7 +110,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             cameraManager.frameReceived += OnCameraFrameReceived;
             //isInferenceAvailable = true;
-            cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 2];
+            cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
         }
 
         private void Start()
@@ -219,7 +219,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             if (isInferenceAvailable && PoseInference.activeSelf)
             {
-                
+                if (cpuImageTexture == null)
+                {
+                    return;
+                }
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
                 int[] bboxTrackedImage = new int[] { (int)Screen.width/3, (int)(Screen.height/4), (int)Screen.width *2/ 3, (int)(Screen.height *7/ 12) };//TrackedImageCorner;
@@ -230,7 +233,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //Display
                 sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], Screen.height - bboxTrackedImage[1], 0.5f));
                 sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], Screen.height - bboxTrackedImage[3], 0.5f));
-
                 // Transformation
                 bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
                 // This function may return null if 2D bbox doesn't have any intersection part with screen
