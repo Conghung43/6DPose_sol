@@ -72,7 +72,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             var projectile = Instantiate(m_ProjectilePrefab, pose.position, pose.rotation);
             var projectileRigidbody = ComponentUtils.GetOrAddIf<Rigidbody>(projectile, true);
-            projectileRigidbody.velocity = pose.forward * m_LaunchSpeed;
+            projectileRigidbody.linearVelocity = pose.forward * m_LaunchSpeed;
         }
     }
 }

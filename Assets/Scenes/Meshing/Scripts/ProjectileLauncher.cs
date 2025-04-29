@@ -35,7 +35,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             var ray = GetComponent<Camera>().ScreenPointToRay(position);
             var projectile = Instantiate(m_ProjectilePrefab, ray.origin, Quaternion.identity);
             var rigidbody = projectile.GetComponent<Rigidbody>();
-            rigidbody.velocity = ray.direction * m_InitialSpeed;
+            rigidbody.linearVelocity = ray.direction * m_InitialSpeed;
 
         }
     }

@@ -588,7 +588,7 @@ public class ARCameraScript : MonoBehaviour
     private void Inference(object sender, EventManager.OnCheckpointUpdateEventArgs e)
     {
         //logInfo.text = "Update start:";
-        UnityEngine.Debug.Log("Update start:");
+        // UnityEngine.Debug.Log("Update start:");
         // Edge inference
         if (toggleAP.isOn)
         {

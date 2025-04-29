@@ -193,10 +193,10 @@ public class BarcodeInteraction : MonoBehaviour
 #if UNITY_EDITOR
         barcodeStringArray = new string[]
                     {
-                            "127.0.0.1",
-                            "ODg4ODg4",
-                            "Engine",
-                            "1741654831",
+                            "125.227.130.192",
+                            "MTIzMTIz",
+                            "engine_demo",
+                            "1735120812",
                             "demo"
                     };
 #else

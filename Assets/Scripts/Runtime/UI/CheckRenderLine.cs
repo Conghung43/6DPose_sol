@@ -2,12 +2,12 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR;
 
-[RequireComponent(typeof(XRInteractorLineVisual))]
+[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual))]
 [RequireComponent(typeof(ActionBasedController))]
 public class CheckRenderLine : MonoBehaviour
 {
     ActionBasedController m_Controller;
-    XRInteractorLineVisual m_InteractorLine;
+    UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual m_InteractorLine;
 
     [SerializeField]
     Camera m_CameraAR;
@@ -26,7 +26,7 @@ public class CheckRenderLine : MonoBehaviour
         }
 
         m_Controller = GetComponent<ActionBasedController>();
-        m_InteractorLine = GetComponent<XRInteractorLineVisual>();
+        m_InteractorLine = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual>();
     }
 
     void Update()

@@ -81,8 +81,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
 
             var result = await m_AnchorManager.TryAddAnchorAsync(hit.pose);
-            if (result.TryGetResult(out var anchor))
-                FinalizePlacedAnchor(anchor, $"Anchor (from {hit.hitType})");
+            if (result.value != null)
+                FinalizePlacedAnchor(result.value, $"Anchor (from {hit.hitType})");
         }
 
         public ARRaycastManager m_RaycastManager;

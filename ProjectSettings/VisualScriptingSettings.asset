@@ -26,6 +26,6 @@ MonoBehaviour:
       Unity.XR.ARFoundation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]","System.Collections.Generic.List`1[[UnityEngine.XR.ARFoundation.ARAnchor,
       Unity.XR.ARFoundation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]","System.Collections.Generic.List`1[[UnityEngine.XR.ARFoundation.AREnvironmentProbe,
       Unity.XR.ARFoundation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]","System.Collections.Generic.List`1[[UnityEngine.XR.ARFoundation.ARParticipant,
-      Unity.XR.ARFoundation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]","UnityEngine.XR.ARFoundation.Samples.EventAsset"],"$type":"System.Collections.Generic.List`1[[System.Type,
-      mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"},"projectSetupCompleted":{"$content":false,"$type":"System.Boolean"},"savedVersion":{"major":1,"minor":9,"patch":1,"label":null,"increment":0,"$type":"Unity.VisualScripting.SemanticVersion"}}}'
+      Unity.XR.ARFoundation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"],"$type":"System.Collections.Generic.List`1[[System.Type,
+      mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"},"projectSetupCompleted":{"$content":false,"$type":"System.Boolean"},"savedVersion":{"major":1,"minor":9,"patch":4,"label":null,"increment":0,"$type":"Unity.VisualScripting.SemanticVersion"}}}'
     _objectReferences: []
