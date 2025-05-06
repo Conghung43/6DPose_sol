@@ -11,31 +11,99 @@ using OpenCVForUnity.ImgprocModule;
 using System.Collections.Generic;
 using OpenCVForUnity.ImgcodecsModule;
 using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
+using UnityEngine.Networking;
+using System.Collections;
+using OpenCVForUnity.UnityUtils;
 
 public class QRCodeReader : MonoBehaviour
 {
     //public RawImage cameraDisplay;
     //private WebCamTexture camTexture;
-    private IBarcodeReader barcodeReader;
+    // private IBarcodeReader barcodeReader;
 
     // Input Parameters
-    private float qrCodeSize = 0.081f; // QR code's physical size (e.g., 10 cm)
+    private float physicImageWidth = 0.325f; // QR code's physical size (e.g., 10 cm)
+    private float physicImageHeight = 0.1625f;
     private Vector2 focalLength = new Vector2(800, 800); // Focal length in pixels
     private Vector2 principalPoint = Vector2.zero; // Principal point in pixels
-    private Vector2[] qrCodeCorners2D = new Vector2[4];
-    private Vector2[] qrCodePositionPattern = new Vector2[] { new Vector2(0,26),
-                                                                new Vector2(0,0),
-                                                                new Vector2(26,0),
-                                                                new Vector2(23,23)};
+    private MatOfPoint2f qrCodeCorners2D = new MatOfPoint2f();
     public GameObject transfromOrigin;
     public GameObject arCamera;
     private int count = 0;
-
+    public Mat queryImage;
+    MatOfKeyPoint keypoints = new MatOfKeyPoint(); 
+    Mat descriptors = new Mat();
+    Barcode2DMatching barcode2DMatching;
+    public RawImage targetImage;
+    private string fileName = "queryImage.jpg"; // Name of the image file in StreamingAssets
     void Start()
     {
-        barcodeReader = new BarcodeReader();
+        // Texture2D texture = new Texture2D(rawImage.texture.width, rawImage.texture.height, TextureFormat.RGBA32, false);
+        StartCoroutine(LoadImage());
     }
 
+    IEnumerator LoadImage()
+    {
+        string path = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
+        byte[] imgData;
+
+        //Check if we should use UnityWebRequest or File.ReadAllBytes
+        if (path.Contains("://") || path.Contains(":///"))
+        {
+            Debug.Log("Load image success 1");
+            UnityWebRequest request = UnityWebRequestTexture.GetTexture(path);
+            yield return request.SendWebRequest();
+            Debug.Log("Load image success 2");
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("load image error: " + request.error);
+            }
+            else
+            {
+                Debug.Log("Load image success");
+                Texture2D texture = DownloadHandlerTexture.GetContent(request); 
+                //Load raw Data into Texture2D 
+                targetImage.texture = texture;
+                if (queryImage == null)
+                {
+                    queryImage = new Mat(texture.height, texture.width, CvType.CV_8UC4);
+                }
+                Utils.texture2DToMat(texture, queryImage);
+                Imgproc.cvtColor(queryImage, queryImage, Imgproc.COLOR_RGB2BGR);
+                // imwrite queryImage.jpg 
+                // Imgcodecs.imwrite("test.jpg", queryImage);
+                Debug.Log("Loaded Mat color at Start (non-Android)");
+
+                barcode2DMatching = new Barcode2DMatching(150);
+                barcode2DMatching.Init();
+                (keypoints, descriptors) = barcode2DMatching.GetFeatureMatching(queryImage);
+            }
+        }
+        else
+        {
+            Debug.Log("Load image else");
+            Texture2D texture = new Texture2D(2, 2);
+            imgData = File.ReadAllBytes(path);
+            //Load raw Data into Texture2D 
+            texture.LoadImage(imgData);
+            targetImage.texture = texture;
+            if (queryImage == null)
+            {
+                queryImage = new Mat(texture.height, texture.width, CvType.CV_8UC4);
+            }
+            Utils.texture2DToMat(texture, queryImage);
+            Imgproc.cvtColor(queryImage, queryImage, Imgproc.COLOR_RGB2BGR);
+            // imwrite queryImage.jpg 
+            // Imgcodecs.imwrite("test.jpg", queryImage);
+            Debug.Log("Loaded Mat color at Start (non-Android)");
+
+            barcode2DMatching = new Barcode2DMatching(150);
+            barcode2DMatching.Init();
+            (keypoints, descriptors) = barcode2DMatching.GetFeatureMatching(queryImage);
+        }
+
+        
+    }
     void Update()
     {
         if (principalPoint == Vector2.zero)
@@ -53,22 +121,30 @@ public class QRCodeReader : MonoBehaviour
                 //File.WriteAllBytes("test.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
                 focalLength = new Vector2(936.2321683838078f, 936.1081714012856f);
                 principalPoint = new Vector2(959.2009481268866f, 538.9017422822632f);
-                Color32[] colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();//
+                // Color32[] colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();//
 #else
                 //string inputFilePath = Path.Combine(Application.persistentDataPath, "test.jpg");
                 //File.WriteAllBytes(inputFilePath, TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
-                Color32[] colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
+                // Color32[] colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
+                // Create a Mat with the same size as the texture
 #endif
-                var result = barcodeReader.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
-                if (result != null)
+                Mat referenceMat = new Mat(TrackedImageInfoManager.cpuImageTexture.height, TrackedImageInfoManager.cpuImageTexture.width, CvType.CV_8UC4);
+                // rawImage.texture = TrackedImageInfoManager.cpuImageTexture;
+                // Convert Texture2D to Mat
+                Utils.texture2DToMat(TrackedImageInfoManager.cpuImageTexture, referenceMat);
+                // var result = barcodeReader.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+                
+                referenceMat = new Mat(referenceMat, 
+                    new OpenCVForUnity.CoreModule.Rect(
+                        (int)(referenceMat.width()/4),
+                        (int)(referenceMat.height()/4),
+                        (int)(referenceMat.width()/2),
+                        (int)(referenceMat.height()/2)));
+                
+                qrCodeCorners2D = barcode2DMatching.MatchFeaturesAndFindCorners(referenceMat, queryImage, keypoints, descriptors, "test.jpg");
+                if (qrCodeCorners2D.toArray().Length > 0)
                 {
-                    //Debug.Log("QR Code detected: " + result.Text);
-                    qrCodeCorners2D[0] = new Vector2((int)result.ResultPoints[0].X, (int)result.ResultPoints[0].Y);
-                    qrCodeCorners2D[1] = new Vector2((int)result.ResultPoints[1].X, (int)result.ResultPoints[1].Y);
-                    qrCodeCorners2D[2] = new Vector2((int)result.ResultPoints[2].X, (int)result.ResultPoints[2].Y);
-                    qrCodeCorners2D[3] = new Vector2((int)result.ResultPoints[3].X, (int)result.ResultPoints[3].Y);
-
-                    FindQRcodeTransformMatrix();
+                    FindQRcodeTransformMatrix(qrCodeCorners2D);
                     // Do something with the decoded QR code here
                 }
             }
@@ -78,80 +154,30 @@ public class QRCodeReader : MonoBehaviour
             }
         }
     }
-
-    private Mat FindHomographyMatrix(Vector2[] src, Vector2[] dst)
-    {
-        // Define the first set of points (source points)
-        List<Point> srcPoints = new List<Point>
-    {
-        new Point(src[0][0], src[0][1]),  // bottom-left
-        new Point(src[1][0], src[1][1]),  // top-left
-        new Point(src[2][0], src[2][1]),  // top-right
-        new Point(src[3][0], src[3][1])   // bottom-right
-    };
-
-        // Define the second set of points (destination points)
-        List<Point> dstPoints = new List<Point>
-    {
-        new Point(dst[0][0], dst[0][1]),  // bottom-left
-        new Point(dst[1][0], dst[1][1]),  // top-left
-        new Point(dst[2][0], dst[2][1]),  // top-right
-        new Point(dst[3][0], dst[3][1])   // bottom-right
-    };
-
-        // Convert lists to MatOfPoint2f (required by findHomography)
-        MatOfPoint2f srcMat = new MatOfPoint2f();
-        srcMat.fromList(srcPoints);
-
-        MatOfPoint2f dstMat = new MatOfPoint2f();
-        dstMat.fromList(dstPoints);
-
-        // Calculate the homography matrix
-        Mat homography = Calib3d.findHomography(srcMat, dstMat);
-        return homography;
-    }
-
-
-    // Function to map a point from destination to source plane using inverse homography
-    Point GetPointInSourcePlane(Point dstPoint, Mat homography)
-    {
-        // Invert the homography matrix
-        Mat invHomography = new Mat();
-        Core.invert(homography, invHomography);
-
-        // Convert the destination point to Mat format
-        MatOfPoint2f dstMat = new MatOfPoint2f(dstPoint);
-        MatOfPoint2f srcMat = new MatOfPoint2f();
-
-        // Apply the inverse homography matrix to find the source point
-        Core.perspectiveTransform(dstMat, srcMat, invHomography);
-
-        // Return the mapped source point
-        return srcMat.toArray()[0];
-    }
-
-    private void FindQRcodeTransformMatrix()
+    private void FindQRcodeTransformMatrix(MatOfPoint2f qrCodeCorners2DMat)
     {
         //Step 0: replace alignment pattern with position pattern
-        Mat homographyMatrix = FindHomographyMatrix(qrCodeCorners2D, qrCodePositionPattern);
+        // Mat homographyMatrix = FindHomographyMatrix(qrCodeCorners2D, qrCodePositionPattern);
 
-        Point bottomRightPatternCorner = GetPointInSourcePlane(new Point(26, 26), homographyMatrix);
+        // Point bottomRightPatternCorner = GetPointInSourcePlane(new Point(26, 26), homographyMatrix);
 
         // Step 1: Define the 3D points of the QR code in the world coordinate system
         MatOfPoint3f qrCodeCorners3D = new MatOfPoint3f(
-            new Point3(-qrCodeSize / 2, -qrCodeSize / 2, 0),  // Bottom-left
-            new Point3(qrCodeSize / 2, -qrCodeSize / 2, 0),   // Bottom-right or QR code alignment patterns
-            new Point3(qrCodeSize / 2, qrCodeSize / 2, 0),    // Top-right
-            new Point3(-qrCodeSize / 2, qrCodeSize / 2, 0)    // Top-left
+            new Point3(-physicImageWidth / 2, -physicImageHeight / 2, 0),  // Bottom-left
+            new Point3(physicImageWidth / 2, -physicImageHeight / 2, 0),   // Bottom-right or QR code alignment patterns
+            new Point3(physicImageWidth / 2, physicImageHeight / 2, 0),    // Top-right
+            new Point3(-physicImageWidth / 2, physicImageHeight / 2, 0)    // Top-left
         );
 
-        // Step 2: Convert the 2D corner points into OpenCV format (MatOfPoint2f)
-        MatOfPoint2f qrCodeCorners2DMat = new MatOfPoint2f(
-            new Point(qrCodeCorners2D[0].x, qrCodeCorners2D[0].y),
-            bottomRightPatternCorner,
-            new Point(qrCodeCorners2D[2].x, qrCodeCorners2D[2].y),
-            new Point(qrCodeCorners2D[1].x, qrCodeCorners2D[1].y)
-        );
+        // // Step 2: Convert the 2D corner points into OpenCV format (MatOfPoint2f)
+        // MatOfPoint2f qrCodeCorners2DMat = new MatOfPoint2f(
+        //     new Point(qrCodeCorners2D[0].x, qrCodeCorners2D[0].y),
+        //     bottomRightPatternCorner,
+        //     new Point(qrCodeCorners2D[2].x, qrCodeCorners2D[2].y),
+        //     new Point(qrCodeCorners2D[1].x, qrCodeCorners2D[1].y)
+        // );
+
+
 
         // Step 3: Define the camera intrinsic matrix
         Mat cameraMatrix = new Mat(3, 3, CvType.CV_64F);
