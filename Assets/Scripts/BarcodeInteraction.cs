@@ -79,16 +79,16 @@ public class BarcodeInteraction : MonoBehaviour
         //{
             try
             {
-                trackedImageInfoManager.UpdateCPUImage();
-                var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
-                //File.WriteAllBytes("test1.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
+                // trackedImageInfoManager.UpdateCPUImage();
+                // var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
+                // File.WriteAllBytes("test1.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
                 //var result = barcodeReader?.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
 
-                List<string> decoded_info = new List<string>();
-                List<string> decoded_type = new List<string>();
-                Mat corners = new Mat();
-                Mat rgbaMat = new Mat(TrackedImageInfoManager.cpuImageTexture.height, TrackedImageInfoManager.cpuImageTexture.width, CvType.CV_8UC3);
-                Utils.texture2DToMat(TrackedImageInfoManager.cpuImageTexture, rgbaMat);
+                // List<string> decoded_info = new List<string>();
+                // List<string> decoded_type = new List<string>();
+                // Mat corners = new Mat();
+                Mat rgbaMat = new Mat(VisionOSCameraManager.Instance.originalHeight, VisionOSCameraManager.Instance.originalWidth, CvType.CV_8UC3);
+                Utils.texture2DToMat(VisionOSCameraManager.Instance.GetMainCameraTexture2D(), rgbaMat);
 
                 Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
 
@@ -193,11 +193,11 @@ public class BarcodeInteraction : MonoBehaviour
 #if UNITY_EDITOR
         barcodeStringArray = new string[]
                     {
-                            "125.227.130.192",
-                            "MTIzMTIz",
-                            "engine_demo",
-                            "1735120812",
-                            "demo"
+                        "125.227.130.192",
+                        "MTIzMTIz",
+                        "engineSOP002",
+                        "1746411720",
+                        "demo"
                     };
 #else
         barcodeStringArray = new string[decodedInfo.Count];

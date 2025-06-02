@@ -179,7 +179,7 @@ public class ARCameraScript : MonoBehaviour
                 }
                 else
                 {
-                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() + TrackedImageInfoManager.cpuImageTexture.height.ToString();
+                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() + VisionOSCameraManager.Instance.originalHeight.ToString();
                     if (count_detect_mode == 0)
                     {
                         metaAPIinferenceData = null;
@@ -366,7 +366,7 @@ public class ARCameraScript : MonoBehaviour
             Vector2 centerPoint2D = CheckedPoint;
             //Convert cpuImage point to ScreenPoint
             Vector2 screenPoint = Vector2.zero;
-            Vector2 xrImageSize = new Vector2(TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+            Vector2 xrImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
             Vector2 ScreenImageSize = new Vector2(Screen.width, Screen.height);
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
 
@@ -677,11 +677,11 @@ public class ARCameraScript : MonoBehaviour
         try
         {
             // Crop image from cpu image
-            if (TrackedImageInfoManager.cpuImageTexture != null)
+            if (VisionOSCameraManager.Instance.GetMainCameraTexture2D() != null)
             {
-                int cpuWidth = TrackedImageInfoManager.cpuImageTexture.width;
-                int cpuHeight = TrackedImageInfoManager.cpuImageTexture.height;
-                Vector2 cpuImageSize = new Vector2(TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+                int cpuWidth = VisionOSCameraManager.Instance.originalWidth;
+                int cpuHeight = VisionOSCameraManager.Instance.originalHeight;
+                Vector2 cpuImageSize = new Vector2(cpuWidth, cpuHeight);
                 Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
                 Vector2 screenStartPointInCpuImage;
                 ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
@@ -693,7 +693,7 @@ public class ARCameraScript : MonoBehaviour
                     (int)(bboxW * cpuWidth / Screen.width),
                     (int)(bboxW * cpuWidth / Screen.width));
                 Texture2D croppedTexture = new Texture2D((int)newRect.width, (int)newRect.height);
-                croppedTexture = ImageProcessing.CropTexture2D(TrackedImageInfoManager.cpuImageTexture,
+                croppedTexture = ImageProcessing.CropTexture2D(VisionOSCameraManager.Instance.GetMainCameraTexture2D(),
                     croppedTexture, newRect
                     );
 
@@ -883,12 +883,12 @@ public class ARCameraScript : MonoBehaviour
         //capturedTexture.Apply();
 
         // Encode the capture texture as JPG and assign it to the CapturedImage variable
-        if (TrackedImageInfoManager.cpuImageTexture == null)
+        if (VisionOSCameraManager.Instance.GetMainCameraTexture2D() == null)
         {
             inferenceResponseFlag = true;
             return;
         }
-        CapturedImage = TrackedImageInfoManager.cpuImageTexture.EncodeToJPG();//capturedTexture.EncodeToJPG();
+        CapturedImage = VisionOSCameraManager.Instance.GetMainCameraTexture2D().EncodeToJPG();//capturedTexture.EncodeToJPG();
 
         //Also get depth image for convert 2D to 3D
         //PointCloudTracking.uploadDepthImage = true;

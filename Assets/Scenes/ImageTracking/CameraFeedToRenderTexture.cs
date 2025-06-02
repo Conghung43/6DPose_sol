@@ -14,7 +14,7 @@ public class CameraFeedToRenderTexture : MonoBehaviour
     public AppSettings _AppSettings;
     public static CameraFeedToRenderTexture instance;
     public ARCameraManager arCameraManager;
-    public RenderTexture renderTexture;
+    // public RenderTexture renderTexture;
     private Texture2D cameraTexture;
 
     private void Awake()
@@ -24,7 +24,7 @@ public class CameraFeedToRenderTexture : MonoBehaviour
 
     void OnEnable()
     {
-        renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
+        // renderTexture = new RenderTexture(_AppSettings._defaultAvailableWebCamResolutions[0].width, _AppSettings._defaultAvailableWebCamResolutions[0].height, 24);
         
         StartCoroutine(SelectResolution(2f));
     }
@@ -50,7 +50,7 @@ public class CameraFeedToRenderTexture : MonoBehaviour
     public void UpdateTexture()
     {
         
-        WriteTextureToRenderTexture(TrackedImageInfoManager.handTexture, renderTexture);
+        // WriteTextureToRenderTexture(TrackedImageInfoManager.handTexture, renderTexture);
     }
 
     void WriteTextureToRenderTexture(Texture2D texture, RenderTexture renderTexture)

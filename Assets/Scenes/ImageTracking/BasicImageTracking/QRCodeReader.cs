@@ -21,13 +21,13 @@ public class QRCodeReader : MonoBehaviour
 
     void Update()
     {
-        if (TrackedImageInfoManager.cpuImageTexture != null)
+        if (VisionOSCameraManager.Instance.GetMainCameraTexture2D() != null)
         {
             try
             {
-                var colorByte = TrackedImageInfoManager.cpuImageTexture.GetPixels32();
-                File.WriteAllBytes("test1.jpg", TrackedImageInfoManager.cpuImageTexture.EncodeToJPG());
-                var result = barcodeReader.Decode(colorByte, TrackedImageInfoManager.cpuImageTexture.width, TrackedImageInfoManager.cpuImageTexture.height);
+                var colorByte = VisionOSCameraManager.Instance.GetMainCameraTexture2D().GetPixels32();
+                File.WriteAllBytes("test1.jpg", VisionOSCameraManager.Instance.GetMainCameraTexture2D().EncodeToJPG());
+                var result = barcodeReader.Decode(colorByte, VisionOSCameraManager.Instance.GetMainCameraTexture2D().width, VisionOSCameraManager.Instance.GetMainCameraTexture2D().height);
                 if (result != null)
                 {
                     Debug.Log("QR Code detected: " + result.Text);

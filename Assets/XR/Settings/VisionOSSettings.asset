@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AppMode: 1
   m_HandsTrackingUsageDescription: hand
-  m_WorldSensingUsageDescription: 
+  m_WorldSensingUsageDescription: word
   m_RuntimeSettings: {fileID: 11400000, guid: c00ab007fbe0a4150befd03ef51e394f, type: 2}
   m_UpperLimbVisibility: 0
   m_FoveatedRendering: 1

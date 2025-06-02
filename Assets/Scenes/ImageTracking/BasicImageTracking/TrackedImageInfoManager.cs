@@ -29,7 +29,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         [SerializeField]
         [Tooltip("The ARCameraManager which will produce frame events.")]
-        ARCameraManager cameraManager;
+        // ARCameraManager cameraManager;
 
         /// <summary>
         /// The prefab has a world space UI canvas,
@@ -62,7 +62,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         [SerializeField] private TMPro.TextMeshProUGUI logInfo;
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
         public static int[] TrackedImageCorner;
-        public static Texture2D cpuImageTexture;
+        private static Texture2D cpuImageTexture;
         public static Texture2D handTexture;
         public static Rect EngineRect;
         public GameObject PoseInference;
@@ -103,14 +103,17 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             cpuImageTexture = new Texture2D(2, 2, TextureFormat.RGB24, false);
 
-            renderTexture = new RenderTexture(Screen.width, Screen.height, 24);
-            capturedTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            renderTexture = new RenderTexture(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, 24);
+
+            capturedTexture = new Texture2D(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, TextureFormat.RGB24, false);
 
             m_TrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
 
-            cameraManager.frameReceived += OnCameraFrameReceived;
+            // cameraManager.frameReceived += OnCameraFrameReceived;
             //isInferenceAvailable = true;
-            cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
+            
+            // cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1];
+
         }
 
         private void Start()
@@ -134,13 +137,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs)
         {
-            handTexture = UpdateCPUImage();
+            // handTexture = UpdateCPUImage();
             cpuImageTexture = handTexture;
 
             _CameraFeedToRenderTexture.UpdateTexture();
             if (!init)
             {
-                cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1]; //In my case 0=640*480, 1= 1280*720, 2=1920*1080
+                // cameraManager.subsystem.currentConfiguration = cameraManager.GetConfigurations(Allocator.Temp)[cameraManager.GetConfigurations(Allocator.Temp).Length - 1]; //In my case 0=640*480, 1= 1280*720, 2=1920*1080
                 init = true;
             }
             
@@ -219,6 +222,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             if (isInferenceAvailable && PoseInference.activeSelf)
             {
+                cpuImageTexture = VisionOSCameraManager.Instance.GetMainCameraTexture2D();
                 if (cpuImageTexture == null)
                 {
                     return;
@@ -229,71 +233,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 int[] bboxMegaPose = null;
                 int[] bbox = null;
                 //bool isIntersecting = true;
-
                 //Display
                 sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], Screen.height - bboxTrackedImage[1], 0.5f));
                 sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], Screen.height - bboxTrackedImage[3], 0.5f));
                 // Transformation
                 bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
                 // This function may return null if 2D bbox doesn't have any intersection part with screen
+
                 bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
-
-                // If object already settle down, consider to use object 3D box to generate 2D bbox for 6D pose inference input
-                //if (!Inference.objectInitialSet)
-                //{
-                //    Vector2[] megaPoseCorner = UpdateObjectTransform.GetPoints2D(box3D);
-                //    bboxMegaPose = GetLeftTopRightBottom(megaPoseCorner);
-
-                //    sphereList[2].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[0], bboxMegaPose[1], 0.5f));
-                //    sphereList[3].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxMegaPose[2], bboxMegaPose[3], 0.5f));
-
-                //    bboxMegaPose = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxMegaPose);
-                //    // This function may return null if 2D bbox doesn't have any intersection part with screen
-                //    bboxMegaPose = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxMegaPose);
-
-                //    //isIntersecting = AreRectanglesIntersecting(bboxMegaPose, bboxTrackedImage);
-
-                //    //Comparision
-                //    if (bboxMegaPose != null)
-                //    {
-                //        logInfo.text = "";// "bboxMegaPose" + cpuImageTexture.width.ToString() + " " + cpuImageTexture.height.ToString();
-
-                //        //if (bboxTrackedImage != null)
-                //        //{
-                //        //    if (isIntersecting)
-                //        //    {
-                //        //        bbox = bboxMegaPose;
-                //        //    }
-                //        //    else
-                //        //    {
-                //        //        count += 1;
-                //        //        if (count > 10)
-                //        //        {
-                //        //            count = 0;
-                //        //            bbox = bboxTrackedImage;
-                //        //        }
-                //        //    }
-                //        //}
-                //    }
-                //    else
-                //    {
-                //        if (bboxTrackedImage != null && IsObjectInScreen(box3D))
-                //        {
-                //            logInfo.text = "null,";
-                //            count += 1;
-                //            if (count > 10)
-                //            {
-                //                count = 0;
-                //                bbox = bboxTrackedImage;
-                //                Inference.objectInitialSet = true;
-                //            }
-                //        }
-                //        else
-                //        {
-                //            logInfo.text = "null, null";
-                //        }
-                //    }
-                //}
 
                 // For the case target shiffting, detect again.
                 if (!Inference.objectInitialSet && !IsObjectInScreen(box3D))
@@ -301,7 +248,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     Inference.objectInitialSet = true;
                     UpdateObjectTransform.groupedTransforms.Clear();
                 }
-               
+
                 bbox = bboxTrackedImage;
                 //if bbox width < height => return null: in small size will return bad result
                 if (bbox != null)
@@ -532,22 +479,24 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void OnCameraIntrinsicsUpdated()
         {
-            if (!cameraManager.TryGetIntrinsics(out intrinsics))
-            {
-                return;
-            }
+            // if (!cameraManager.TryGetIntrinsics(out intrinsics))
+            // {
+            //     return;
+            // }
             //cameraPoses[count].sensorSize = new Vector2(arCamera.pixelWidth, arCamera.scaledPixelWidth);
         }
         //private int count = 0;
+        
+        /*
         public unsafe Texture2D UpdateCPUImage()
         {
 
             // Attempt to get the latest camera image. If this method succeeds,
             // it acquires a native resource that must be disposed (see below).
-            if (!cameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
-            {
-                return null;
-            }
+            // if (!cameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+            // {
+            //     return null;
+            // }
 
             // Choose an RGBA format.
             // See XRCpuImage.FormatSupported for a complete list of supported formats.
@@ -587,6 +536,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             return m_CameraTexture;
         }
+*/
 
         private int[] ConvertBboxScreenImageToCPUimage(Texture2D cpuTexture, int[] ltrbBox)
         {

@@ -84,7 +84,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //yield return null;
 
             string url = $"https://{ip}:5000/sol_server/inference/pose_service";
-
             Mat newMat = new Mat(cpuImageTexture.height, cpuImageTexture.width, CvType.CV_8UC3);
 
             Utils.texture2DToMat(cpuImageTexture, newMat);
@@ -129,10 +128,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
 #if UNITY_EDITOR
             //focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
             //principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
-            // New camera intrinsic
+            
             focalLength = new Vector2(936.2321683838078f, 936.1081714012856f);
             principalPoint = new Vector2(959.2009481268866f, 538.9017422822632f);
 #endif
+
             string inferenceType = "Coarse ";
             if (arPoseToInference != null)
             {
@@ -152,8 +152,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 bboxData += "\"init_pose\":\"None\",";
             }
-
-            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" + focalLength.x.ToString() + ",0.0," + principalPoint.x.ToString() + "],[0.0," + focalLength.y.ToString() + "," + principalPoint.y.ToString() + "], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
+            // Debug.LogError($"focalLength = {VisionOSCameraManager.Instance.intrinsicsData[0]}, {VisionOSCameraManager.Instance.intrinsicsData[4]}");
+            // Debug.LogError($"principalPoint = {VisionOSCameraManager.Instance.intrinsicsData[2]}, {VisionOSCameraManager.Instance.intrinsicsData[5]}");
+            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" + VisionOSCameraManager.Instance.intrinsicsData[0] + ",0.0," + VisionOSCameraManager.Instance.intrinsicsData[2] + "],[0.0," + VisionOSCameraManager.Instance.intrinsicsData[4] + "," + VisionOSCameraManager.Instance.intrinsicsData[5] + "], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
 
             //Debug.Log($"{ count} = " + bboxData);
 
@@ -163,6 +164,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //form.AddField("data", jsonBox);
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
+
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
                 request.certificateHandler = new CertificateVS();
@@ -183,6 +185,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         //Debug.Log($"{count} = " + request.downloadHandler.text);
 
                         InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
+
                         if (result.data.obj_pose != null)
                         {
                             Inference.Set3DBox(result.data.obj_pose);
@@ -229,6 +232,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
+            // Debug.LogError($"server position: {position}");
 
             (rotation, position) = ConvertToOppositeHandedness(rotation, position);
 
@@ -237,6 +241,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Matrix4x4 ObjectToWorldMatrix = CameraMatrix * CamToObjectMatrixMega.inverse;
 
             MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
+            // Debug.LogError($"transfer position: {position}");
 
             GameObject megaPoseEstimateGameObject = new GameObject();
             megaPoseEstimateGameObject.name = "megaPoseEstimateGameObject";

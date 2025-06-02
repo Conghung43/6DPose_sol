@@ -47,8 +47,8 @@ namespace Mediapipe.Unity
       }
     }*/
 
-    public override int textureWidth => !isPrepared ? 0 : CameraFeedToRenderTexture.instance.renderTexture.width;
-    public override int textureHeight => !isPrepared ? 0 : CameraFeedToRenderTexture.instance.renderTexture.height;
+    public override int textureWidth => !isPrepared ? 0 : VisionOSCameraManager.Instance.originalWidth;
+    public override int textureHeight => !isPrepared ? 0 : VisionOSCameraManager.Instance.originalHeight;
 
     public override bool isVerticallyFlipped => isPrepared && true;
     public override bool isFrontFacing => isPrepared && (webCamDevice is WebCamDevice valueOfWebCamDevice) && valueOfWebCamDevice.isFrontFacing;
@@ -110,8 +110,8 @@ namespace Mediapipe.Unity
     }
 #pragma warning restore IDE0025
 
-    public override bool isPrepared => CameraFeedToRenderTexture.instance.renderTexture != null;
-    public override bool isPlaying => CameraFeedToRenderTexture.instance.renderTexture != null && true;
+    public override bool isPrepared => VisionOSCameraManager.Instance.IsPlaying();
+    public override bool isPlaying => VisionOSCameraManager.Instance.IsPlaying();
 
     private IEnumerator Initialize()
     {
@@ -228,7 +228,7 @@ namespace Mediapipe.Unity
       webCamTexture = null;*/
     }
 
-    public override Texture GetCurrentTexture() => CameraFeedToRenderTexture.instance.renderTexture;
+    public override Texture GetCurrentTexture() => VisionOSCameraManager.Instance.GetMainCameraTexture2D();
 
     private ResolutionStruct GetDefaultResolution()
     {
