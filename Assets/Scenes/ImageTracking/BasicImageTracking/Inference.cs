@@ -15,11 +15,11 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.ImgprocModule;
 using System;
+
 //using OpenCVForUnity.
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
-
     [System.Serializable]
     public class InferenceResult
     {
@@ -64,7 +64,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //float[] positions1 = new float[111];
         void Start()
         {
-
             //box3D.transform.position = new Vector3(-0.004634091f, - 0.1383801f, 2.226088f);////0.08501446f, - 0.1245978f, 2.024555f
             //box3D.transform.rotation = new Quaternion(0, 0, 0, 1);
             //ReadTXTFromFile(ARTxtFilePath);
@@ -79,7 +78,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         //IEnumerator Texture2DToByteOpenCV(Texture2D tex, Action<byte> )
 
-        public static IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox, Vector2 focalLength, Vector2 principalPoint)
+        public static IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox,
+            Vector2 focalLength, Vector2 principalPoint)
         {
             //yield return null;
 
@@ -124,11 +124,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     bboxData += ",";
                 }
             }
+
             bboxData += "],";
 #if UNITY_EDITOR
             //focalLength = new Vector2(934.098886308209f, 933.9920158878367f);
             //principalPoint = new Vector2(959.7212318150472f, 539.8662057950421f);
-            
+
             focalLength = new Vector2(936.2321683838078f, 936.1081714012856f);
             principalPoint = new Vector2(959.2009481268866f, 538.9017422822632f);
 #endif
@@ -145,6 +146,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         bboxData += ",";
                     }
                 }
+
                 bboxData += "],";
                 inferenceType = "Refine";
             }
@@ -152,18 +154,23 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 bboxData += "\"init_pose\":\"None\",";
             }
-            // Debug.LogError($"focalLength = {VisionOSCameraManager.Instance.intrinsicsData[0]}, {VisionOSCameraManager.Instance.intrinsicsData[4]}");
-            // Debug.LogError($"principalPoint = {VisionOSCameraManager.Instance.intrinsicsData[2]}, {VisionOSCameraManager.Instance.intrinsicsData[5]}");
-            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" + VisionOSCameraManager.Instance.intrinsicsData[0] + ",0.0," + VisionOSCameraManager.Instance.intrinsicsData[2] + "],[0.0," + VisionOSCameraManager.Instance.intrinsicsData[4] + "," + VisionOSCameraManager.Instance.intrinsicsData[5] + "], [0.0,0.0,1.0]],\"resolution\": [" + imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
 
+            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" +
+                        VisionOSCameraManager.Instance.intrinsicsData[0] + ",0.0," +
+                        VisionOSCameraManager.Instance.intrinsicsData[2] + "],[0.0," +
+                        VisionOSCameraManager.Instance.intrinsicsData[4] + "," +
+                        VisionOSCameraManager.Instance.intrinsicsData[5] + "], [0.0,0.0,1.0]],\"resolution\": [" +
+                        imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
             //Debug.Log($"{ count} = " + bboxData);
 
             form.AddField("data", bboxData);
 
             //string jsonBox = "[" + string.Join(",", tlrbBox) + "]";
             //form.AddField("data", jsonBox);
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
+            ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, certificate, chain, sslPolicyErrors) => true;
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
 
             using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
@@ -174,14 +181,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                 try
                 {
-                    if (request.isNetworkError || request.isHttpError || request.result != UnityWebRequest.Result.Success)
+                    if (request.isNetworkError || request.isHttpError ||
+                        request.result != UnityWebRequest.Result.Success)
                     {
                         Debug.Log("Error: " + request.error);
                         //yield return null;
                     }
                     else
                     {
-
                         //Debug.Log($"{count} = " + request.downloadHandler.text);
 
                         InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
@@ -197,12 +204,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
                 catch
                 {
-
                 }
 
                 TrackedImageInfoManager.isInferenceAvailable = true;
 
-                stopwatch.Stop(); elMs = inferenceType + " "+ stopwatch.ElapsedMilliseconds.ToString();
+                stopwatch.Stop();
+                elMs = inferenceType + " " + stopwatch.ElapsedMilliseconds.ToString();
             }
         }
 
@@ -222,7 +229,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //}
 
         // Convert Matrix4x4 to Quaternion and Translation
-        public static void MatrixToQuaternionTranslation(Matrix4x4 matrix, out Quaternion quaternion, out Vector3 translation)
+        public static void MatrixToQuaternionTranslation(Matrix4x4 matrix, out Quaternion quaternion,
+            out Vector3 translation)
         {
             quaternion = Quaternion.LookRotation(matrix.GetColumn(2), matrix.GetColumn(1));
             translation = matrix.GetColumn(3);
@@ -236,11 +244,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             (rotation, position) = ConvertToOppositeHandedness(rotation, position);
 
-            Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one);//;
+            Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one); //;
 
             Matrix4x4 ObjectToWorldMatrix = CameraMatrix * CamToObjectMatrixMega.inverse;
 
             MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
+            position = new Vector3(position.x, position.y, position.z - 855);
             // Debug.LogError($"transfer position: {position}");
 
             GameObject megaPoseEstimateGameObject = new GameObject();
@@ -249,7 +258,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             megaPoseEstimateGameObject.transform.rotation = rotation;
             megaPoseEstimateGameObject.transform.localScale = Vector3.one;
 
-            Transform updatedTransform =  UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
+            Transform updatedTransform =
+                UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
 
             if (updatedTransform != null)
             {
@@ -265,14 +275,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
                 else
                 {
-
                     objectInitialSet = false;
                 }
+
                 //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
                 StationStageIndex.ModelTargetFound = true;
                 //Display3DBox("AirPump3DModel", position, rotation);
                 //Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
             }
+
             Display3DBox("AirPump3DModel", position, rotation);
 #if UNITY_EDITOR
             // Only for testing on Editor
@@ -293,20 +304,22 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public static void ConvertARposeToMegaPose()
         {
             GameObject filterObj = GameObject.Find("AirPump3DModel");
-            if (filterObj != null)//(objectInitialSet)
+            if (filterObj != null) //(objectInitialSet)
             {
-                Matrix4x4 objectToWorldMatrix = Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
+                Matrix4x4 objectToWorldMatrix =
+                    Matrix4x4.TRS(filterObj.transform.position, filterObj.transform.rotation, Vector3.one);
                 Matrix4x4 camToObjectMatrix = objectToWorldMatrix.inverse * Camera.main.transform.localToWorldMatrix;
                 MatrixToQuaternionTranslation(camToObjectMatrix, out Quaternion rotation, out Vector3 position);
                 (rotation, position) = ConvertToOppositeHandedness(rotation, position);
-                arPoseToInference = new float[] { rotation.w, rotation.x, rotation.y, rotation.z, position.x, position.y, position.z };
+                arPoseToInference = new float[]
+                    { rotation.w, rotation.x, rotation.y, rotation.z, position.x, position.y, position.z };
             }
         }
 
         public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
         {
             GameObject filterObj = GameObject.Find(objName);
-            if (filterObj != null)//(objectInitialSet)
+            if (filterObj != null) //(objectInitialSet)
             {
                 //if (objectInitialSet)
                 //{
@@ -321,13 +334,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //}
                 filterObj.transform.position = position;
                 filterObj.transform.rotation = rotation;
-                //Debug.Log(rotation.eulerAngles.ToString());
+                Debug.LogError($"Display {objName}, pos = {position}");
             }
+            //Debug.Log(rotation.eulerAngles.ToString());
             //else
             //{
             //    modelTarget = GameObject.Find(objName);
             //}
-                
         }
 
         string[] RemoveFirstElementFromArray(string[] array)
@@ -365,10 +378,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //        {
         //            string poseString = jsonContent[i];
         //            var stringSplitOrigin = poseString.Split(' ');
-                    
+
         //            if (stringSplitOrigin.Length > 10)
         //            {
-                        
+
         //                unityGenerate = true;
         //            }
 
