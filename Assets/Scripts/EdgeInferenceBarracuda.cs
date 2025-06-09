@@ -44,8 +44,8 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         isRunningInference = true;
 
 
-        if (ARCameraScript.ImageFloatValues == null) yield return null;
-        var input = new Tensor(1, 224, 224, 3, ARCameraScript.ImageFloatValues);
+        if (ARCameraScript.Instance.ImageFloatValues == null) yield return null;
+        var input = new Tensor(1, 224, 224, 3, ARCameraScript.Instance.ImageFloatValues);
 
         //counttime += 1;
 
@@ -73,7 +73,7 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         //inferenceWatch.Reset();
 
         var output = modelWorker.PeekOutput();
-        ARCameraScript.prb = output.ToReadOnlyArray();
+        ARCameraScript.Instance.prb = output.ToReadOnlyArray();
 
         DateTime now = DateTime.Now;
 
@@ -87,7 +87,7 @@ public class EdgeInferenceBarracuda : MonoBehaviour
         //File.WriteAllBytes("test2.png", ConvertTensorToByteArray(input));
 
 
-        ARCameraScript.inferenceResponseFlag = true;
+        ARCameraScript.Instance.inferenceResponseFlag = true;
         input.Dispose();
         output.Dispose();
 

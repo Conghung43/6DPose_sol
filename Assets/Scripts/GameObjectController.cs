@@ -35,10 +35,6 @@ public class GameObjectController : MonoBehaviour
         {
             objectList[StationStageIndex.stageIndex].SetActive(false);
         }
-
-
-
-
     }
 
     private void TurnOffAnimation()
@@ -92,7 +88,7 @@ public class GameObjectController : MonoBehaviour
             case "Detect":
                 MetaService.ConnectWithMetaStageID();
                 StationStageIndex.metaInferenceRule = false;
-                ARCameraScript.inferenceResponseFlag = true;
+                ARCameraScript.Instance.inferenceResponseFlag = true;
                 StationStageIndex.FinalUI = false;
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();

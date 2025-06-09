@@ -24,7 +24,7 @@ public class UpdateObjectTransform : MonoBehaviour
             Transform groupCenter = pair.Key;
             List<Transform> group = pair.Value;
 
-            if (Inference.objectInitialSet)
+            if (Inference.Instance.objectInitialSet)
             {
                 GroupCountValid = group.Count > (int)(GroupCountThreshold / 2);
             }
@@ -89,7 +89,7 @@ public class UpdateObjectTransform : MonoBehaviour
     {
         float positionDifference = Vector3.Distance(t1.position, t2.position);
         float rotationDifference = Quaternion.Angle(t1.rotation, t2.rotation);
-        if (Inference.objectInitialSet)
+        if (Inference.Instance.objectInitialSet)
         {
             return (positionDifference <= positionThreshold && rotationDifference <= rotationThreshold);
         }

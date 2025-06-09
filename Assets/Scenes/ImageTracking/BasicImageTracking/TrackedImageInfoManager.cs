@@ -243,9 +243,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
 
                 // For the case target shiffting, detect again.
-                if (!Inference.objectInitialSet && !IsObjectInScreen(box3D))
+                if (!Inference.Instance.objectInitialSet && !IsObjectInScreen(box3D))
                 {
-                    Inference.objectInitialSet = true;
+                    Inference.Instance.objectInitialSet = true;
                     UpdateObjectTransform.groupedTransforms.Clear();
                 }
 
@@ -277,7 +277,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         OnCameraIntrinsicsUpdated();
                     }
 #endif
-                    if (Inference.objectInitialSet)
+                    if (Inference.Instance.objectInitialSet)
                     {
                         float distance = Vector3.Distance(lastCamPos, Camera.main.transform.position);
                         //logInfo.text = distance.ToString();
@@ -289,16 +289,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         if (bbox != null && bbox.Length == 4)//(distance  > 0.01f)
                         {
                             lastCamPos = Camera.main.transform.position;
-                            StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                            StartCoroutine(Inference.Instance.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                             isInferenceAvailable = false;
                         }
                     }
                     else if (bbox != null && bbox.Length == 4)
                     {
-                        StartCoroutine(Inference.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
+                        StartCoroutine(Inference.Instance.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    logInfo.text = Inference.elMs;
+                    logInfo.text = Inference.Instance.elMs;
                 }
             }
             //return;

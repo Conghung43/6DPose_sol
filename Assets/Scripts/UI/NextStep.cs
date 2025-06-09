@@ -87,7 +87,7 @@ public class NextStep : MonoBehaviour
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         string jump2StageName = "";
 
-        ARCameraScript.lastInferenceClass = -1;
+        ARCameraScript.Instance.lastInferenceClass = -1;
         StationStageIndex.stageIndex += 1;
         
         if (StationStageIndex.stageIndex > dataStages.Count - 1)

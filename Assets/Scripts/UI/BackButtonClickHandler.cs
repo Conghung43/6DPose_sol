@@ -25,7 +25,7 @@ public class BackButtonClickHandler : MonoBehaviour
         string jump2StageName = "";
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         StationStageIndex.stageIndex -= 1;
-        ARCameraScript.lastInferenceClass = -1;
+        ARCameraScript.Instance.lastInferenceClass = -1;
 
         if (StationStageIndex.stageIndex <= 0)
         {

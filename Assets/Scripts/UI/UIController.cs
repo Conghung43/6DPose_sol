@@ -183,7 +183,7 @@ public class UIController : MonoBehaviour
                     }
                     else
                     {
-                        if (toggleOnnx.isOn && StationStageIndex.stageIndex * 2 - 1 == ARCameraScript.inferenceClass && StationStageIndex.stageIndex >= dataStages.Count - 1)
+                        if (toggleOnnx.isOn && StationStageIndex.stageIndex * 2 - 1 == ARCameraScript.Instance.inferenceClass && StationStageIndex.stageIndex >= dataStages.Count - 1)
                         {
                             backgroundResult.texture = okImage;
                             backgroundTopText.text = "OK";

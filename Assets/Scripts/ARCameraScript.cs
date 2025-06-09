@@ -3,7 +3,6 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using static JsonDeserialization;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -19,12 +18,31 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ImgcodecsModule;
 using OpenCVForUnity.DnnModule;
-using static UnityEngine.XR.ARFoundation.Samples.DynamicLibrary;
 using Debug = UnityEngine.Debug;
 using Rect = UnityEngine.Rect;
 
 public class ARCameraScript : MonoBehaviour
 {
+    private static ARCameraScript instance;
+
+    public static ARCameraScript Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<ARCameraScript>();
+                if (instance == null)
+                {
+                    GameObject obj = new GameObject();
+                    obj.name = typeof(ARCameraScript).Name;
+                    instance = obj.AddComponent<ARCameraScript>();
+                }
+            }
+            return instance;
+        }
+    }
+    
     [SerializeField] private Texture2D greenBBoxTexture;
     [SerializeField] private Texture2D redBBoxTexture;
     [SerializeField] private Sprite greenBBox;
@@ -54,9 +72,9 @@ public class ARCameraScript : MonoBehaviour
     private byte[] CapturedImage;
     private Texture2D screenTexture;
     private RenderTexture screenRenderTexture;
-    public static Texture2D resizeTextureOnnx;
+    public  Texture2D resizeTextureOnnx;
     private RenderTexture resizeRenderTextureOnnx;
-    public static bool inferenceResponseFlag = true;
+    public  bool inferenceResponseFlag = true;
 
     public Toggle toggleAP;
     public ComputeShader normalizeShader;
@@ -64,15 +82,19 @@ public class ARCameraScript : MonoBehaviour
     private int height = 224;
     private float[] mean = { 0.485f, 0.456f, 0.406f };
     private float[] std = { 0.229f, 0.224f, 0.225f };
-    public static int inferenceClass = 0;
-    public static int lastInferenceClass = 0;
+    public  int inferenceClass = 0;
+    public  int lastInferenceClass = 0;
     private List<int> smoothInference = Enumerable.Repeat(0, 20).ToList();
-    public static float[] ImageFloatValues;
-    public static float[] prb;
+    public  float[] ImageFloatValues;
+    public  float[] prb;
+
+    public GameObject[] checkingResult;
+    public Material checkingObjectMaterial;
 
     int count = 0;
 
     public EdgeInferenceBarracuda edgeInference;
+
     //Stopwatch inferenceWatch = new Stopwatch();
     public JsonDeserialization.InferenceResult metaAPIinferenceData;
 
@@ -90,6 +112,7 @@ public class ARCameraScript : MonoBehaviour
     public Transform body;
     [SerializeField] private Image _detectImage;
     private RectTransform _detectImageRectTransform;
+
     private void Start()
     {
         _detectImageRectTransform = _detectImage.GetComponent<RectTransform>();
@@ -106,7 +129,8 @@ public class ARCameraScript : MonoBehaviour
         screenRenderTexture = new RenderTexture(Screen.width, Screen.height, 24);
 
         // Create a new Texture2D with specified dimensions and format
-        capturedTexture = new Texture2D(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, TextureFormat.RGB24, false);
+        capturedTexture = new Texture2D(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, TextureFormat.RGB24,
+            false);
         screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
 
         //network = new NNetwork(modelAsset);
@@ -129,10 +153,10 @@ public class ARCameraScript : MonoBehaviour
         smoothInference = Enumerable.Repeat(0, 20).ToList();
     }
 
-        private void OnInferenceResponse(object sender, MetaService.OnInferenceResponseEventArgs e)
+    private void OnInferenceResponse(object sender, MetaService.OnInferenceResponseEventArgs e)
     {
         // Listen event from Inference response in Meta API, event parameter will be drawn in this function
-        UnityEngine.Debug.Log("START ARCameraScript/OnInferenceResponse ");
+        // UnityEngine.Debug.Log("START ARCameraScript/OnInferenceResponse ");
 
         // Check if the function index is not "Detect"
         //if (StationStageIndex.FunctionIndex != "Detect")
@@ -144,14 +168,17 @@ public class ARCameraScript : MonoBehaviour
         try
         {
             // Deserialize the inference response
-            metaAPIinferenceData = JsonConvert.DeserializeObject<JsonDeserialization.InferenceResult>(e.inferenceResponse);
+            metaAPIinferenceData =
+                JsonConvert.DeserializeObject<JsonDeserialization.InferenceResult>(e.inferenceResponse);
 
             // Check if rule data is not null
             if (!metaAPIinferenceData.data.rule.Equals(null))
             {
                 if (StationStageIndex.FunctionIndex == "Sample")
                 {
-                    Vector3 centerPoint; float radiusOnScreen; Vector3 centerPoint3D;
+                    Vector3 centerPoint;
+                    float radiusOnScreen;
+                    Vector3 centerPoint3D;
                     //Base class id
                     //List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                     //    StationStageIndex.stageIndex - 1);
@@ -171,19 +198,20 @@ public class ARCameraScript : MonoBehaviour
                             _imageDection.gameObject.SetActive(true);
                             _imageDection.anchoredPosition = centerPoint;
                             _dectionRect = new Rect(centerPoint.x - w / 2, centerPoint.y - h / 2, w, h);
-
                         }
-
                     }
+
                     logInfo.text = "Meta rule = ";
                 }
                 else
                 {
-                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() + VisionOSCameraManager.Instance.originalHeight.ToString();
+                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() +
+                                   VisionOSCameraManager.Instance.originalHeight.ToString();
                     if (count_detect_mode == 0)
                     {
                         metaAPIinferenceData = null;
                     }
+
                     count_detect_mode += 1;
                 }
                 //if (StationStageIndex.FunctionIndex == "Detect") {
@@ -228,21 +256,21 @@ public class ARCameraScript : MonoBehaviour
 
                         // Find the checkListGameObject and show the checkmark
                         checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
-                        checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
+                        checkMarkTransform =
+                            checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
                         checkMarkTransform.gameObject.SetActive(true);
                         count_inference = 0;
                         count_detect_mode = 0;
                     }
+
                     count_inference += 1;
-
-
                 }
             }
         }
         catch (Exception ex)
         {
 #if UNITY_EDITOR
-            UnityEngine.Debug.LogError("ERROR ARCameraScript/OnInferenceResponse" + ex.ToString());
+            // UnityEngine.Debug.LogError("ERROR ARCameraScript/OnInferenceResponse" + ex.ToString());
 #endif
         }
 
@@ -250,7 +278,7 @@ public class ARCameraScript : MonoBehaviour
         e = null;
         inferenceResponseFlag = true;
 
-        UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
+        // UnityEngine.Debug.Log("END ARCameraScript/OnInferenceResponse ");
     }
 
     private int FindClassIDfromName(string name)
@@ -288,7 +316,7 @@ public class ARCameraScript : MonoBehaviour
     {
         if (listIndices == null || listIndices.Count == 0)
         {
-            Debug.LogWarning("List of indices is empty or null.");
+            // Debug.LogWarning("List of indices is empty or null.");
             return -1; // Indicating an invalid index
         }
 
@@ -315,8 +343,8 @@ public class ARCameraScript : MonoBehaviour
 
         // Calculate normal vectors and line direction
         Vector3 normalVector1 = GeometryUtils.CalculateNormal(thisCheckpointPosition,
-                        arCamera.transform.position,
-                        thisCheckpointPosition + new Vector3(0f, thisCheckpointScale.x / 2, 0f));
+            arCamera.transform.position,
+            thisCheckpointPosition + new Vector3(0f, thisCheckpointScale.x / 2, 0f));
         Vector3 normalVector2 = arCamera.transform.position - thisCheckpointPosition;
         Vector3 lineDirection = Vector3.Cross(normalVector1, normalVector2).normalized;
 
@@ -340,10 +368,11 @@ public class ARCameraScript : MonoBehaviour
     }
 
     private float w, h;
+
     public (Vector3, float, Vector3) GetObjectCenterRadiusBaseAI(int bestScoreIndex)
     {
-        int x1=0, y1, x2=0, y2;
-        Vector2 currenPosition=Vector2.zero;
+        int x1 = 0, y1, x2 = 0, y2;
+        Vector2 currenPosition = Vector2.zero;
         //bestScoreIndex = metaAPIinferenceData.data.rois.Count - bestScoreIndex;
         if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
@@ -351,7 +380,7 @@ public class ARCameraScript : MonoBehaviour
             y1 = metaAPIinferenceData.data.rois[bestScoreIndex][1];
             x2 = metaAPIinferenceData.data.rois[bestScoreIndex][2];
             y2 = metaAPIinferenceData.data.rois[bestScoreIndex][3];
-            currenPosition = new Vector2((x1 + x2) / 2,(y1 + y2) / 2);
+            currenPosition = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
             w = Mathf.Abs(x1 - x2);
             h = Mathf.Abs(y2 - y1);
             // AI model detect better now so temp comment this 
@@ -361,12 +390,13 @@ public class ARCameraScript : MonoBehaviour
             //}
 
             //UpdateGroup
-            
-            Vector2 CheckedPoint=PositionOptimizer2D.UpdatePosition(currenPosition,Math.Abs(x2-x1));
+
+            Vector2 CheckedPoint = PositionOptimizer2D.UpdatePosition(currenPosition, Math.Abs(x2 - x1));
             Vector2 centerPoint2D = CheckedPoint;
             //Convert cpuImage point to ScreenPoint
             Vector2 screenPoint = Vector2.zero;
-            Vector2 xrImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
+            Vector2 xrImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth,
+                VisionOSCameraManager.Instance.originalHeight);
             Vector2 ScreenImageSize = new Vector2(Screen.width, Screen.height);
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
 
@@ -393,17 +423,19 @@ public class ARCameraScript : MonoBehaviour
                 tempCamera.transform.position = savedPosition;
                 tempCamera.transform.rotation = savedRotation;
                 tempCamera.fieldOfView = savedFieldOfView;
-                centerPoint3D = tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
+                centerPoint3D =
+                    tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
 
                 Destroy(tempCamera);
             }
 
-            float radiusOnScreen = (x2 - x1)*Screen.width/ (2*xrImageSize.x);
+            float radiusOnScreen = (x2 - x1) * Screen.width / (2 * xrImageSize.x);
             if (CheckedPoint == Vector2.zero)
             {
                 centerPoint2D = Vector2.zero;
                 centerPoint3D = Vector3.zero;
             }
+
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
         else
@@ -415,46 +447,56 @@ public class ARCameraScript : MonoBehaviour
     public UnityEngine.Rect GetObjectBBox(int bestScoreIndex)
     {
         Vector2 centerPoint;
-        float radiusOnScreen;Vector3 centerPoint3D;
+        float radiusOnScreen;
+        Vector3 centerPoint3D;
         (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
         if (centerPoint == Vector2.zero)
         {
             return Rect.zero;
         }
-        Vector3 corner1World2D =(Vector3) centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
-        UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]), radiusOnScreen * 2, radiusOnScreen * 2);
+
+        Vector3 corner1World2D = (Vector3)centerPoint - new Vector3(radiusOnScreen, radiusOnScreen, 0f);
+        UnityEngine.Rect unityRect = new UnityEngine.Rect((int)(corner1World2D[0]), (int)(corner1World2D[1]),
+            radiusOnScreen * 2, radiusOnScreen * 2);
         return unityRect;
     }
 
     public void DrawRois(bool drawOnResultStage)
     {
+        for (int i = 0; i < checkingResult.Length; i++)
+        {
+            checkingResult[i].SetActive(i == StationStageIndex.stageIndex - 1);
+        }
+
         bool inferenceStatus = false;
         List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
-            (StationStageIndex.stageIndex-1)*2 + 1);
+            (StationStageIndex.stageIndex - 1) * 2 + 1);
         if (indices != null && indices.Count == 0)
         {
             indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                 (StationStageIndex.stageIndex - 1) * 2);
             if (indices != null && indices.Count > 0) inferenceStatus = true;
         }
+
         int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
 
-        if (bestScoreIndex < 0)
-        {
-            _detectImage.gameObject.SetActive(false);
-            return;
-        }
-
-        if (!drawOnResultStage)
+        if (bestScoreIndex >= 0 && !drawOnResultStage)
         {
             Rect tempBBoxRect = GetObjectBBox(bestScoreIndex);
             if (tempBBoxRect != Rect.zero) bBoxRect = tempBBoxRect;
         }
+        else
+        {
+            inferenceStatus = false;
+            _detectImage.gameObject.SetActive(false);
+        }
+
         //_detectImage.gameObject.SetActive(true);
 
         // Set GUI style and label based on meta inference rule
         if (toggleAP.isOn)
         {
+            Debug.LogError("3");
             if (inferenceClass == 0)
             {
                 UpdateIfClassChange(grayBBox, false);
@@ -467,17 +509,17 @@ public class ARCameraScript : MonoBehaviour
                 if (lastInferenceClass != inferenceClass)
                 {
                     lastInferenceClass = inferenceClass;
-                    if (StationStageIndex.stageIndex * 2 - 1 == inferenceClass)// odd class is green
+                    if (StationStageIndex.stageIndex * 2 - 1 == inferenceClass) // odd class is green
                     {
                         UpdateIfClassChange(greenBBox, true);
                     }
-                    else if (StationStageIndex.stageIndex * 2 == inferenceClass)// even class is red
+                    else if (StationStageIndex.stageIndex * 2 == inferenceClass) // even class is red
                     {
                         UpdateIfClassChange(redBBox, false);
                     }
                     else
                     {
-                        UpdateIfClassChange(grayBBox, false);// original is gray
+                        UpdateIfClassChange(grayBBox, false); // original is gray
                     }
                 }
             }
@@ -496,21 +538,17 @@ public class ARCameraScript : MonoBehaviour
         {
             if (inferenceStatus)
             {
+                checkingObjectMaterial.color = Color.green;
                 _detectImage.sprite = greenBBox;
                 guiStyle.normal.background = greenBBoxTexture;
             }
             else
             {
+                checkingObjectMaterial.color = Color.red;
                 _detectImage.sprite = redBBox;
                 guiStyle.normal.background = redBBoxTexture;
             }
         }
-        //GUI.depth = 3;
-        // Draw bounding box
-        GUI.Box(bBoxRect, "", guiStyle);
-        //_detectImageRectTransform.anchoredPosition = new Vector2(bBoxRect.x,Screen.height - bBoxRect.y);
-        //_detectImageRectTransform.sizeDelta = new Vector2(bBoxRect.width, bBoxRect.height);
-
     }
 
     void UpdateIfClassChange(Sprite bboxTexture, bool isPass)
@@ -521,12 +559,13 @@ public class ARCameraScript : MonoBehaviour
             nextStepBtn.gameObject.SetActive(isPass);
             captureBtn.gameObject.SetActive(!isPass);
         }
+
         checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
         checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    void OnGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
+    public void DrawGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
         if (StationStageIndex.FunctionIndex == "Detect")
         {
@@ -538,8 +577,12 @@ public class ARCameraScript : MonoBehaviour
         }
         else
         {
-            _detectImage.gameObject.SetActive(false);
+            foreach (var resultObject in checkingResult)
+            {
+                resultObject.SetActive(false);
+            }
         }
+
         if (StationStageIndex.FunctionIndex == "Sample")
         {
             smoothInference = Enumerable.Repeat(0, 20).ToList();
@@ -552,14 +595,16 @@ public class ARCameraScript : MonoBehaviour
         {
             Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
             _imageDection.anchoredPosition = screenPoint;
-            _dectionRect = new Rect(screenPoint.x-w/2, screenPoint.y-h/2, w, h);
+            _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
         }
         else
         {
             _detectImage.gameObject.SetActive(false);
         }
+
         // Check if the current function index is "Detect"
-        if ((StationStageIndex.FunctionIndex == "Detect"|| StationStageIndex.FunctionIndex == "Sample") && !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
+        if ((StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample") &&
+            !EdgeInferenceBarracuda.isSpeedRealCameraARFast(.05f))
         {
             // Ignore object out of view
             //Vector3 screenPoint = arCamera.WorldToViewportPoint(StationStageIndex.stagePosition);
@@ -584,7 +629,6 @@ public class ARCameraScript : MonoBehaviour
     }
 
 
-
     private void Inference(object sender, EventManager.OnCheckpointUpdateEventArgs e)
     {
         //logInfo.text = "Update start:";
@@ -607,7 +651,7 @@ public class ARCameraScript : MonoBehaviour
         // If inferenceResponseFlag is true, perform necessary actions
         else if (inferenceResponseFlag)
         {
-            UnityEngine.Debug.Log("else if (inferenceResponseFlag)");
+            // UnityEngine.Debug.Log("else if (inferenceResponseFlag)");
             // Check if triggerAPIresponseData.result is null or false then reconnect
             if (MetaService.stageData == null)
             {
@@ -625,6 +669,7 @@ public class ARCameraScript : MonoBehaviour
                 MetaService.ConnectWithMetaStageID();
                 return;
             }
+
             if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
             {
                 if (StationStageIndex.FunctionIndex == "Sample")
@@ -635,6 +680,7 @@ public class ARCameraScript : MonoBehaviour
                 {
                     isInferenceFromSample = false;
                 }
+
                 inferenceResponseFlag = false;
                 SendImage2Meta();
             }
@@ -653,6 +699,7 @@ public class ARCameraScript : MonoBehaviour
         //    inferenceWatch.Start();
         //}
     }
+
     //Texture2D resizeTexture;
     private void EdgeInferenceAsync()
     {
@@ -660,7 +707,7 @@ public class ARCameraScript : MonoBehaviour
         //Stopwatch stopwatch = new Stopwatch(); stopwatch.Start();
 
         //Crop Image
-        float bboxX = bBoxRect.x;// + bBoxRect.width/2);
+        float bboxX = bBoxRect.x; // + bBoxRect.width/2);
 #if UNITY_EDITOR
         float bboxY = (float)(Screen.height - bBoxRect.y - bBoxRect.height);
 #else
@@ -668,12 +715,14 @@ public class ARCameraScript : MonoBehaviour
 #endif
         float bboxW = (float)bBoxRect.width;
         float bboxH = (float)bBoxRect.height;
-        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= Screen.width || bboxY <= 0 || bboxY + bboxH >= Screen.height)
+        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= Screen.width || bboxY <= 0 ||
+            bboxY + bboxH >= Screen.height)
         {
             //logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
             inferenceResponseFlag = true;
-            return ;
+            return;
         }
+
         try
         {
             // Crop image from cpu image
@@ -685,17 +734,18 @@ public class ARCameraScript : MonoBehaviour
                 Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
                 Vector2 screenStartPointInCpuImage;
                 ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
-                                            out screenStartPointInCpuImage,
-                                            cpuImageSize,
-                                            screenImageSize);
+                    out screenStartPointInCpuImage,
+                    cpuImageSize,
+                    screenImageSize);
                 UnityEngine.Rect newRect = new UnityEngine.Rect((int)((bboxX / Screen.width) * cpuWidth),
-                    (int)((bboxY / Screen.height) * (cpuWidth * Screen.height / Screen.width) + screenStartPointInCpuImage.y),
+                    (int)((bboxY / Screen.height) * (cpuWidth * Screen.height / Screen.width) +
+                          screenStartPointInCpuImage.y),
                     (int)(bboxW * cpuWidth / Screen.width),
                     (int)(bboxW * cpuWidth / Screen.width));
                 Texture2D croppedTexture = new Texture2D((int)newRect.width, (int)newRect.height);
                 croppedTexture = ImageProcessing.CropTexture2D(VisionOSCameraManager.Instance.GetMainCameraTexture2D(),
                     croppedTexture, newRect
-                    );
+                );
 
                 //stopwatch.Stop(); long elMs = stopwatch.ElapsedMilliseconds; stopwatch.Reset(); stopwatch.Start();
                 //logInfo.text = "croppedTexture time:" + elMs + "ms \n";
@@ -719,7 +769,7 @@ public class ARCameraScript : MonoBehaviour
 
                 //resizedMat = NormalizeImage(resizedMat);
 
-                
+
                 Utils.matToTexture2D(resizedMat, resizeTextureOnnx);
 #if UNITY_EDITOR
                 string filePath = Path.Combine(Application.persistentDataPath, "test.jpg");
@@ -739,7 +789,7 @@ public class ARCameraScript : MonoBehaviour
         catch (Exception ex)
         {
             //logInfo.text = ex.Message;
-            UnityEngine.Debug.LogError( ex.Message);
+            UnityEngine.Debug.LogError(ex.Message);
         }
     }
 
@@ -805,12 +855,15 @@ public class ARCameraScript : MonoBehaviour
         normalizeShader.SetBuffer(kernelIndex, "OutputBuffer", outputBuffer);
         normalizeShader.SetFloats("Mean", mean);
         normalizeShader.SetFloats("Std", std);
-        normalizeShader.SetVector("TextureDimensions", new Vector2(imageTexture.width, imageTexture.height)); // Set texture dimensions
+        normalizeShader.SetVector("TextureDimensions",
+            new Vector2(imageTexture.width, imageTexture.height)); // Set texture dimensions
 
         uint maxThreadGroupSizeX, maxThreadGroupSizeY, maxThreadGroupSizeZ;
-        normalizeShader.GetKernelThreadGroupSizes(kernelIndex, out maxThreadGroupSizeX, out maxThreadGroupSizeY, out maxThreadGroupSizeZ);
+        normalizeShader.GetKernelThreadGroupSizes(kernelIndex, out maxThreadGroupSizeX, out maxThreadGroupSizeY,
+            out maxThreadGroupSizeZ);
 
-        int threadGroupsX = (int)Mathf.CeilToInt(imageTexture.width / maxThreadGroupSizeX); // Adjust thread group size as needed
+        int threadGroupsX =
+            (int)Mathf.CeilToInt(imageTexture.width / maxThreadGroupSizeX); // Adjust thread group size as needed
         int threadGroupsY = (int)Mathf.CeilToInt(imageTexture.height / maxThreadGroupSizeY);
 
         normalizeShader.Dispatch(kernelIndex, threadGroupsX, threadGroupsY, 1);
@@ -839,6 +892,7 @@ public class ARCameraScript : MonoBehaviour
                 floatValues[index * 3 + 2] = (color.b - mean[2]) / std[2];
             }
         }
+
         return floatValues;
     }
 
@@ -888,7 +942,9 @@ public class ARCameraScript : MonoBehaviour
             inferenceResponseFlag = true;
             return;
         }
-        CapturedImage = VisionOSCameraManager.Instance.GetMainCameraTexture2D().EncodeToJPG();//capturedTexture.EncodeToJPG();
+
+        CapturedImage =
+            VisionOSCameraManager.Instance.GetMainCameraTexture2D().EncodeToJPG(); //capturedTexture.EncodeToJPG();
 
         //Also get depth image for convert 2D to 3D
         //PointCloudTracking.uploadDepthImage = true;
@@ -933,7 +989,6 @@ public class ARCameraScript : MonoBehaviour
         {
             return 0.5f;
         }
-
     }
 
     // Takes a screenshot and displays it on the result stage display image
@@ -952,15 +1007,16 @@ public class ARCameraScript : MonoBehaviour
             RenderTexture.active = renderTexture;
 
             // Read the pixels from the specified rectangle in the capture texture
-            capturedTexture.ReadPixels(new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
+            capturedTexture.ReadPixels(
+                new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
 
             // Apply the changes made to the capture texture
             capturedTexture.Apply();
             arCamera.targetTexture = null;
             RenderTexture.active = null;
         }
-        resultStageDispalayImage.texture = capturedTexture;
 
+        resultStageDispalayImage.texture = capturedTexture;
     }
 
     private Vector3 GetScreenSpacePoint(Vector3 worldPosition)

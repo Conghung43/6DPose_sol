@@ -15,13 +15,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
             // Start the pinging process
             //StartPing();
             inputField.onEndEdit.AddListener(OnEndEdit);
-            Inference.ip = LoadKey();
-            inputField.text = Inference.ip;
+            Inference.Instance.ip = LoadKey();
+            inputField.text = Inference.Instance.ip;
         }
 
         void OnEndEdit(string inputText)
         {
-            Inference.ip = inputText;
+            Inference.Instance.ip = inputText;
             SaveKey(inputText);
         }
 

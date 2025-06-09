@@ -36,29 +36,41 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
     public class Inference : MonoBehaviour
     {
-        // Path to the JSON file
-        //string jsonFilePath = "/Users/hungnguyencong/Downloads/out/poses.json";
-        //string InferenceTxtFilePath = "/Users/hungnguyencong/Documents/PYTHON/API_Test_Python/InferencePose325_1.txt";
-        //string ARTxtFilePath = "/Users/hungnguyencong/Downloads/pose_1_123.txt";
-        public GameObject originTransform;
-        public GameObject boxOnWorldObject;
-        public GameObject camOnObject;
-        public GameObject arCam;
-        public GameObject megaPose;
-        public GameObject box3D;
-        public static GameObject modelTarget;
+        private static Inference instance;
+
+        public static Inference Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindObjectOfType<Inference>();
+                    if (instance == null)
+                    {
+                        GameObject obj = new GameObject();
+                        obj.name = typeof(Inference).Name;
+                        instance = obj.AddComponent<Inference>();
+                    }
+                }
+                return instance;
+            }
+        }
+
+        public GameObject Engine3DAniModel;
+        public GameObject Engine3DModel;
+        public GameObject modelTarget;
         private Dictionary<string, GameObject> CamWorldDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
-        public static Matrix4x4 CameraMatrix = new Matrix4x4();
-        public static bool objectInitialSet = true;
-        public static float[] arPoseToInference = null;
-        public static string elMs;
-        public static string ip = "10.1.2.81";
-        private static bool firstInferenceSuccess = false;
+        public Matrix4x4 CameraMatrix = new Matrix4x4();
+        public bool objectInitialSet = true;
+        public float[] arPoseToInference = null;
+        public string elMs;
+        public string ip = "10.1.2.81";
+        private bool firstInferenceSuccess = false;
 
-        static int count = 0;
-        static Quaternion initialAngle = Quaternion.identity;
+        int count = 0;
+        Quaternion initialAngle = Quaternion.identity;
 
         //float[] positions = new float[111];
         //float[] positions1 = new float[111];
@@ -78,7 +90,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         //IEnumerator Texture2DToByteOpenCV(Texture2D tex, Action<byte> )
 
-        public static IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox,
+        public IEnumerator ServerInference(Texture2D cpuImageTexture, Vector2 imageSize, int[] ltrbBox,
             Vector2 focalLength, Vector2 principalPoint)
         {
             //yield return null;
@@ -195,7 +207,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                         if (result.data.obj_pose != null)
                         {
-                            Inference.Set3DBox(result.data.obj_pose);
+                            Set3DBox(result.data.obj_pose);
                             firstInferenceSuccess = true;
 
                             //Debug.Log(count);
@@ -214,14 +226,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
         }
 
 
-        public static (Quaternion, Vector3) ConvertToOppositeHandedness(Quaternion rotation, Vector3 position)
+        public (Quaternion, Vector3) ConvertToOppositeHandedness(Quaternion rotation, Vector3 position)
         {
             rotation = new Quaternion(rotation.x, -rotation.y, rotation.z, -rotation.w);
             position = new Vector3(position.x, -position.y, position.z);
             return (rotation, position);
         }
 
-        //public static (Quaternion, Vector3) ConvertTransformToRightHandRule(Quaternion rotation, Vector3 position)
+        //public  (Quaternion, Vector3) ConvertTransformToRightHandRule(Quaternion rotation, Vector3 position)
         //{
         //    rotation = new Quaternion(-rotation.x, rotation.y, -rotation.z, rotation.w);
         //    position = new Vector3(position.x, -position.y, position.z);
@@ -229,14 +241,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
         //}
 
         // Convert Matrix4x4 to Quaternion and Translation
-        public static void MatrixToQuaternionTranslation(Matrix4x4 matrix, out Quaternion quaternion,
+        public void MatrixToQuaternionTranslation(Matrix4x4 matrix, out Quaternion quaternion,
             out Vector3 translation)
         {
             quaternion = Quaternion.LookRotation(matrix.GetColumn(2), matrix.GetColumn(1));
             translation = matrix.GetColumn(3);
         }
 
-        public static void Set3DBox(float[] objectPose)
+        private GameObject megaPoseEstimateGameObject;
+
+        public void Set3DBox(float[] objectPose)
         {
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
@@ -252,11 +266,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             position = new Vector3(position.x, position.y, position.z - 855);
             // Debug.LogError($"transfer position: {position}");
 
-            GameObject megaPoseEstimateGameObject = new GameObject();
-            megaPoseEstimateGameObject.name = "megaPoseEstimateGameObject";
+            if (megaPoseEstimateGameObject == null)
+            {
+                megaPoseEstimateGameObject = new GameObject();
+                megaPoseEstimateGameObject.name = "megaPoseEstimateGameObject";
+                megaPoseEstimateGameObject.transform.localScale = Vector3.one;
+            }
+
             megaPoseEstimateGameObject.transform.position = position;
             megaPoseEstimateGameObject.transform.rotation = rotation;
-            megaPoseEstimateGameObject.transform.localScale = Vector3.one;
 
             Transform updatedTransform =
                 UpdateObjectTransform.UpdateTransformToGroup(megaPoseEstimateGameObject.transform);
@@ -278,13 +296,30 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     objectInitialSet = false;
                 }
 
-                //Display3DBox("AirPump3dBox", updatedTransform.position, updatedTransform.rotation);
                 StationStageIndex.ModelTargetFound = true;
                 //Display3DBox("AirPump3DModel", position, rotation);
                 //Display3DBox("ModelTarget", position, rotation);//Haven't use the average pose yetq
             }
 
-            Display3DBox("AirPump3DModel", position, rotation);
+            if (StationStageIndex.FunctionIndex == "VuforiaTargetDetecting" || StationStageIndex.FunctionIndex == "VuforiaTarget")
+            {
+                Engine3DModel.SetActive(true);
+                Display3DBox(Engine3DModel, position, rotation);
+            }
+            else
+            {
+                Engine3DModel.SetActive(false);
+            }
+
+            if (StationStageIndex.FunctionIndex == "Sample" || StationStageIndex.FunctionIndex == "Detect")
+            {
+                Engine3DAniModel.SetActive(true);
+                Display3DBox(Engine3DAniModel, Engine3DModel.transform.position, Engine3DModel.transform.rotation);
+            }
+            else
+            {
+                Engine3DAniModel.SetActive(false);
+            }
 #if UNITY_EDITOR
             // Only for testing on Editor
             StationStageIndex.ModelTargetFound = true; //Temporary
@@ -299,9 +334,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             //Display3DBox("AirPump3DModel", position, rotation);
 
             TrackedImageInfoManager.isInferenceAvailable = true;
+            ARCameraScript.Instance.DrawGUI();
         }
 
-        public static void ConvertARposeToMegaPose()
+        public void ConvertARposeToMegaPose()
         {
             GameObject filterObj = GameObject.Find("AirPump3DModel");
             if (filterObj != null) //(objectInitialSet)
@@ -316,9 +352,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
-        public static void Display3DBox(string objName, Vector3 position, Quaternion rotation)
+        public void Display3DBox(GameObject filterObj, Vector3 position, Quaternion rotation)
         {
-            GameObject filterObj = GameObject.Find(objName);
             if (filterObj != null) //(objectInitialSet)
             {
                 //if (objectInitialSet)
@@ -334,13 +369,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 //}
                 filterObj.transform.position = position;
                 filterObj.transform.rotation = rotation;
-                Debug.LogError($"Display {objName}, pos = {position}");
             }
-            //Debug.Log(rotation.eulerAngles.ToString());
-            //else
-            //{
-            //    modelTarget = GameObject.Find(objName);
-            //}
         }
 
         string[] RemoveFirstElementFromArray(string[] array)
