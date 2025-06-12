@@ -263,7 +263,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Matrix4x4 ObjectToWorldMatrix = CameraMatrix * CamToObjectMatrixMega.inverse;
 
             MatrixToQuaternionTranslation(ObjectToWorldMatrix, out rotation, out position);
-            position = new Vector3(position.x, position.y, position.z - 855);
+            position = new Vector3(position.x, position.y, position.z - 800);
             // Debug.LogError($"transfer position: {position}");
 
             if (megaPoseEstimateGameObject == null)

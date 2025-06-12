@@ -112,6 +112,7 @@ public class ARCameraScript : MonoBehaviour
     public Transform body;
     [SerializeField] private Image _detectImage;
     private RectTransform _detectImageRectTransform;
+    public Camera visionCamera;
 
     private void Start()
     {
@@ -126,12 +127,12 @@ public class ARCameraScript : MonoBehaviour
 
         // Create a new RenderTexture with specified dimensions
         renderTexture = new RenderTexture(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, 24);
-        screenRenderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        screenRenderTexture = new RenderTexture(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, 24);
 
         // Create a new Texture2D with specified dimensions and format
         capturedTexture = new Texture2D(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, TextureFormat.RGB24,
             false);
-        screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        screenTexture = new Texture2D(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, TextureFormat.RGB24, false);
 
         //network = new NNetwork(modelAsset);
         EventManager.OnCheckpointUpdateEvent += Inference;
@@ -140,7 +141,7 @@ public class ARCameraScript : MonoBehaviour
         resizeRenderTextureOnnx = new RenderTexture(width, height, 24);
 
         // Set the size of the resultStageDispalayImage's RectTransform to match the screen size
-        resultStageDispalayImage.rectTransform.sizeDelta = new Vector2(Screen.width, Screen.height);
+        resultStageDispalayImage.rectTransform.sizeDelta = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
 
         // Set the border of the GUI style with a specified size
         guiStyle.border = new RectOffset(bBoxBorderSize, bBoxBorderSize, bBoxBorderSize, bBoxBorderSize);
@@ -176,6 +177,8 @@ public class ARCameraScript : MonoBehaviour
             {
                 if (StationStageIndex.FunctionIndex == "Sample")
                 {
+                    Debug.LogError(e.inferenceResponse);
+
                     Vector3 centerPoint;
                     float radiusOnScreen;
                     Vector3 centerPoint3D;
@@ -183,10 +186,11 @@ public class ARCameraScript : MonoBehaviour
                     //List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                     //    StationStageIndex.stageIndex - 1);
                     //base clase name
-                    int classid = FindClassIDfromName((StationStageIndex.stageIndex - 1).ToString());
+                    int classid = FindClassIDfromName((StationStageIndex.stageIndex).ToString());
                     List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
                         classid);
                     int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
+
                     if (bestScoreIndex >= 0)
                     {
                         (centerPoint, radiusOnScreen, centerPoint3D) = GetObjectCenterRadiusBaseAI(bestScoreIndex);
@@ -226,7 +230,6 @@ public class ARCameraScript : MonoBehaviour
                 //}
 
                 // Set Detection result
-
                 if (!StationStageIndex.metaInferenceRule &&
                     metaAPIinferenceData.data.rule &&
                     StationStageIndex.FunctionIndex == "Detect" &&
@@ -374,6 +377,7 @@ public class ARCameraScript : MonoBehaviour
         int x1 = 0, y1, x2 = 0, y2;
         Vector2 currenPosition = Vector2.zero;
         //bestScoreIndex = metaAPIinferenceData.data.rois.Count - bestScoreIndex;
+
         if (metaAPIinferenceData != null && metaAPIinferenceData.data.rois.Count > 0)
         {
             x1 = metaAPIinferenceData.data.rois[bestScoreIndex][0];
@@ -397,11 +401,17 @@ public class ARCameraScript : MonoBehaviour
             Vector2 screenPoint = Vector2.zero;
             Vector2 xrImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth,
                 VisionOSCameraManager.Instance.originalHeight);
-            Vector2 ScreenImageSize = new Vector2(Screen.width, Screen.height);
+            Vector2 ScreenImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
+            Debug.LogError($"roibox position screenPoint: {screenPoint}");
 
             centerPoint2D = screenPoint;
-            float depth = Vector3.Distance(arCamera.transform.position, body.position);
+            Vector3 visionOSCameraPos = new Vector3(arCamera.transform.position.x, arCamera.transform.position.y, arCamera.transform.position.z - 800);
+
+            float depth = Vector3.Distance(visionOSCameraPos, body.position);
+            
+            Debug.LogError($"roibox position depth: {depth}");
+
             // Only available on phone
 //#if !UNITY_EDITOR
 //            //Get depth and convert 3d
@@ -423,18 +433,17 @@ public class ARCameraScript : MonoBehaviour
                 tempCamera.transform.position = savedPosition;
                 tempCamera.transform.rotation = savedRotation;
                 tempCamera.fieldOfView = savedFieldOfView;
-                centerPoint3D =
-                    tempCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, Screen.height - screenPoint.y, depth));
-
-                Destroy(tempCamera);
+                centerPoint3D = visionCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
             }
 
-            float radiusOnScreen = (x2 - x1) * Screen.width / (2 * xrImageSize.x);
+            float radiusOnScreen = (x2 - x1) * VisionOSCameraManager.Instance.originalWidth / (2 * xrImageSize.x);
             if (CheckedPoint == Vector2.zero)
             {
                 centerPoint2D = Vector2.zero;
                 centerPoint3D = Vector3.zero;
             }
+
+            Debug.LogError($"roibox position centerPoint3D: {centerPoint3D}");
 
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
@@ -496,7 +505,6 @@ public class ARCameraScript : MonoBehaviour
         // Set GUI style and label based on meta inference rule
         if (toggleAP.isOn)
         {
-            Debug.LogError("3");
             if (inferenceClass == 0)
             {
                 UpdateIfClassChange(grayBBox, false);
@@ -709,14 +717,14 @@ public class ARCameraScript : MonoBehaviour
         //Crop Image
         float bboxX = bBoxRect.x; // + bBoxRect.width/2);
 #if UNITY_EDITOR
-        float bboxY = (float)(Screen.height - bBoxRect.y - bBoxRect.height);
+        float bboxY = (float)(VisionOSCameraManager.Instance.originalHeight - bBoxRect.y - bBoxRect.height);
 #else
-        float bboxY = (float)(Screen.height- bBoxRect.y- bBoxRect.height);
+        float bboxY = (float)(VisionOSCameraManager.Instance.originalHeight- bBoxRect.y- bBoxRect.height);
 #endif
         float bboxW = (float)bBoxRect.width;
         float bboxH = (float)bBoxRect.height;
-        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= Screen.width || bboxY <= 0 ||
-            bboxY + bboxH >= Screen.height)
+        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= VisionOSCameraManager.Instance.originalWidth || bboxY <= 0 ||
+            bboxY + bboxH >= VisionOSCameraManager.Instance.originalHeight)
         {
             //logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
             inferenceResponseFlag = true;
@@ -731,17 +739,17 @@ public class ARCameraScript : MonoBehaviour
                 int cpuWidth = VisionOSCameraManager.Instance.originalWidth;
                 int cpuHeight = VisionOSCameraManager.Instance.originalHeight;
                 Vector2 cpuImageSize = new Vector2(cpuWidth, cpuHeight);
-                Vector2 screenImageSize = new Vector2(Screen.width, Screen.height);
+                Vector2 screenImageSize = new Vector2(cpuWidth, cpuHeight);
                 Vector2 screenStartPointInCpuImage;
                 ImageProcessing.ScreenPointToXrImagePoint(Vector2.zero,
                     out screenStartPointInCpuImage,
                     cpuImageSize,
                     screenImageSize);
-                UnityEngine.Rect newRect = new UnityEngine.Rect((int)((bboxX / Screen.width) * cpuWidth),
-                    (int)((bboxY / Screen.height) * (cpuWidth * Screen.height / Screen.width) +
+                UnityEngine.Rect newRect = new UnityEngine.Rect((int)((bboxX / cpuWidth) * cpuWidth),
+                    (int)((bboxY / cpuHeight) * (cpuWidth * cpuHeight / cpuWidth) +
                           screenStartPointInCpuImage.y),
-                    (int)(bboxW * cpuWidth / Screen.width),
-                    (int)(bboxW * cpuWidth / Screen.width));
+                    (int)(bboxW * cpuWidth / cpuWidth),
+                    (int)(bboxW * cpuWidth / cpuWidth));
                 Texture2D croppedTexture = new Texture2D((int)newRect.width, (int)newRect.height);
                 croppedTexture = ImageProcessing.CropTexture2D(VisionOSCameraManager.Instance.GetMainCameraTexture2D(),
                     croppedTexture, newRect
@@ -1025,7 +1033,7 @@ public class ARCameraScript : MonoBehaviour
         Vector3 screenSpacePoint = arCamera.WorldToScreenPoint(worldPosition);
 
         // Invert the y-coordinate to match the screen space (0,0) at the bottom left
-        screenSpacePoint.y = Screen.height - screenSpacePoint.y;
+        screenSpacePoint.y = VisionOSCameraManager.Instance.originalHeight - screenSpacePoint.y;
 
         return screenSpacePoint;
     }

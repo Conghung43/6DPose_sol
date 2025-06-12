@@ -124,12 +124,12 @@ public class UpdateObjectTransform : MonoBehaviour
         if (averageObject == null)
         {
             averageObject = new GameObject("AverageTransform");
+            averageObject.AddComponent<ARAnchor>();
         }
         Transform averageTransform = averageObject.transform;
         averageTransform.position = averagePosition;
         averageTransform.rotation = averageRotation;
         averageTransform.localScale = averageScale;
-        averageObject.AddComponent<ARAnchor>();
 
         return averageTransform;
     }
