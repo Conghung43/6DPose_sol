@@ -254,8 +254,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             Quaternion rotation = new Quaternion(objectPose[1], objectPose[2], objectPose[3], objectPose[0]);
             Vector3 position = new Vector3(objectPose[4], objectPose[5], objectPose[6]);
-            // Debug.LogError($"server position: {position}");
-
+            
             (rotation, position) = ConvertToOppositeHandedness(rotation, position);
 
             Matrix4x4 CamToObjectMatrixMega = Matrix4x4.TRS(position, rotation, Vector3.one); //;

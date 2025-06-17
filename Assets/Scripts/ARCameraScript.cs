@@ -112,7 +112,6 @@ public class ARCameraScript : MonoBehaviour
     public Transform body;
     [SerializeField] private Image _detectImage;
     private RectTransform _detectImageRectTransform;
-    public Camera visionCamera;
 
     private void Start()
     {
@@ -150,7 +149,7 @@ public class ARCameraScript : MonoBehaviour
     private void ResetBoundingBox(object sender, EventManager.OnStageIndexEventArgs e)
     {
         // Reset bbox when stage change
-        _detectImage.sprite = grayBBox;
+        // _detectImage.sprite = grayBBox;
         smoothInference = Enumerable.Repeat(0, 20).ToList();
     }
 
@@ -199,8 +198,9 @@ public class ARCameraScript : MonoBehaviour
                             sphere.transform.position = centerPoint3D;
                             sphere.gameObject.SetActive(true);
                             //Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
-                            _imageDection.gameObject.SetActive(true);
-                            _imageDection.anchoredPosition = centerPoint;
+                            // _imageDection.gameObject.SetActive(true);
+                            // _imageDection.transform.position = centerPoint;
+                            _detectImageRectTransform.anchoredPosition = centerPoint;
                             _dectionRect = new Rect(centerPoint.x - w / 2, centerPoint.y - h / 2, w, h);
                         }
                     }
@@ -385,15 +385,9 @@ public class ARCameraScript : MonoBehaviour
             x2 = metaAPIinferenceData.data.rois[bestScoreIndex][2];
             y2 = metaAPIinferenceData.data.rois[bestScoreIndex][3];
             currenPosition = new Vector2((x1 + x2) / 2, (y1 + y2) / 2);
+
             w = Mathf.Abs(x1 - x2);
             h = Mathf.Abs(y2 - y1);
-            // AI model detect better now so temp comment this 
-            //if (!TrackedImageInfoManager.EngineRect.Contains(currenPosition))
-            //{
-            //    break;
-            //}
-
-            //UpdateGroup
 
             Vector2 CheckedPoint = PositionOptimizer2D.UpdatePosition(currenPosition, Math.Abs(x2 - x1));
             Vector2 centerPoint2D = CheckedPoint;
@@ -403,7 +397,6 @@ public class ARCameraScript : MonoBehaviour
                 VisionOSCameraManager.Instance.originalHeight);
             Vector2 ScreenImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
-            Debug.LogError($"roibox position screenPoint: {screenPoint}");
 
             centerPoint2D = screenPoint;
             Vector3 visionOSCameraPos = new Vector3(arCamera.transform.position.x, arCamera.transform.position.y, arCamera.transform.position.z - 800);
@@ -412,28 +405,12 @@ public class ARCameraScript : MonoBehaviour
             
             Debug.LogError($"roibox position depth: {depth}");
 
-            // Only available on phone
-//#if !UNITY_EDITOR
-//            //Get depth and convert 3d
-//            Vector2 depthImageSize = new Vector2(PointCloudTracking.texture.width, PointCloudTracking.texture.height);
-//            Vector2 depthPoint = Vector2.zero;
-//            ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out depthPoint, xrImageSize, depthImageSize);
-
-//            depth = ReadDepthValue(PointCloudTracking.texture,
-//                (int)(depthImageSize.x - depthPoint.x),
-//                (int)(depthImageSize.y - depthPoint.y));
-//#endif
             Vector3 centerPoint3D = Vector3.zero;
             // For optimize
             if (StationStageIndex.FunctionIndex == "Sample")
             {
-                //HungNC todoList change ScreenToWorldPoint >> ray to plane
-                Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
-                // Set the temporary camera's properties to the saved state
-                tempCamera.transform.position = savedPosition;
-                tempCamera.transform.rotation = savedRotation;
-                tempCamera.fieldOfView = savedFieldOfView;
-                centerPoint3D = visionCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
+                centerPoint3D = arCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
+                centerPoint3D = new Vector3(centerPoint3D.x, centerPoint3D.y, centerPoint3D.z - 800);
             }
 
             float radiusOnScreen = (x2 - x1) * VisionOSCameraManager.Instance.originalWidth / (2 * xrImageSize.x);
@@ -444,6 +421,10 @@ public class ARCameraScript : MonoBehaviour
             }
 
             Debug.LogError($"roibox position centerPoint3D: {centerPoint3D}");
+            if (centerPoint2D != Vector2.zero)
+            {
+                centerPoint2D = new Vector2(centerPoint2D.x, VisionOSCameraManager.Instance.originalHeight - centerPoint2D.y);
+            }
 
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
         }
@@ -497,7 +478,7 @@ public class ARCameraScript : MonoBehaviour
         else
         {
             inferenceStatus = false;
-            _detectImage.gameObject.SetActive(false);
+            // _detectImage.gameObject.SetActive(false);
         }
 
         //_detectImage.gameObject.SetActive(true);
@@ -547,13 +528,13 @@ public class ARCameraScript : MonoBehaviour
             if (inferenceStatus)
             {
                 checkingObjectMaterial.color = Color.green;
-                _detectImage.sprite = greenBBox;
+                // _detectImage.sprite = greenBBox;
                 guiStyle.normal.background = greenBBoxTexture;
             }
             else
             {
                 checkingObjectMaterial.color = Color.red;
-                _detectImage.sprite = redBBox;
+                // _detectImage.sprite = redBBox;
                 guiStyle.normal.background = redBBoxTexture;
             }
         }
@@ -561,7 +542,7 @@ public class ARCameraScript : MonoBehaviour
 
     void UpdateIfClassChange(Sprite bboxTexture, bool isPass)
     {
-        _detectImage.sprite = bboxTexture;
+        // _detectImage.sprite = bboxTexture;
         if (StationStageIndex.stageIndex < 4)
         {
             nextStepBtn.gameObject.SetActive(isPass);
@@ -602,12 +583,11 @@ public class ARCameraScript : MonoBehaviour
         if (sphere.gameObject.activeInHierarchy)
         {
             Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
-            _imageDection.anchoredPosition = screenPoint;
             _dectionRect = new Rect(screenPoint.x - w / 2, screenPoint.y - h / 2, w, h);
         }
         else
         {
-            _detectImage.gameObject.SetActive(false);
+            // _detectImage.gameObject.SetActive(false);
         }
 
         // Check if the current function index is "Detect"

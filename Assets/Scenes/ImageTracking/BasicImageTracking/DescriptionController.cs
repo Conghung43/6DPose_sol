@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.PolySpatial;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Video;
@@ -23,6 +24,7 @@ public class DescriptionController : MonoBehaviour
     [FormerlySerializedAs("_result")] [SerializeField] private TextAndVideo _stage4;
 
     private Dictionary<int, TextAndVideo> _desDictionary;
+    private bool isPlaying = false;
 
     void OnEnable()
     {
@@ -33,11 +35,20 @@ public class DescriptionController : MonoBehaviour
         };
     }
 
+    private void Update()
+    {
+        if (isPlaying)
+        {
+            PolySpatialObjectUtils.MarkDirty(_videoPlayer.targetTexture);
+        }
+    }
+
     public void UpdateDescription(string functionName,int stageIndex )
     {
         if (functionName!="Sample"||!_desDictionary.ContainsKey(stageIndex))
         {
             _descriptionPanel.SetActive(false);
+            isPlaying = false;
         }
         else
         {
@@ -45,7 +56,7 @@ public class DescriptionController : MonoBehaviour
             _desText.text = _desDictionary[stageIndex].des;
             _videoPlayer.clip = _desDictionary[stageIndex].clip;
             _videoPlayer.Play();
+            isPlaying = true;
         }
-        
     }
 }
