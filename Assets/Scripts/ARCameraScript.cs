@@ -176,8 +176,6 @@ public class ARCameraScript : MonoBehaviour
             {
                 if (StationStageIndex.FunctionIndex == "Sample")
                 {
-                    Debug.LogError(e.inferenceResponse);
-
                     Vector3 centerPoint;
                     float radiusOnScreen;
                     Vector3 centerPoint3D;
@@ -205,6 +203,7 @@ public class ARCameraScript : MonoBehaviour
                         }
                     }
 
+                    nextStep.CallAutoNextAfterDelay(5);
                     logInfo.text = "Meta rule = ";
                 }
                 else
@@ -217,6 +216,7 @@ public class ARCameraScript : MonoBehaviour
                     }
 
                     count_detect_mode += 1;
+                    sphere.gameObject.SetActive(false);
                 }
                 //if (StationStageIndex.FunctionIndex == "Detect") {
                 //    DrawRois(false);
@@ -403,13 +403,11 @@ public class ARCameraScript : MonoBehaviour
 
             float depth = Vector3.Distance(visionOSCameraPos, body.position);
             
-            Debug.LogError($"roibox position depth: {depth}");
-
             Vector3 centerPoint3D = Vector3.zero;
             // For optimize
             if (StationStageIndex.FunctionIndex == "Sample")
             {
-                centerPoint3D = arCamera.ScreenToWorldPoint(new Vector3(screenPoint.x, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
+                centerPoint3D = arCamera.ScreenToWorldPoint(new Vector3((Mathf.Clamp(screenPoint.x, 520f, 1920f) - 520f) / 1400f * 1920f, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
                 centerPoint3D = new Vector3(centerPoint3D.x, centerPoint3D.y, centerPoint3D.z - 800);
             }
 
@@ -420,7 +418,6 @@ public class ARCameraScript : MonoBehaviour
                 centerPoint3D = Vector3.zero;
             }
 
-            Debug.LogError($"roibox position centerPoint3D: {centerPoint3D}");
             if (centerPoint2D != Vector2.zero)
             {
                 centerPoint2D = new Vector2(centerPoint2D.x, VisionOSCameraManager.Instance.originalHeight - centerPoint2D.y);

@@ -12,6 +12,7 @@ public class NextStep : MonoBehaviour
     public CheckDistanceHandAndDetection _CheckDistanceHandAndDetection;
     public DescriptionController _descriptionController;
     public ARCameraScript aRCameraScript;
+
     private void OnDisable()
     {
         nextStep.onClick.RemoveListener(RaiseButtonClick);
@@ -24,8 +25,10 @@ public class NextStep : MonoBehaviour
 
     public void CallAutoNextAfterDelay(float delayInSeconds)
     {
+        if (_autoNext != null) return;
         _autoNext = StartCoroutine(CallAutoNextAfterDelayCoroutine(delayInSeconds));
     }
+
     // Coroutine to handle the delay
     IEnumerator CallAutoNextAfterDelayCoroutine(float delayInSeconds)
     {
@@ -33,11 +36,10 @@ public class NextStep : MonoBehaviour
         yield return new WaitForSeconds(delayInSeconds);
 
         // Call the function after the delay
-        if (StationStageIndex.FunctionIndex == "Detect")
+        if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
         {
             RaiseButtonClick();
         }
-        
     }
 
     // Handle button click event
@@ -46,7 +48,9 @@ public class NextStep : MonoBehaviour
         if (_autoNext != null)
         {
             StopCoroutine(_autoNext);
+            _autoNext = null;
         }
+
         aRCameraScript.metaAPIinferenceData = null;
         switch (StationStageIndex.FunctionIndex)
         {
@@ -77,6 +81,7 @@ public class NextStep : MonoBehaviour
             default:
                 break;
         }
+
         _CheckDistanceHandAndDetection.Init();
         _descriptionController.UpdateDescription(StationStageIndex.FunctionIndex, StationStageIndex.stageIndex);
     }
@@ -89,13 +94,14 @@ public class NextStep : MonoBehaviour
 
         ARCameraScript.Instance.lastInferenceClass = -1;
         StationStageIndex.stageIndex += 1;
-        
+
         if (StationStageIndex.stageIndex > dataStages.Count - 1)
         {
-            StationStageIndex.stageIndex = 0;//dataStages.Count - 1;
+            StationStageIndex.stageIndex = 0; //dataStages.Count - 1;
             StationStageIndex.FunctionIndex = "VuforiaTarget";
             return;
         }
+
         StationStageIndex.FunctionIndex = "Sample"; // 6D pose state or detect state always go to sample
         if (MetaService.stageData != null)
         {
