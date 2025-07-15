@@ -45,6 +45,7 @@ public class DescriptionController : MonoBehaviour
 
     public void UpdateDescription(string functionName,int stageIndex )
     {
+        return;
         if (functionName!="Sample"||!_desDictionary.ContainsKey(stageIndex))
         {
             _descriptionPanel.SetActive(false);

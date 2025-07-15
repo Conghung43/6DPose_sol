@@ -82,8 +82,8 @@ public class GameObjectController : MonoBehaviour
                     ImageTarget.SetActive(false);
                     StationStageIndex.imageTargetFound = false;
                 }
-                TurnOnAnimation();
-                detectionLine.SetStart(_sphereDetection.transform);
+                // TurnOnAnimation();
+                // detectionLine.SetStart(_sphereDetection.transform);
                 break;
             case "Detect":
                 MetaService.ConnectWithMetaStageID();
@@ -92,7 +92,7 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.FinalUI = false;
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();
-                TurnOffAnimation();
+                // TurnOffAnimation();
                 //detectionLine.SetHideLine();
                 break;
             case "Result":

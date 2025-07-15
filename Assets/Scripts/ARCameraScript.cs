@@ -203,7 +203,7 @@ public class ARCameraScript : MonoBehaviour
                         }
                     }
 
-                    nextStep.CallAutoNextAfterDelay(5);
+                    // nextStep.CallAutoNextAfterDelay(5);
                     logInfo.text = "Meta rule = ";
                 }
                 else
@@ -230,6 +230,8 @@ public class ARCameraScript : MonoBehaviour
                 //}
 
                 // Set Detection result
+                Debug.LogError($"1:{StationStageIndex.metaInferenceRule}, {metaAPIinferenceData.data.rule}, {StationStageIndex.FunctionIndex}, {isInferenceFromSample}");
+
                 if (!StationStageIndex.metaInferenceRule &&
                     metaAPIinferenceData.data.rule &&
                     StationStageIndex.FunctionIndex == "Detect" &&
@@ -457,11 +459,11 @@ public class ARCameraScript : MonoBehaviour
 
         bool inferenceStatus = false;
         List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
-            (StationStageIndex.stageIndex - 1) * 2 + 1);
+            (StationStageIndex.stageIndex - 1));
         if (indices != null && indices.Count == 0)
         {
             indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
-                (StationStageIndex.stageIndex - 1) * 2);
+                (StationStageIndex.stageIndex - 1));
             if (indices != null && indices.Count > 0) inferenceStatus = true;
         }
 
@@ -495,11 +497,11 @@ public class ARCameraScript : MonoBehaviour
                 if (lastInferenceClass != inferenceClass)
                 {
                     lastInferenceClass = inferenceClass;
-                    if (StationStageIndex.stageIndex * 2 - 1 == inferenceClass) // odd class is green
+                    if (StationStageIndex.stageIndex - 1 == inferenceClass) // odd class is green
                     {
                         UpdateIfClassChange(greenBBox, true);
                     }
-                    else if (StationStageIndex.stageIndex * 2 == inferenceClass) // even class is red
+                    else if (StationStageIndex.stageIndex == inferenceClass) // even class is red
                     {
                         UpdateIfClassChange(redBBox, false);
                     }

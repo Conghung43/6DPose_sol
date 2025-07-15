@@ -36,7 +36,7 @@ public class NextStep : MonoBehaviour
         yield return new WaitForSeconds(delayInSeconds);
 
         // Call the function after the delay
-        if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
+        if (StationStageIndex.FunctionIndex == "Detect")
         {
             RaiseButtonClick();
         }

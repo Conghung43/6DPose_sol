@@ -42,8 +42,8 @@ public class CatmullRomSpline : MonoBehaviour
         // Initialize the LineRenderer component
         //lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.positionCount = 60;
-        lineRenderer.startWidth = 0.003f;
-        lineRenderer.endWidth = 0.001f;
+        lineRenderer.startWidth = 0.03f;
+        lineRenderer.endWidth = 0.01f;
         lineRenderer.startColor = Color.white;
         lineRenderer.endColor = new Color(1.0f, 0.5f, 0.0f, 1f);
     }

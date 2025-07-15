@@ -119,6 +119,8 @@ public class UIController : MonoBehaviour
                     highlightChecklist.SetActive(true);
                     ResultCanvas.SetActive(false);
                     BottomBackground.SetActive(false);
+                    lineRenderer.gameObject.SetActive(true);
+
                     if (StationStageIndex.stageIndex >= dataStages.Count)
                     {
                         nextButton.gameObject.SetActive(false);

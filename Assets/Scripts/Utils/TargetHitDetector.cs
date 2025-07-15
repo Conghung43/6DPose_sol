@@ -39,7 +39,7 @@ public class TargetHitDetector : MonoBehaviour
         {
             status = true
         });
-        startPoint = arCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 4, 0.3f));
+        startPoint = arCamera.transform.position - Vector3.up * 0.15f - Vector3.forward * 800;
         //testObject0.transform.position = startPoint;
         //testObject1.transform.position = arCamera.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 0.5f));
             //logInfo.text = arCamera.WorldToScreenPoint(lineBasedPoints[3]).ToString() + Profiler.GetMonoUsedSizeLong().ToString();
@@ -48,7 +48,7 @@ public class TargetHitDetector : MonoBehaviour
         Vector3 checkpointClosetPointOnCube = FindCheckpointClosestPointOnCubeObject(checkpointPosition);
         //testObject1.transform.position = topCorners[1];
         Vector4 planeContainCheckpointClosetPoint = FindPlaneEquation(checkpointClosetPointOnCube, checkpointPosition - checkpointClosetPointOnCube);
-        Vector3[] pointsOnPlane = { arCamera.transform.position };
+        Vector3[] pointsOnPlane = { arCamera.transform.position - Vector3.forward * 800 };
         List<Vector3> mileStoneClasify = ClasifyPathPoints(planeContainCheckpointClosetPoint, pointsOnPlane, targetObject.transform.position);
         
         if (mileStoneClasify.Count == 1)
@@ -62,7 +62,7 @@ public class TargetHitDetector : MonoBehaviour
         }
         else
         {
-            Vector4 CameraCheckpointVerticalPlane = FindVerticalPlane(checkpointPosition, arCamera.transform.position);
+            Vector4 CameraCheckpointVerticalPlane = FindVerticalPlane(checkpointPosition, arCamera.transform.position - Vector3.forward * 800);
             Vector3 horizontalPlaneNormalVector = Vector3.Cross(CameraCheckpointVerticalPlane, startPoint - checkpointPosition);
             Vector4 CameraCheckpointHorizontalPlane = FindPlaneEquation(startPoint, horizontalPlaneNormalVector);
             Vector3[] mileStoneCorner = FindMileStoneList(CameraCheckpointHorizontalPlane);

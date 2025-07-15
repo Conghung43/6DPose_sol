@@ -49,11 +49,7 @@ public static class MetaService
             int projectID = Int32.Parse(MetaService.qrMetaData[3]);
             // if in Sample function, index = (StationStageIndex.stageIndex - 1)*2 ;
             // and in Detect function, index = (StationStageIndex.stageIndex - 1)*2 + 1
-            int stateIndex = (StationStageIndex.stageIndex - 1) * 2;
-            if (StationStageIndex.FunctionIndex == "Detect")
-            {
-                stateIndex = (StationStageIndex.stageIndex - 1) * 2 + 1;
-            }
+            int stateIndex = (StationStageIndex.stageIndex - 1);
             int stageID = projectData.data[stateIndex].state_id;
             // Request stage API
             var triggerAPIresponse = RequestStageAPI(projectID, stageID);
@@ -150,11 +146,12 @@ public static class MetaService
     {
         // if in Sample function, index = (StationStageIndex.stageIndex - 1)*2 ;
         // and in Detect function, index = (StationStageIndex.stageIndex - 1)*2 + 1
-        int stateIndex = (StationStageIndex.stageIndex - 1)*2;
-        if (StationStageIndex.FunctionIndex == "Detect")
-        {
-            stateIndex = (StationStageIndex.stageIndex - 1)*2 + 1;
-        }
+        // int stateIndex = (StationStageIndex.stageIndex - 1)*2;
+        // if (StationStageIndex.FunctionIndex == "Detect")
+        // {
+        //     stateIndex = (StationStageIndex.stageIndex - 1)*2 + 1;
+        // }
+        int stateIndex = (StationStageIndex.stageIndex - 1);
         int modelID = projectData.data[stateIndex].model.model_id;
         string toolName = projectData.data[stateIndex].tool;
         int stageIDInference = projectData.data[stateIndex].state_id;
@@ -168,6 +165,9 @@ public static class MetaService
         // Bypass SSL certificate validation
         ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
+        Debug.Log($"{apiUrl}");
+        Debug.Log($"{modelID.ToString()}, {toolName}, {stageIDInference.ToString()}, {jobID.ToString()}");
+        
         using (UnityWebRequest request = UnityWebRequest.Post(apiUrl, form))
         {
             // Set request headers

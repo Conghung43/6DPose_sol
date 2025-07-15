@@ -167,13 +167,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 bboxData += "\"init_pose\":\"None\",";
             }
 
-            bboxData += " \"project\":\"bluemachine\", \"camera_data\": {\"K\":[[" +
+            bboxData += " \"project\":\"airpump\", \"camera_data\": {\"K\":[[" +
                         VisionOSCameraManager.Instance.intrinsicsData[0] + ",0.0," +
                         VisionOSCameraManager.Instance.intrinsicsData[2] + "],[0.0," +
                         VisionOSCameraManager.Instance.intrinsicsData[4] + "," +
                         VisionOSCameraManager.Instance.intrinsicsData[5] + "], [0.0,0.0,1.0]],\"resolution\": [" +
                         imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
-            //Debug.Log($"{ count} = " + bboxData);
+            // Debug.Log($"bboxData = " + bboxData);
 
             form.AddField("data", bboxData);
 
@@ -204,6 +204,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         //Debug.Log($"{count} = " + request.downloadHandler.text);
 
                         InferenceResult result = JsonUtility.FromJson<InferenceResult>(request.downloadHandler.text);
+                        Debug.Log("result: " + request.downloadHandler.text);
 
                         if (result.data.obj_pose != null)
                         {
