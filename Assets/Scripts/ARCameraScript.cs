@@ -245,11 +245,16 @@ public class ARCameraScript : MonoBehaviour
                         // Show/hide next step and capture buttons based on current stage
                         if (StationStageIndex.stageIndex < dataStages.Count)
                         {
-                            nextStepBtn.gameObject.SetActive(true);
-                            captureBtn.gameObject.SetActive(false);
                             if (StationStageIndex.stageIndex != 4)
                             {
+                                nextStepBtn.gameObject.SetActive(true);
+                                captureBtn.gameObject.SetActive(false);
                                 nextStep.CallAutoNextAfterDelay(2);
+                            }
+                            else
+                            {
+                                nextStepBtn.gameObject.SetActive(false);
+                                captureBtn.gameObject.SetActive(true);
                             }
                         }
 
@@ -459,13 +464,9 @@ public class ARCameraScript : MonoBehaviour
 
         bool inferenceStatus = false;
         List<int> indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
-            (StationStageIndex.stageIndex - 1));
-        if (indices != null && indices.Count == 0)
-        {
-            indices = FindIndicesOfValue(metaAPIinferenceData.data.class_ids,
-                (StationStageIndex.stageIndex - 1));
-            if (indices != null && indices.Count > 0) inferenceStatus = true;
-        }
+            (StationStageIndex.stageIndex - 1) * 2);
+
+        if (indices != null && indices.Count > 0) inferenceStatus = true;
 
         int bestScoreIndex = FindBestScoreIndex(indices, metaAPIinferenceData.data.scores);
 

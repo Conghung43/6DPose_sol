@@ -161,6 +161,7 @@ public class UIController : MonoBehaviour
                     screenShotButton.gameObject.SetActive(true);
                     break;
                 case "Result":
+                    Debug.Log($"result {StationStageIndex.stageIndex}/{dataStages.Count}");
                     lineRenderer.gameObject.SetActive(false);
                     uiMessage.text = $"META AIVI Result {StationStageIndex.stageIndex}/{dataStages.Count - 1}";
                     ResultCanvas.SetActive(true);
@@ -185,7 +186,7 @@ public class UIController : MonoBehaviour
                     }
                     else
                     {
-                        if (toggleOnnx.isOn && StationStageIndex.stageIndex * 2 - 1 == ARCameraScript.Instance.inferenceClass && StationStageIndex.stageIndex >= dataStages.Count - 1)
+                        if (toggleOnnx.isOn && StationStageIndex.stageIndex - 1 == ARCameraScript.Instance.inferenceClass && StationStageIndex.stageIndex >= dataStages.Count - 1)
                         {
                             backgroundResult.texture = okImage;
                             backgroundTopText.text = "OK";
