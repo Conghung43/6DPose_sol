@@ -17,14 +17,15 @@ using OpenCVForUnity.ImgcodecsModule;
 public class BarcodeInteraction : MonoBehaviour
 {
     public GameObject barcodeObject;
+
     //BarcodeBehaviour mBarcodeBehaviour;
     //public Button nextButton;
     private string scannedBarcode;
     private string port = "5000";
-    public Toggle edgeInferenceToggle;
     private string[] qrFiixData;
     [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     QRCodeDetector detector;
+
     /// <summary>
     /// The points.
     /// </summary>
@@ -41,6 +42,7 @@ public class BarcodeInteraction : MonoBehaviour
     List<Mat> straightQrcode;
 
     public TrackedImageInfoManager trackedImageInfoManager;
+
     // public MetaAPI metaAPI;
     void Start()
     {
@@ -70,13 +72,13 @@ public class BarcodeInteraction : MonoBehaviour
             //StationStageIndex.FunctionIndex = "ScanBarcode";
         }
 
-        if (true)//(edgeInferrueenceToggle.isOn)
+        if (true) //(edgeInferrueenceToggle.isOn)
         {
             //OnBarCodeDetectedHandler();
             //edgeInferenceToggle.isOn = false;
-        //}
-        //else if (TrackedImageInfoManager.cpuImageTexture != null)
-        //{
+            //}
+            //else if (TrackedImageInfoManager.cpuImageTexture != null)
+            //{
             try
             {
                 // trackedImageInfoManager.UpdateCPUImage();
@@ -87,7 +89,8 @@ public class BarcodeInteraction : MonoBehaviour
                 // List<string> decoded_info = new List<string>();
                 // List<string> decoded_type = new List<string>();
                 // Mat corners = new Mat();
-                Mat rgbaMat = new Mat(VisionOSCameraManager.Instance.originalHeight, VisionOSCameraManager.Instance.originalWidth, CvType.CV_8UC3);
+                Mat rgbaMat = new Mat(VisionOSCameraManager.Instance.originalHeight,
+                    VisionOSCameraManager.Instance.originalWidth, CvType.CV_8UC3);
                 Utils.texture2DToMat(VisionOSCameraManager.Instance.GetMainCameraTexture2D(), rgbaMat);
 
                 Imgproc.cvtColor(rgbaMat, rgbaMat, Imgproc.COLOR_RGB2BGR);
@@ -96,7 +99,7 @@ public class BarcodeInteraction : MonoBehaviour
                 //string path = "SavedImage.jpg";
                 //Imgcodecs.imwrite(path, rgbaMat);
 
-                bool result_detection = detector.detectAndDecodeMulti(rgbaMat,decodedInfo, points, straightQrcode);
+                bool result_detection = detector.detectAndDecodeMulti(rgbaMat, decodedInfo, points, straightQrcode);
 
                 if (result_detection)
                 {
@@ -115,7 +118,7 @@ public class BarcodeInteraction : MonoBehaviour
         {
             return;
         }
-        
+
 
         if (StationStageIndex.barcodeMetaOn) //&& StationStageIndex.barcodeFiixOn)
         {
@@ -132,7 +135,8 @@ public class BarcodeInteraction : MonoBehaviour
             EventManager.OnBarCodeDetectedEvent?.Invoke(this, new EventManager.OnBarCodeClickEventArgs
             {
                 barcodeText = barcodeTxt
-            }); ;
+            });
+            ;
             //Debug.Log(mBarcodeBehaviour.transform.position);
         }
     }
@@ -142,8 +146,9 @@ public class BarcodeInteraction : MonoBehaviour
         OnBarCodeDetectedHandler();
         return;
         string[] barcodeStringArray;
-        barcodeStringArray = e.barcodeText.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "").Trim('[', ']').Split(new[] { ',' }).Select(x => x.Trim('"')).ToArray();//
-        if (barcodeStringArray.Length > 4)//(barcodeJsonString.Contains("project_id"))
+        barcodeStringArray = e.barcodeText.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "")
+            .Trim('[', ']').Split(new[] { ',' }).Select(x => x.Trim('"')).ToArray(); //
+        if (barcodeStringArray.Length > 4) //(barcodeJsonString.Contains("project_id"))
         {
             barcodeObject.SetActive(false);
             if (!StationStageIndex.barcodeMetaOn)
@@ -175,6 +180,7 @@ public class BarcodeInteraction : MonoBehaviour
                 // string projectFile = $"Project/{MetaApiStatic.qrMetaData[2]}.json";
                 // StartCoroutine(ConfigRead.LoadJSONFileProject(Path.Combine(Application.streamingAssetsPath,projectFile)));
             }
+
             barcodeObject.SetActive(true);
         }
         else //if (barcodeJsonString.Contains("accessKey"))
@@ -187,25 +193,27 @@ public class BarcodeInteraction : MonoBehaviour
             // Set config Fiix
         }
     }
+
     private void OnBarCodeDetectedHandler()
     {
-        string[] barcodeStringArray ;
-#if UNITY_EDITOR
+        string[] barcodeStringArray;
+#if !UNITY_EDITOR
         barcodeStringArray = new string[]
-                    {
-                        "125.227.130.192",
-                        "MTIzMTIz",
-                        "engineSOP002",
-                        "1746411720",
-                        "demo"
-                    };
+        {
+            "125.227.130.192",
+            "MTIzMTIz",
+            "engine_demo",
+            "1735120812",
+            "demo"
+        };
 #else
         barcodeStringArray = new string[decodedInfo.Count];
 #endif
         for (int i = 0; i < decodedInfo.Count; i++)
         {
             string str = decodedInfo[i];
-            barcodeStringArray[i] = str.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "").Replace("[", "");
+            barcodeStringArray[i] = str.Replace("\'", "").Replace("\"b", "").Replace(" ", "").Replace("\\", "")
+                .Replace("[", "");
         }
 
         //"1688627566"

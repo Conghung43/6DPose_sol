@@ -4,21 +4,10 @@ using Newtonsoft.Json;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections;
 using System.IO;
-using UnityEditor;
-using UnityEngine.XR.ARFoundation.Samples;
-using OpenCVForUnity.VideoModule;
 using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.UnityUtils.Helper;
-using OpenCVForUnity.UtilsModule;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.ImgcodecsModule;
-using OpenCVForUnity.DnnModule;
-using Debug = UnityEngine.Debug;
 using Rect = UnityEngine.Rect;
 
 public class ARCameraScript : MonoBehaviour
@@ -39,27 +28,22 @@ public class ARCameraScript : MonoBehaviour
                     instance = obj.AddComponent<ARCameraScript>();
                 }
             }
+
             return instance;
         }
     }
-    
+
     [SerializeField] private Texture2D greenBBoxTexture;
     [SerializeField] private Texture2D redBBoxTexture;
     [SerializeField] private Sprite greenBBox;
     [SerializeField] private Sprite redBBox;
     [SerializeField] private Sprite grayBBox;
     [SerializeField] private Camera arCamera;
-    [SerializeField] private RawImage resultStageDispalayImage;
-    [SerializeField] private RawImage debugRawImage;
-    [SerializeField] private Button nextStepBtn;
-    [SerializeField] private GameObject captureBtn;
     [SerializeField] private int bBoxBorderSize = -1;
     [SerializeField] private TMPro.TextMeshProUGUI titleInfo;
 
     public GameObject sphere;
-    [SerializeField] private RectTransform _imageDection;
 
-    [SerializeField] private TMPro.TextMeshProUGUI logInfo;
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
     private GameObject checkListGameObject;
@@ -72,21 +56,20 @@ public class ARCameraScript : MonoBehaviour
     private byte[] CapturedImage;
     private Texture2D screenTexture;
     private RenderTexture screenRenderTexture;
-    public  Texture2D resizeTextureOnnx;
+    public Texture2D resizeTextureOnnx;
     private RenderTexture resizeRenderTextureOnnx;
-    public  bool inferenceResponseFlag = true;
+    public bool inferenceResponseFlag = true;
 
-    public Toggle toggleAP;
     public ComputeShader normalizeShader;
     private int width = 224;
     private int height = 224;
     private float[] mean = { 0.485f, 0.456f, 0.406f };
     private float[] std = { 0.229f, 0.224f, 0.225f };
-    public  int inferenceClass = 0;
-    public  int lastInferenceClass = 0;
+    public int inferenceClass = 0;
+    public int lastInferenceClass = 0;
     private List<int> smoothInference = Enumerable.Repeat(0, 20).ToList();
-    public  float[] ImageFloatValues;
-    public  float[] prb;
+    public float[] ImageFloatValues;
+    public float[] prb;
 
     public GameObject[] checkingResult;
     public Material checkingObjectMaterial;
@@ -110,12 +93,9 @@ public class ARCameraScript : MonoBehaviour
     public Rect _dectionRect;
 
     public Transform body;
-    [SerializeField] private Image _detectImage;
-    private RectTransform _detectImageRectTransform;
 
     private void Start()
     {
-        _detectImageRectTransform = _detectImage.GetComponent<RectTransform>();
         // Set the StationStageIndex FunctionIndex to "Home"
         StationStageIndex.FunctionIndex = "Home";
 
@@ -126,21 +106,20 @@ public class ARCameraScript : MonoBehaviour
 
         // Create a new RenderTexture with specified dimensions
         renderTexture = new RenderTexture(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, 24);
-        screenRenderTexture = new RenderTexture(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, 24);
+        screenRenderTexture = new RenderTexture(VisionOSCameraManager.Instance.originalWidth,
+            VisionOSCameraManager.Instance.originalHeight, 24);
 
         // Create a new Texture2D with specified dimensions and format
         capturedTexture = new Texture2D(MetaService.imageWidth2Meta, MetaService.imageHeight2Meta, TextureFormat.RGB24,
             false);
-        screenTexture = new Texture2D(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight, TextureFormat.RGB24, false);
+        screenTexture = new Texture2D(VisionOSCameraManager.Instance.originalWidth,
+            VisionOSCameraManager.Instance.originalHeight, TextureFormat.RGB24, false);
 
         //network = new NNetwork(modelAsset);
         EventManager.OnCheckpointUpdateEvent += Inference;
 
         resizeTextureOnnx = new Texture2D(width, height);
         resizeRenderTextureOnnx = new RenderTexture(width, height, 24);
-
-        // Set the size of the resultStageDispalayImage's RectTransform to match the screen size
-        resultStageDispalayImage.rectTransform.sizeDelta = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
 
         // Set the border of the GUI style with a specified size
         guiStyle.border = new RectOffset(bBoxBorderSize, bBoxBorderSize, bBoxBorderSize, bBoxBorderSize);
@@ -198,18 +177,14 @@ public class ARCameraScript : MonoBehaviour
                             //Vector2 screenPoint = arCamera.WorldToScreenPoint(sphere.transform.position);
                             // _imageDection.gameObject.SetActive(true);
                             // _imageDection.transform.position = centerPoint;
-                            _detectImageRectTransform.anchoredPosition = centerPoint;
                             _dectionRect = new Rect(centerPoint.x - w / 2, centerPoint.y - h / 2, w, h);
                         }
                     }
 
-                    nextStep.CallAutoNextAfterDelay(5);
-                    logInfo.text = "Meta rule = ";
+                    // nextStep.CallAutoNextAfterDelay(5);
                 }
                 else
                 {
-                    logInfo.text = "Meta rule = " + metaAPIinferenceData.data.rule.ToString() +
-                                   VisionOSCameraManager.Instance.originalHeight.ToString();
                     if (count_detect_mode == 0)
                     {
                         metaAPIinferenceData = null;
@@ -243,8 +218,6 @@ public class ARCameraScript : MonoBehaviour
                         // Show/hide next step and capture buttons based on current stage
                         if (StationStageIndex.stageIndex < dataStages.Count)
                         {
-                            nextStepBtn.gameObject.SetActive(true);
-                            captureBtn.gameObject.SetActive(false);
                             if (StationStageIndex.stageIndex != 4)
                             {
                                 nextStep.CallAutoNextAfterDelay(2);
@@ -395,19 +368,23 @@ public class ARCameraScript : MonoBehaviour
             Vector2 screenPoint = Vector2.zero;
             Vector2 xrImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth,
                 VisionOSCameraManager.Instance.originalHeight);
-            Vector2 ScreenImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth, VisionOSCameraManager.Instance.originalHeight);
+            Vector2 ScreenImageSize = new Vector2(VisionOSCameraManager.Instance.originalWidth,
+                VisionOSCameraManager.Instance.originalHeight);
             ImageProcessing.XrImagePointToScreenPoint(centerPoint2D, out screenPoint, xrImageSize, ScreenImageSize);
 
             centerPoint2D = screenPoint;
-            Vector3 visionOSCameraPos = new Vector3(arCamera.transform.position.x, arCamera.transform.position.y, arCamera.transform.position.z - 800);
+            Vector3 visionOSCameraPos = new Vector3(arCamera.transform.position.x, arCamera.transform.position.y,
+                arCamera.transform.position.z - 800);
 
             float depth = Vector3.Distance(visionOSCameraPos, body.position);
-            
+
             Vector3 centerPoint3D = Vector3.zero;
             // For optimize
             if (StationStageIndex.FunctionIndex == "Sample")
             {
-                centerPoint3D = arCamera.ScreenToWorldPoint(new Vector3((Mathf.Clamp(screenPoint.x, 520f, 1920f) - 520f) / 1400f * 1920f, VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
+                centerPoint3D = arCamera.ScreenToWorldPoint(new Vector3(
+                    (Mathf.Clamp(screenPoint.x, 520f, 1920f) - 520f) / 1400f * 1920f,
+                    VisionOSCameraManager.Instance.originalHeight - screenPoint.y, depth));
                 centerPoint3D = new Vector3(centerPoint3D.x, centerPoint3D.y, centerPoint3D.z - 800);
             }
 
@@ -420,7 +397,8 @@ public class ARCameraScript : MonoBehaviour
 
             if (centerPoint2D != Vector2.zero)
             {
-                centerPoint2D = new Vector2(centerPoint2D.x, VisionOSCameraManager.Instance.originalHeight - centerPoint2D.y);
+                centerPoint2D = new Vector2(centerPoint2D.x,
+                    VisionOSCameraManager.Instance.originalHeight - centerPoint2D.y);
             }
 
             return (centerPoint2D, radiusOnScreen, centerPoint3D);
@@ -481,77 +459,29 @@ public class ARCameraScript : MonoBehaviour
         //_detectImage.gameObject.SetActive(true);
 
         // Set GUI style and label based on meta inference rule
-        if (toggleAP.isOn)
+        if (inferenceStatus)
         {
-            if (inferenceClass == 0)
-            {
-                UpdateIfClassChange(grayBBox, false);
-                return;
-            }
-
-            bool allElementsAreSame = smoothInference.All(element => element == inferenceClass);
-            if (allElementsAreSame)
-            {
-                if (lastInferenceClass != inferenceClass)
-                {
-                    lastInferenceClass = inferenceClass;
-                    if (StationStageIndex.stageIndex * 2 - 1 == inferenceClass) // odd class is green
-                    {
-                        UpdateIfClassChange(greenBBox, true);
-                    }
-                    else if (StationStageIndex.stageIndex * 2 == inferenceClass) // even class is red
-                    {
-                        UpdateIfClassChange(redBBox, false);
-                    }
-                    else
-                    {
-                        UpdateIfClassChange(grayBBox, false); // original is gray
-                    }
-                }
-            }
-            else
-            {
-                smoothInference.RemoveAt(0);
-                //if (StationStageIndex.stageIndex * 2 - 1 != inferenceClass && StationStageIndex.stageIndex * 2 != inferenceClass)
-                //{
-                //    smoothInference.Add(0);
-                //}
-                //else { smoothInference.Add(inferenceClass); }
-                smoothInference.Add(inferenceClass);
-            }
+            checkingObjectMaterial.color = Color.green;
+            // _detectImage.sprite = greenBBox;
+            guiStyle.normal.background = greenBBoxTexture;
         }
         else
         {
-            if (inferenceStatus)
-            {
-                checkingObjectMaterial.color = Color.green;
-                // _detectImage.sprite = greenBBox;
-                guiStyle.normal.background = greenBBoxTexture;
-            }
-            else
-            {
-                checkingObjectMaterial.color = Color.red;
-                // _detectImage.sprite = redBBox;
-                guiStyle.normal.background = redBBoxTexture;
-            }
+            checkingObjectMaterial.color = Color.red;
+            // _detectImage.sprite = redBBox;
+            guiStyle.normal.background = redBBoxTexture;
         }
     }
 
     void UpdateIfClassChange(Sprite bboxTexture, bool isPass)
     {
-        // _detectImage.sprite = bboxTexture;
-        if (StationStageIndex.stageIndex < 4)
-        {
-            nextStepBtn.gameObject.SetActive(isPass);
-            captureBtn.gameObject.SetActive(!isPass);
-        }
-
         checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
         checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
         checkMarkTransform.gameObject.SetActive(isPass);
     }
 
-    public void DrawGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
+    public void
+        DrawGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
         if (StationStageIndex.FunctionIndex == "Detect")
         {
@@ -619,22 +549,7 @@ public class ARCameraScript : MonoBehaviour
         //logInfo.text = "Update start:";
         // UnityEngine.Debug.Log("Update start:");
         // Edge inference
-        if (toggleAP.isOn)
-        {
-            //UnityEngine.Debug.Log("toggleAP.isOn: start");
-            if (inferenceResponseFlag)
-            {
-                //inferenceWatch.Restart();
-                GetOutputTensor();
-                UnityEngine.Debug.Log("toggleAP.isOn: inferenceResponseFlag");
-                inferenceResponseFlag = false;
-                EdgeInferenceAsync();
-                //StartCoroutine(EdgeInferenceAsync());
-            }
-            //UnityEngine.Debug.Log("toggleAP.isOn: finish");
-        }
-        // If inferenceResponseFlag is true, perform necessary actions
-        else if (inferenceResponseFlag)
+        if (inferenceResponseFlag)
         {
             // UnityEngine.Debug.Log("else if (inferenceResponseFlag)");
             // Check if triggerAPIresponseData.result is null or false then reconnect
@@ -700,7 +615,8 @@ public class ARCameraScript : MonoBehaviour
 #endif
         float bboxW = (float)bBoxRect.width;
         float bboxH = (float)bBoxRect.height;
-        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= VisionOSCameraManager.Instance.originalWidth || bboxY <= 0 ||
+        if (bboxW <= 0 || bboxH <= 0 || bboxX <= 0 || bboxX + bboxW >= VisionOSCameraManager.Instance.originalWidth ||
+            bboxY <= 0 ||
             bboxY + bboxH >= VisionOSCameraManager.Instance.originalHeight)
         {
             //logInfo.text = "Return" + bboxW.ToString() + " " + bboxH.ToString() + " " + bboxX.ToString() + " " + bboxY.ToString();
@@ -979,29 +895,6 @@ public class ARCameraScript : MonoBehaviour
     // Takes a screenshot and displays it on the result stage display image
     public void TakeScreenshot()
     {
-        // Assign the captured texture to the result stage display image texture
-        if (toggleAP.isOn)
-        {
-            // Set the target texture of the AR camera to the render texture
-            arCamera.targetTexture = renderTexture;
-
-            // Render the AR camera
-            arCamera.Render();
-
-            // Set the active render texture
-            RenderTexture.active = renderTexture;
-
-            // Read the pixels from the specified rectangle in the capture texture
-            capturedTexture.ReadPixels(
-                new UnityEngine.Rect(0, 0, MetaService.imageWidth2Meta, MetaService.imageHeight2Meta), 0, 0);
-
-            // Apply the changes made to the capture texture
-            capturedTexture.Apply();
-            arCamera.targetTexture = null;
-            RenderTexture.active = null;
-        }
-
-        resultStageDispalayImage.texture = capturedTexture;
     }
 
     private Vector3 GetScreenSpacePoint(Vector3 worldPosition)

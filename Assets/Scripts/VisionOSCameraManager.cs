@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class VisionOSCameraManager:MonoBehaviour
 {
 #if UNITY_VISIONOS
-    public RawImage Image;
     private static VisionOSCameraManager instance;
 
     public static VisionOSCameraManager Instance
@@ -161,7 +160,6 @@ public class VisionOSCameraManager:MonoBehaviour
 
          tmpTexture.LoadRawTextureData(rawData);
          tmpTexture.Apply();
-         Image.texture = tmpTexture;
          // ResizeTexture(tmpTexture);
      }
      

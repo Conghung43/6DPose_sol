@@ -173,7 +173,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         VisionOSCameraManager.Instance.intrinsicsData[4] + "," +
                         VisionOSCameraManager.Instance.intrinsicsData[5] + "], [0.0,0.0,1.0]],\"resolution\": [" +
                         imageSize.y.ToString() + "," + imageSize.x.ToString() + "]}}";
-            //Debug.Log($"{ count} = " + bboxData);
+            // Debug.Log($"bboxData= " + bboxData);
 
             form.AddField("data", bboxData);
 

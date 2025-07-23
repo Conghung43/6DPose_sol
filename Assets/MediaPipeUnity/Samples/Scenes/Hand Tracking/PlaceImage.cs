@@ -11,12 +11,10 @@ using Rect = UnityEngine.Rect;
 public class PlaceImage : MonoBehaviour
 {
     public RectTransform canvasRectTransform;
-    public RectTransform imageRectTransform;
     public RectTransform _rawImage;
     [SerializeField] private GameObject _sphere;
     public Camera camera;
     private Canvas canvas;
-    [FormerlySerializedAs("_image")] [SerializeField] private RectTransform _Bboximage;
     public static Rect Handbbox;
 
     private void Start()
@@ -28,37 +26,27 @@ public class PlaceImage : MonoBehaviour
 
     public void Draw(float x, float y)
     {
-        imageRectTransform.gameObject.SetActive(true);
         _sphere.SetActive(true);
 
         float pixelX = (1-x) * canvasRectTransform.rect.width;
         float pixelY = (1-y) * canvasRectTransform.rect.height;
 
-        imageRectTransform.anchoredPosition = new Vector2(pixelX, pixelY);
         _sphere.transform.position = camera.ScreenToWorldPoint(new Vector3(pixelX, pixelY,0.5f));
     }
 
     public void Off()
     {
-        imageRectTransform.gameObject.SetActive(false);
         _sphere.SetActive(false);
-        _Bboximage.gameObject.SetActive(false);
     }
 
     public void DrawBBox(List<NormalizedLandmark> landmarkLists)
     {
-        _Bboximage.gameObject.SetActive(true);
         List<Vector2> points = landmarkLists.Select(landmark => new Vector2((1 - landmark.X)*canvasRectTransform.rect.width, (1 - landmark.Y)*canvasRectTransform.rect.height)).ToList();
         /*var x = (1 - locationDataRelativeBoundingBox.Xmin)* canvasRectTransform.rect.width;
         var y = (1 - locationDataRelativeBoundingBox.Ymin)* canvasRectTransform.rect.height;
         var w = locationDataRelativeBoundingBox.Width * canvasRectTransform.rect.width;
         var h = locationDataRelativeBoundingBox.Height * canvasRectTransform.rect.height;*/
         Handbbox = GetBoundingBox(points);
-        _Bboximage.anchoredPosition = new Vector2(Handbbox.x ,
-            Handbbox.y);
-        _Bboximage.sizeDelta = new Vector2(Handbbox.width, Handbbox.height);
-        
-
     }
     public static Rect GetBoundingBox(List<Vector2> points)
     {

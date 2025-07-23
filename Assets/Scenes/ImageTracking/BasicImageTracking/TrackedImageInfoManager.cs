@@ -59,7 +59,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
         bool init = false;
         //bool drawCorner = false;
         private Texture2D m_CameraTexture;
-        [SerializeField] private TMPro.TextMeshProUGUI logInfo;
         private XRCameraIntrinsics intrinsics = new XRCameraIntrinsics();
         public static int[] TrackedImageCorner;
         private static Texture2D cpuImageTexture;
@@ -70,7 +69,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject box3D;
         public GameObject stickWithImageTargetObject;
         public CameraFeedToRenderTexture _CameraFeedToRenderTexture;
-        public RectTransform _handRect;
 
         int count = 0;
 
@@ -229,7 +227,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 }
                 Vector2 imageSize = new Vector2(cpuImageTexture.width, cpuImageTexture.height);
 
-                int[] bboxTrackedImage = new int[] { (int)Screen.width/3, (int)(Screen.height/4), (int)Screen.width *2/ 3, (int)(Screen.height *7/ 12) };//TrackedImageCorner;
+                int[] bboxTrackedImage = new int[] { 640, 270, 1280, 810 };//TrackedImageCorner;
                 int[] bboxMegaPose = null;
                 int[] bbox = null;
                 //bool isIntersecting = true;
@@ -237,10 +235,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 sphereList[0].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[0], Screen.height - bboxTrackedImage[1], 0.5f));
                 sphereList[1].transform.position = Camera.main.ScreenToWorldPoint(new Vector3(bboxTrackedImage[2], Screen.height - bboxTrackedImage[3], 0.5f));
                 // Transformation
-                bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
+                   // bboxTrackedImage = ConvertBboxScreenImageToCPUimage(cpuImageTexture, bboxTrackedImage);
                 // This function may return null if 2D bbox doesn't have any intersection part with screen
 
-                bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
+                   // bboxTrackedImage = CheckBboxPositionOnCPUImage(cpuImageTexture, bboxTrackedImage);
 
                 // For the case target shiffting, detect again.
                 if (!Inference.Instance.objectInitialSet && !IsObjectInScreen(box3D))
@@ -255,7 +253,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 {
                     // Luan If hand close to engine, skip 6D inference
                     EngineRect = ConvertOpenCVRectToUnityRect(bbox);
-                    bool isHandInEngine = ObjectCenterInOtherObjectRect(_handRect.anchoredPosition, EngineRect);
                     //Debug.Log("hand inference engine"+isHandInEngine);
                     //if (isHandInEngine) return;
 
@@ -298,7 +295,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         StartCoroutine(Inference.Instance.ServerInference(cpuImageTexture, imageSize, bbox, intrinsics.focalLength, intrinsics.principalPoint));
                         isInferenceAvailable = false;
                     }
-                    logInfo.text = Inference.Instance.elMs;
                 }
             }
             //return;

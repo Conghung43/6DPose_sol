@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Diagnostics;
 using System.Collections.Generic;
-using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 public class GameObjectController : MonoBehaviour
 {
@@ -70,7 +70,7 @@ public class GameObjectController : MonoBehaviour
             case "VuforiaTarget":// Image target: all 3D model show up
                 barcode.SetActive(false);
                 StationStageIndex.stageIndex = 0;
-                //TurnOffAnimation();
+                TurnOffAnimation();
                 break;
             case "Sample":// show single 3D model
                 if (StationStageIndex.stageIndex == 4)
@@ -93,7 +93,7 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.metaTimeCount = new Stopwatch();
                 StationStageIndex.metaTimeCount.Start();
                 TurnOffAnimation();
-                //detectionLine.SetHideLine();
+                // detectionLine.SetHideLine();
                 break;
             case "Result":
                 break;
