@@ -22,18 +22,17 @@ public class SkipButtonClickHandler : MonoBehaviour
         string jump2StageName = "";
         StationStageIndex.stageIndex += 1;
         if (StationStageIndex.stageIndex > dataStages.Count -1 ){
-            StationStageIndex.stageIndex = dataStages.Count -1;
-            StationStageIndex.FinalUI = true;
+            StationStageIndex.stageIndex = 0;
+            StationStageIndex.FunctionIndex = "Result";
             return;
         }
         StationStageIndex.FunctionIndex = "Sample";
         if (MetaService.stageData != null){
             MetaService.stageData.requestResult = false;
         }
-        if (!toggleAP.isOn)
-        {
-            MetaService.ConnectWithMetaStageID();
-        }
+
+        MetaService.ConnectWithMetaStageID();
+
         foreach (Datastage dataStage in dataStages){
             if (dataStage.Agrs.Order == StationStageIndex.stageIndex){
                 jump2StageName = dataStage.StageName;
@@ -50,6 +49,5 @@ public class SkipButtonClickHandler : MonoBehaviour
             nextButtonClick = true,
             stageName = jump2StageName
         });
-        Debug.Log("next button click" + StationStageIndex.stageIndex + StationStageIndex.FunctionIndex + jump2StageName);
     }
 }

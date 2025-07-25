@@ -17,6 +17,7 @@ public class DescriptionController : MonoBehaviour
 {
     [SerializeField] private GameObject _descriptionPanel;
     [SerializeField] private TMP_Text _desText;
+    [SerializeField] private TMP_Text _followTitleText;
     [SerializeField] private VideoPlayer _videoPlayer;
     [FormerlySerializedAs("_home")] [SerializeField] private TextAndVideo _stage1;
     [FormerlySerializedAs("_sample")] [SerializeField] private TextAndVideo _stage2;
@@ -26,12 +27,11 @@ public class DescriptionController : MonoBehaviour
     private Dictionary<int, TextAndVideo> _desDictionary;
     private bool isPlaying = false;
 
-    void OnEnable()
+    private void Start()
     {
         _desDictionary = new Dictionary<int, TextAndVideo>
         {
             { 1, _stage1 }, { 2, _stage2 }, { 3, _stage3 },{ 4, _stage4 }
-
         };
     }
 
@@ -54,6 +54,7 @@ public class DescriptionController : MonoBehaviour
         {
             _descriptionPanel.SetActive(true);
             _desText.text = _desDictionary[stageIndex].des;
+            _followTitleText.text = _desDictionary[stageIndex].des;
             _videoPlayer.clip = _desDictionary[stageIndex].clip;
             _videoPlayer.Play();
             isPlaying = true;

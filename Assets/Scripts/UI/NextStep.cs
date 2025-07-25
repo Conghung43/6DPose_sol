@@ -6,19 +6,14 @@ using UnityEngine.UI;
 public class NextStep : MonoBehaviour
 {
     public Button nextStep;
-    [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
-    public Toggle toggleAP;
     private Coroutine _autoNext;
     public CheckDistanceHandAndDetection _CheckDistanceHandAndDetection;
     public DescriptionController _descriptionController;
     public ARCameraScript aRCameraScript;
+    public Image nextBG;
+    public TMPro.TextMeshProUGUI nextText;
 
-    private void OnDisable()
-    {
-        nextStep.onClick.RemoveListener(RaiseButtonClick);
-    }
-
-    private void OnEnable()
+    private void Start()
     {
         nextStep.onClick.AddListener(RaiseButtonClick);
     }
@@ -26,20 +21,51 @@ public class NextStep : MonoBehaviour
     public void CallAutoNextAfterDelay(float delayInSeconds)
     {
         if (_autoNext != null) return;
+        Activate(true);
         _autoNext = StartCoroutine(CallAutoNextAfterDelayCoroutine(delayInSeconds));
+    }
+
+    public void ShowDetect()
+    {
+        if(nextBG == null || nextText == null)return;
+        nextText.color = Color.white;
+        nextBG.color = new Color((float)93 / 255, (float)99 / 255, (float)255 / 255);
+        nextText.text = "Detect >";
+    }
+
+    public void Activate(bool activate)
+    {
+        if(nextBG == null || nextText == null)return;
+
+        if (activate)
+        {
+            nextBG.color = new Color((float)24 / 255, (float)175 / 255, (float)121 / 255);
+            nextText.color = Color.white;
+            nextText.text = "Next >";
+        }
+        else
+        {
+            nextBG.color = Color.gray;
+            nextText.text = "Next >";
+            nextText.color = Color.gray;
+        }
     }
 
     // Coroutine to handle the delay
     IEnumerator CallAutoNextAfterDelayCoroutine(float delayInSeconds)
     {
         // Wait for the specified amount of time
-        yield return new WaitForSeconds(delayInSeconds);
+        float timeLeft = delayInSeconds;
+
+        while (timeLeft > 0f)
+        {
+            nextText.text = $"{timeLeft} Next >";
+            yield return new WaitForSeconds(1f);
+            timeLeft -= 1f;
+        }
 
         // Call the function after the delay
-        if (StationStageIndex.FunctionIndex == "Detect" || StationStageIndex.FunctionIndex == "Sample")
-        {
-            RaiseButtonClick();
-        }
+        RaiseButtonClick();
     }
 
     // Handle button click event
@@ -52,6 +78,7 @@ public class NextStep : MonoBehaviour
         }
 
         aRCameraScript.metaAPIinferenceData = null;
+
         switch (StationStageIndex.FunctionIndex)
         {
             case "3dModel":
@@ -98,7 +125,7 @@ public class NextStep : MonoBehaviour
         if (StationStageIndex.stageIndex > dataStages.Count - 1)
         {
             StationStageIndex.stageIndex = 0; //dataStages.Count - 1;
-            StationStageIndex.FunctionIndex = "VuforiaTarget";
+            StationStageIndex.FunctionIndex = "Result";
             return;
         }
 
@@ -108,10 +135,7 @@ public class NextStep : MonoBehaviour
             MetaService.stageData.requestResult = false;
         }
 
-        if (!toggleAP.isOn)
-        {
-            MetaService.ConnectWithMetaStageID();
-        }
+        MetaService.ConnectWithMetaStageID();
 
         foreach (Datastage dataStage in dataStages)
         {

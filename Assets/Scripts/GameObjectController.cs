@@ -16,6 +16,7 @@ public class GameObjectController : MonoBehaviour
     void Start()
     {
         StationStageIndex.OnFunctionIndexChange += OnGameObjectControllerFunctionChangeHandler;
+        StationStageIndex.metaTimeCount = new Stopwatch();
     }
     void OnDisable(){
         StationStageIndex.OnFunctionIndexChange -= OnGameObjectControllerFunctionChangeHandler;
@@ -39,22 +40,21 @@ public class GameObjectController : MonoBehaviour
 
     private void TurnOffAnimation()
     {
-        objectList[StationStageIndex.stageIndex - 1].SetActive(false);
+        objectList[StationStageIndex.stageIndex].SetActive(false);
     }
 
     private void OnGameObjectControllerFunctionChangeHandler(string functionName){
         if (StationStageIndex.metaTimeCount != null){
-            StationStageIndex.metaTimeCount.Stop();
             //Add to total time
             StationStageIndex.metaTotalMinute += StationStageIndex.metaTimeCount.Elapsed.Minutes;
             StationStageIndex.metaTotalSecond += StationStageIndex.metaTimeCount.Elapsed.Seconds;
             StationStageIndex.metaTempMinute = StationStageIndex.metaTimeCount.Elapsed.Minutes;
             StationStageIndex.metaTempSecond = StationStageIndex.metaTimeCount.Elapsed.Seconds;
-            StationStageIndex.metaTimeCount = null;
             if (StationStageIndex.metaTotalSecond > 60){
                 StationStageIndex.metaTotalSecond -= 60;
                 StationStageIndex.metaTotalMinute += 1;
             }
+            StationStageIndex.metaTimeCount.Restart();
         }
         switch (functionName){
             case "Home":// 2 button: Main demo or show 3d model. future approach: using vuforia area target in background
@@ -90,8 +90,6 @@ public class GameObjectController : MonoBehaviour
                 StationStageIndex.metaInferenceRule = false;
                 ARCameraScript.Instance.inferenceResponseFlag = true;
                 StationStageIndex.FinalUI = false;
-                StationStageIndex.metaTimeCount = new Stopwatch();
-                StationStageIndex.metaTimeCount.Start();
                 TurnOffAnimation();
                 // detectionLine.SetHideLine();
                 break;

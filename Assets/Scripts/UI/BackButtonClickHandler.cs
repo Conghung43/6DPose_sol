@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class BackButtonClickHandler : MonoBehaviour
 {
     public Button backButton;
-    [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     public GameObjectController gameObjectController;
     [SerializeField] private DescriptionController _descriptionController;
 
@@ -40,7 +39,6 @@ public class BackButtonClickHandler : MonoBehaviour
             // Set the function index and update the UI message
             StationStageIndex.FunctionIndex = "Sample";
             gameObjectController.TurnOnAnimation();
-            uiMessage.text = $"Instruction {StationStageIndex.stageIndex}/{dataStages.Count - 1}";
         }
 
         if (MetaService.stageData != null)

@@ -93,6 +93,7 @@ public class ARCameraScript : MonoBehaviour
     public Rect _dectionRect;
 
     public Transform body;
+    public UIController uiController;
 
     private void Start()
     {
@@ -218,10 +219,7 @@ public class ARCameraScript : MonoBehaviour
                         // Show/hide next step and capture buttons based on current stage
                         if (StationStageIndex.stageIndex < dataStages.Count)
                         {
-                            if (StationStageIndex.stageIndex != 4)
-                            {
-                                nextStep.CallAutoNextAfterDelay(2);
-                            }
+                            nextStep.CallAutoNextAfterDelay(3);
                         }
 
                         // Stop the metaTimeCount if it's not null
@@ -459,17 +457,19 @@ public class ARCameraScript : MonoBehaviour
         //_detectImage.gameObject.SetActive(true);
 
         // Set GUI style and label based on meta inference rule
-        if (inferenceStatus)
+        if (inferenceStatus || StationStageIndex.metaInferenceRule)
         {
             checkingObjectMaterial.color = Color.green;
             // _detectImage.sprite = greenBBox;
             guiStyle.normal.background = greenBBoxTexture;
+            uiController.ShowInferenceResult(true);
         }
         else
         {
             checkingObjectMaterial.color = Color.red;
             // _detectImage.sprite = redBBox;
             guiStyle.normal.background = redBBoxTexture;
+            uiController.ShowInferenceResult(false);
         }
     }
 
@@ -534,7 +534,7 @@ public class ARCameraScript : MonoBehaviour
                 status = true
             });
             // Set the titleInfo text to display elapsed minutes and seconds from metaTimeCount
-            //titleInfo.text = $"{StationStageIndex.metaTimeCount.Elapsed.Minutes}:{StationStageIndex.metaTimeCount.Elapsed.Seconds}";// +  " " + usedMemory / 1024000 + " MB";
+            titleInfo.text = $"{StationStageIndex.metaTimeCount.Elapsed.Minutes}:{StationStageIndex.metaTimeCount.Elapsed.Seconds}";// +  " " + usedMemory / 1024000 + " MB";
         }
         else
         {
@@ -890,11 +890,6 @@ public class ARCameraScript : MonoBehaviour
         {
             return 0.5f;
         }
-    }
-
-    // Takes a screenshot and displays it on the result stage display image
-    public void TakeScreenshot()
-    {
     }
 
     private Vector3 GetScreenSpacePoint(Vector3 worldPosition)

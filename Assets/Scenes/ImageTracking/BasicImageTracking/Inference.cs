@@ -58,7 +58,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public GameObject Engine3DAniModel;
         public GameObject Engine3DModel;
-        public GameObject modelTarget;
+        public GameObject anchorCanvas;
         private Dictionary<string, GameObject> CamWorldDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectDictionary = new Dictionary<string, GameObject>();
         private Dictionary<string, GameObject> CamObjectMegaDictionary = new Dictionary<string, GameObject>();
@@ -312,12 +312,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             if (StationStageIndex.FunctionIndex == "Sample" || StationStageIndex.FunctionIndex == "Detect")
             {
-                Engine3DAniModel.SetActive(true);
+                // Engine3DAniModel.SetActive(true);
                 Display3DBox(Engine3DAniModel, Engine3DModel.transform.position, Engine3DModel.transform.rotation);
+                Vector3 worldForward = anchorCanvas.transform.forward;
+                worldForward.y = 0;
+                if (worldForward != Vector3.zero)
+                {
+                    anchorCanvas.transform.rotation = Quaternion.LookRotation(worldForward.normalized);
+                }
             }
             else
             {
-                Engine3DAniModel.SetActive(false);
+                Engine3DAniModel.transform.position = Vector3.zero;
+                // Engine3DAniModel.SetActive(false);
             }
 #if UNITY_EDITOR
             // Only for testing on Editor
@@ -355,17 +362,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             if (filterObj != null) //(objectInitialSet)
             {
-                //if (objectInitialSet)
-                //{
-                //    Debug.Log(" Display3DBox objectInitialSet ");
-                //    filterObj.transform.position = position;
-                //}
-                //else
-                //{
-                //    // Smooth movement
-                //    Debug.Log(" Display3DBox Smooth movement ");
-                //    filterObj.transform.position = Vector3.Lerp(filterObj.transform.position, position, 0.1f * Time.deltaTime);
-                //}
                 filterObj.transform.position = position;
                 filterObj.transform.rotation = rotation;
             }

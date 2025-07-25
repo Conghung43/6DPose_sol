@@ -6,10 +6,11 @@ public class FaceToUser : MonoBehaviour
 
     void Update()
     {
-        transform.rotation = Camera.main.transform.rotation;
         transform.position = Camera.main.transform.position - Vector3.forward * 800 +
                              Camera.main.transform.forward * ZPosition +
                              Camera.main.transform.right * XPosition +
                              Camera.main.transform.up * YPosition;
+
+        transform.rotation = Camera.main.transform.rotation;
     }
 }

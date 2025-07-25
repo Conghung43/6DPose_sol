@@ -23,7 +23,6 @@ public class BarcodeInteraction : MonoBehaviour
     private string scannedBarcode;
     private string port = "5000";
     private string[] qrFiixData;
-    [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
     QRCodeDetector detector;
 
     /// <summary>
@@ -125,7 +124,6 @@ public class BarcodeInteraction : MonoBehaviour
             // barcodeObject.SetActive(false);
             //edgeInferenceToggle.isOn = true;
             StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
-            uiMessage.text = "Scan META success";
             //MetaApiStatic.ConnectMetaBasedProjectID(1678700647);
             return;
         }

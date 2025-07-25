@@ -13,17 +13,19 @@ public class UIController : MonoBehaviour
     public GameObject highlightChecklist;
     public GameObject targetDetect;
     public GameObject inferenceUI;
+    public GameObject capturePage;
+    public GameObject resultPage;
     public GameObject checkList;
     public GameObject ModelTarget;
-    [SerializeField] private TMPro.TextMeshProUGUI uiMessage;
+    [SerializeField] private TMPro.TextMeshProUGUI overViewContent;
     public Image backgroundTopResult;
     [SerializeField] private TMPro.TextMeshProUGUI backgroundTopText;
     private GameObject[] objects;
-    public Texture2D okImage;
-    public Texture2D ngImage;
     private bool isEventAdded;
     public GameObject flowInstruction;
     public LineRenderer lineRenderer;
+    public NextStep nextStep;
+    public GameObject captureBtn;
 
     //public DefaultObserverEventHandler observer;
     //public Vuforia.ModelTargetBehaviour targetBehaviour;
@@ -59,6 +61,7 @@ public class UIController : MonoBehaviour
 
     private void OnFunctionIndexChangeActionHandler(string functionName)
     {
+        Debug.LogError($"functionName {functionName}");
         _descriptionController.UpdateDescription(functionName, StationStageIndex.stageIndex);
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         try
@@ -67,38 +70,42 @@ public class UIController : MonoBehaviour
             {
                 case "Home"
                     : // 2 button: Main demo or show 3d model. future approach: using vuforia area target in background
-                    uiMessage.text = "Home";
+                    // uiMessage.text = "Home";
                     qrCode.SetActive(false);
                     //model3Dbtn.gameObject.SetActive(true);
                     EnterIPAddress.gameObject.SetActive(true);
                     targetDetect.SetActive(false);
                     inferenceUI.SetActive(false);
-                    ModelTarget.SetActive(false);
-                    DisableMainUI();
+                    capturePage.SetActive(false);
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(false);
                     lineRenderer.gameObject.SetActive(false);
                     break;
                 case "ScanBarcode": // Show square bounding box
-                    uiMessage.text = "Scan META QR code";
+                    // uiMessage.text = "Scan META QR code";
                     EnterIPAddress.gameObject.SetActive(false);
                     qrCode.SetActive(true);
                     StartQRCodeAnimation();
                     targetDetect.SetActive(false);
                     inferenceUI.SetActive(false);
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(false);
                     // inputField.SetActive(false);
-                    DisableMainUI();
                     break;
                 case "VuforiaTargetDetecting":
-                    uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detecting..";
+                    // uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detecting..";
+                    overViewContent.text = MetaService.qrMetaData[2];
                     TurnOnInferenceFlag();
                     StationStageIndex.ModelTargetFound = false;
                     //observer.enabled = true;
                     //targetBehaviour.enabled = true;
                     ModelTarget.gameObject.SetActive(false);
                     ModelTarget.gameObject.SetActive(true);
-                    DisableMainUI();
                     qrCode.SetActive(false);
                     targetDetect.SetActive(true);
                     inferenceUI.SetActive(false);
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(false);
                     break;
                 case "VuforiaTarget": // Image target: all 3D model show up
                     break;
@@ -107,64 +114,44 @@ public class UIController : MonoBehaviour
                     TurnOnInferenceFlag();
                     lineRenderer.gameObject.SetActive(false);
                     flowInstruction.SetActive(true);
-                    uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detected";
+                    // uiMessage.text = $"{MetaService.qrMetaData[2]} \n Target detected";
+                    overViewContent.text = MetaService.qrMetaData[2];
                     targetDetect.SetActive(false);
                     if (StationStageIndex.ModelTargetFound)
                     {
                         checkList.gameObject.SetActive(true);
                         highlightChecklist.SetActive(false);
-                        uiMessage.text = $"{MetaService.qrMetaData[2]} \n Checkpoint Overview";
                         objects = GameObject.FindGameObjectsWithTag("Checkmark");
                         foreach (GameObject obj in objects)
                         {
                             obj.gameObject.SetActive(false);
                         }
                     }
+
                     break;
                 case "Sample":
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
                     inferenceUI.SetActive(true);
-
-                   
-                    uiMessage.text = $"Instruction {StationStageIndex.stageIndex}/{dataStages.Count - 1}";
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(false);
+                    backgroundTopResult.gameObject.SetActive(false);
+                    nextStep.ShowDetect();
+                    captureBtn.SetActive(false);
                     break;
                 case "Detect":
-                    lineRenderer.gameObject.SetActive(false);
-                    uiMessage.text = $"META AIVI {StationStageIndex.stageIndex}/{dataStages.Count - 1}";
-                    
                     inferenceUI.SetActive(true);
-
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(false);
+                    backgroundTopResult.gameObject.SetActive(true);
+                    nextStep.Activate(false);
+                    captureBtn.SetActive(true);
                     break;
                 case "Result":
-                    lineRenderer.gameObject.SetActive(false);
-                    uiMessage.text = $"META AIVI Result {StationStageIndex.stageIndex}/{dataStages.Count - 1}";
+                    targetDetect.SetActive(false);
                     inferenceUI.SetActive(false);
-                    if (StationStageIndex.metaInferenceRule)
-                    {
-                        backgroundTopText.text = "OK";
-                        backgroundTopResult.color = new Color((float)76 / 255, (float)175 / 255, (float)80 / 255);
-                        if (StationStageIndex.stageIndex >= dataStages.Count - 1)
-                        {
-                            StationStageIndex.FinalUI = true;
-                        }
-                    }
-                    else
-                    {
-                        if (StationStageIndex.stageIndex * 2 - 1 == ARCameraScript.Instance.inferenceClass &&
-                            StationStageIndex.stageIndex >= dataStages.Count - 1)
-                        {
-                            backgroundTopText.text = "OK";
-                            backgroundTopResult.color = new Color((float)76 / 255, (float)175 / 255, (float)80 / 255);
-                            StationStageIndex.FinalUI = true;
-                        }
-                        else
-                        {
-                            backgroundTopText.text = "NG";
-                            backgroundTopResult.color = new Color((float)244 / 255, (float)67 / 255, (float)54 / 255);
-                        }
-                    }
-
+                    capturePage.SetActive(false);
+                    resultPage.SetActive(true);
                     break;
                 default:
                     break;
@@ -172,13 +159,21 @@ public class UIController : MonoBehaviour
         }
         catch (Exception ex)
         {
-            uiMessage.text = ex.Message;
         }
     }
 
-    private void DisableMainUI()
+    public void ShowInferenceResult(bool isOK)
     {
-        checkList.gameObject.SetActive(false);
+        if (isOK)
+        {
+            backgroundTopText.text = "OK";
+            backgroundTopResult.color = new Color((float)24 / 255, (float)175 / 255, (float)121 / 255);
+        }
+        else
+        {
+            backgroundTopText.text = "NG";
+            backgroundTopResult.color = new Color((float)255 / 255, (float)89 / 255, (float)89 / 255);
+        }
     }
 
     public void OnFinalUIPage(bool finalUI)
@@ -200,7 +195,7 @@ public class UIController : MonoBehaviour
             if (StationStageIndex.FunctionIndex == "VuforiaTargetDetecting")
             {
                 StationStageIndex.FunctionIndex = "VuforiaTarget";
-                uiMessage.text = $"{MetaService.qrMetaData[2]} \n States Overview ";
+                overViewContent.text = $"{MetaService.qrMetaData[2]} \n States Overview ";
                 //objects = GameObject.FindGameObjectsWithTag("Checkmark");
                 //foreach (GameObject obj in objects)
                 //{
