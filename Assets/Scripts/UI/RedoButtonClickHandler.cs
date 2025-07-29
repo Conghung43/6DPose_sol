@@ -11,7 +11,8 @@ public class RedoButtonClickHandler : MonoBehaviour
     void OnEnable(){
         redoButton.onClick.AddListener(RaiseButtonClick);
     }
+
     private void RaiseButtonClick(){
-        StationStageIndex.FunctionIndex = "Detect";
+        StationStageIndex.FunctionIndex = "Sample";
     }
 }

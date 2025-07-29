@@ -55,7 +55,7 @@ public class ResultMessageBoxClickHandler : MonoBehaviour
             }
         }
         if (isMaxSize && targetRect.sizeDelta[1] >= targetSize[1]){
-            ResultDetail.text = $"Total Elapsed Time: {StationStageIndex.metaTotalMinute}:{StationStageIndex.metaTotalSecond} \n\n Current Check point elapsed time: {StationStageIndex.metaTempMinute}:{StationStageIndex.metaTempSecond}";
+            ResultDetail.text = $"Total Elapsed Time: {StationStageIndex.metaTotalMinute:D2}:{StationStageIndex.metaTotalSecond:D2} \n\n Current Check point elapsed time: {StationStageIndex.metaTempMinute}:{StationStageIndex.metaTempSecond}";
         }
         else{
             ResultDetail.text = "";

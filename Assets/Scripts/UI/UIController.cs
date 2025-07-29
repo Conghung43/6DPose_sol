@@ -31,6 +31,12 @@ public class UIController : MonoBehaviour
     //public Vuforia.ModelTargetBehaviour targetBehaviour;
     // Start is called before the first frame update
     [SerializeField] private DescriptionController _descriptionController;
+    [SerializeField] private CheckListController checkListController;
+
+    [SerializeField] private TMPro.TextMeshProUGUI resultTotalTime;
+    [SerializeField] private TMPro.TextMeshProUGUI resultContent;
+    [SerializeField] private List<TMPro.TextMeshProUGUI> resultStepTimes;
+
 
     void OnDisable()
     {
@@ -106,6 +112,7 @@ public class UIController : MonoBehaviour
                     inferenceUI.SetActive(false);
                     capturePage.SetActive(false);
                     resultPage.SetActive(false);
+                    checkListController.ResetResult();
                     break;
                 case "VuforiaTarget": // Image target: all 3D model show up
                     break;
@@ -132,6 +139,7 @@ public class UIController : MonoBehaviour
                 case "Sample":
                     flowInstruction.SetActive(false);
                     highlightChecklist.SetActive(true);
+                    targetDetect.SetActive(false);
                     inferenceUI.SetActive(true);
                     capturePage.SetActive(false);
                     resultPage.SetActive(false);
@@ -148,6 +156,9 @@ public class UIController : MonoBehaviour
                     captureBtn.SetActive(true);
                     break;
                 case "Result":
+                    resultContent.text = MetaService.qrMetaData[2];
+                    resultTotalTime.text =
+                        $"Total {StationStageIndex.metaTotalMinute:D2}:{StationStageIndex.metaTotalSecond:D2}"; // +  " " + usedMemory / 1024000 + " MB";
                     targetDetect.SetActive(false);
                     inferenceUI.SetActive(false);
                     capturePage.SetActive(false);
@@ -194,8 +205,8 @@ public class UIController : MonoBehaviour
             highlightChecklist.SetActive(false);
             if (StationStageIndex.FunctionIndex == "VuforiaTargetDetecting")
             {
-                StationStageIndex.FunctionIndex = "VuforiaTarget";
-                overViewContent.text = $"{MetaService.qrMetaData[2]} \n States Overview ";
+                StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
+                overViewContent.text = MetaService.qrMetaData[2];
                 //objects = GameObject.FindGameObjectsWithTag("Checkmark");
                 //foreach (GameObject obj in objects)
                 //{
@@ -203,5 +214,11 @@ public class UIController : MonoBehaviour
                 //}
             }
         }
+    }
+
+    public void SetResultTimeText(int index, string time)
+    {
+        if (resultStepTimes.Count < index) return;
+        resultStepTimes[index].text = time;
     }
 }

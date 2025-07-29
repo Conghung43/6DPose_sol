@@ -46,8 +46,6 @@ public class ARCameraScript : MonoBehaviour
 
     private Texture2D capturedTexture;
     private List<Datastage> dataStages;
-    private GameObject checkListGameObject;
-    private Transform checkMarkTransform;
     private RenderTexture renderTexture;
     private UnityEngine.Rect bBoxRect;
     private GUIStyle guiStyle = new GUIStyle();
@@ -73,6 +71,7 @@ public class ARCameraScript : MonoBehaviour
 
     public GameObject[] checkingResult;
     public Material checkingObjectMaterial;
+    public CheckListController checkListController;
 
     int count = 0;
 
@@ -228,11 +227,7 @@ public class ARCameraScript : MonoBehaviour
                             StationStageIndex.metaTimeCount.Stop();
                         }
 
-                        // Find the checkListGameObject and show the checkmark
-                        checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
-                        checkMarkTransform =
-                            checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
-                        checkMarkTransform.gameObject.SetActive(true);
+                        checkListController.SetResult(true, StationStageIndex.stageIndex - 1);
                         count_inference = 0;
                         count_detect_mode = 0;
                     }
@@ -473,13 +468,6 @@ public class ARCameraScript : MonoBehaviour
         }
     }
 
-    void UpdateIfClassChange(Sprite bboxTexture, bool isPass)
-    {
-        checkListGameObject = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
-        checkMarkTransform = checkListGameObject.transform.Find("Background").transform.Find("Checkmark");
-        checkMarkTransform.gameObject.SetActive(isPass);
-    }
-
     public void
         DrawGUI() // this function is computational => using prefab instead to show 2D bbox when inference returned
     {
@@ -534,7 +522,10 @@ public class ARCameraScript : MonoBehaviour
                 status = true
             });
             // Set the titleInfo text to display elapsed minutes and seconds from metaTimeCount
-            titleInfo.text = $"{StationStageIndex.metaTimeCount.Elapsed.Minutes}:{StationStageIndex.metaTimeCount.Elapsed.Seconds}";// +  " " + usedMemory / 1024000 + " MB";
+            string timeText =
+                $"{StationStageIndex.metaTimeCount.Elapsed.Minutes:D2}:{StationStageIndex.metaTimeCount.Elapsed.Seconds:D2}";
+            titleInfo.text = timeText;
+            uiController.SetResultTimeText(StationStageIndex.stageIndex - 1, timeText);
         }
         else
         {

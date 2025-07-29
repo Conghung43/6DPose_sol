@@ -14,6 +14,6 @@ public class RetryButtonClickHandler : MonoBehaviour
         FinishButtonButton.onClick.AddListener(RaiseButtonClick);
     }
     private void RaiseButtonClick(){
-        StationStageIndex.FunctionIndex = "VuforiaTarget";
+        StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
     }
 }

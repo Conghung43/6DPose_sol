@@ -1,38 +1,58 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CheckListController : MonoBehaviour
 {
-    private GameObject label;
-    public GameObject highlightBackground;
+    [SerializeField] private List<Image> checkMarks;
+    [SerializeField] private List<Image> resultMarks;
+    [SerializeField] private List<GameObject> backGrounds;
+    [SerializeField] private Sprite okTexture;
+    [SerializeField] private Sprite ngTexture;
+    [SerializeField] private Sprite spriteTexture;
 
-    void OnDisable()
+    void Start()
     {
-        // Unsubscribe from the event when the script is disabled
-        EventManager.OnStageChange -= OnChangeCheckListUI;
-    }
-
-    void OnEnable()
-    {
-        // Subscribe to the event when the script is enabled
         EventManager.OnStageChange += OnChangeCheckListUI;
     }
 
-    // This method is called when the stage changes
+    public void ResetResult()
+    {
+        foreach (var checkMark in checkMarks)
+        {
+            checkMark.sprite = spriteTexture;
+        }
+    }
+
+    public void SetResult(bool success, int index)
+    {
+        if (index < 0 || checkMarks.Count < index) return;
+
+        if (success)
+        {
+            checkMarks[index].sprite = okTexture;
+            resultMarks[index].sprite = okTexture;
+        }
+        else
+        {
+            checkMarks[index].sprite = ngTexture;
+            resultMarks[index].sprite = ngTexture;
+        }
+    }
+
     private void OnChangeCheckListUI(object sender, EventManager.OnStageIndexEventArgs e)
     {
-        // Find the label game object based on the current stage index
-        label = GameObject.Find("CP" + StationStageIndex.stageIndex.ToString());
-
-        // If the label is not found, return and do nothing
-        if (label == null)
+        for (int i = 0; i < backGrounds.Count; i++)
         {
-            return;
+            if (i == StationStageIndex.stageIndex - 1)
+            {
+                backGrounds[i].SetActive(true);
+            }
+            else
+            {
+                backGrounds[i].SetActive(false);
+            }
         }
-
-        // Adjust the position of the highlight background to match the label's position
-        highlightBackground.transform.position = new Vector3(
-            highlightBackground.transform.position.x,
-            label.transform.position.y,
-            highlightBackground.transform.position.z);
     }
 }

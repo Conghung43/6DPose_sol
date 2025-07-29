@@ -4,7 +4,7 @@ public class FaceToUser : MonoBehaviour
 {
     public float XPosition, YPosition, ZPosition = 800;
 
-    void Update()
+    void LateUpdate()
     {
         transform.position = Camera.main.transform.position - Vector3.forward * 800 +
                              Camera.main.transform.forward * ZPosition +

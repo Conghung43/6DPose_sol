@@ -195,7 +195,7 @@ public class BarcodeInteraction : MonoBehaviour
     private void OnBarCodeDetectedHandler()
     {
         string[] barcodeStringArray;
-#if !UNITY_EDITOR
+#if UNITY_EDITOR
         barcodeStringArray = new string[]
         {
             "125.227.130.192",

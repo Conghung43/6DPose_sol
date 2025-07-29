@@ -5,23 +5,20 @@ using System.Collections.Generic;
 public class SkipButtonClickHandler : MonoBehaviour
 {
     public Button skipButton;
-    public Toggle toggleAP;
-    [SerializeField]  private TMPro.TextMeshProUGUI uiMessage;
+    [SerializeField]  private CheckListController checkListController;
 
-    void OnDisable(){
-        skipButton.onClick.RemoveListener(RaiseButtonClick);
-    }
-
-    void OnEnable(){
+    void Start(){
         skipButton.onClick.AddListener(RaiseButtonClick);
     }
+
     private void RaiseButtonClick()
     {
-        Debug.Log("----------RaiseNextButtonClick: station stationIndex" + StationStageIndex.stationIndex);
+        Debug.Log("----------RaiseNextButtonClick: station stageIndex" + StationStageIndex.stageIndex);
         List<Datastage> dataStages = ConfigRead.configData.DataStation[StationStageIndex.stationIndex].Datastage;
         string jump2StageName = "";
+        checkListController.SetResult(false ,StationStageIndex.stageIndex - 1);
         StationStageIndex.stageIndex += 1;
-        if (StationStageIndex.stageIndex > dataStages.Count -1 ){
+        if (StationStageIndex.stageIndex > dataStages.Count - 1){
             StationStageIndex.stageIndex = 0;
             StationStageIndex.FunctionIndex = "Result";
             return;

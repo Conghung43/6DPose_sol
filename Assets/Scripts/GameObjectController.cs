@@ -40,7 +40,10 @@ public class GameObjectController : MonoBehaviour
 
     private void TurnOffAnimation()
     {
-        objectList[StationStageIndex.stageIndex].SetActive(false);
+        foreach (var aniObj in objectList)
+        {
+            aniObj.SetActive(false);
+        }
     }
 
     private void OnGameObjectControllerFunctionChangeHandler(string functionName){
@@ -99,4 +102,5 @@ public class GameObjectController : MonoBehaviour
                 break;
         }
     }
+
 }

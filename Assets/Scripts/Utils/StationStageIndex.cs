@@ -44,10 +44,10 @@ public static class StationStageIndex
     public static Stopwatch metaTimeCount;
 
     // The total minutes for meta time count
-    public static float metaTotalMinute;
+    public static int metaTotalMinute;
 
     // The total seconds for meta time count
-    public static float metaTotalSecond;
+    public static int metaTotalSecond;
 
     // The temporary minutes for meta time count
     public static float metaTempMinute;

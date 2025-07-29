@@ -28,7 +28,8 @@ public class NextStep : MonoBehaviour
     public void ShowDetect()
     {
         if(nextBG == null || nextText == null)return;
-        nextText.color = Color.white;
+        // nextText.color = Color.white;
+        nextStep.interactable = true;
         nextBG.color = new Color((float)93 / 255, (float)99 / 255, (float)255 / 255);
         nextText.text = "Detect >";
     }
@@ -40,14 +41,16 @@ public class NextStep : MonoBehaviour
         if (activate)
         {
             nextBG.color = new Color((float)24 / 255, (float)175 / 255, (float)121 / 255);
-            nextText.color = Color.white;
+            // nextText.color = Color.white;
+            nextStep.interactable = true;
             nextText.text = "Next >";
         }
         else
         {
             nextBG.color = Color.gray;
             nextText.text = "Next >";
-            nextText.color = Color.gray;
+            nextStep.interactable = false;
+            // nextText.color = Color.gray;
         }
     }
 
@@ -88,7 +91,7 @@ public class NextStep : MonoBehaviour
                     buttonType = true
                 });
                 break;
-            case "VuforiaTarget":
+            case "VuforiaTargetDetecting":
                 GotoNextState();
                 break;
             case "Sample":
@@ -103,7 +106,7 @@ public class NextStep : MonoBehaviour
                 GotoNextState();
                 break;
             case "ScanBarcode":
-                StationStageIndex.FunctionIndex = "VuforiaTarget";
+                StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
                 break;
             default:
                 break;

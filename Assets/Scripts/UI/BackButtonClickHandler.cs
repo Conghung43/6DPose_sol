@@ -30,7 +30,7 @@ public class BackButtonClickHandler : MonoBehaviour
         {
             // If at the first stage, set necessary values and hide the back button
             StationStageIndex.stageIndex = 0;
-            StationStageIndex.FunctionIndex = "VuforiaTarget";
+            StationStageIndex.FunctionIndex = "VuforiaTargetDetecting";
             backButton.gameObject.SetActive(false);
             return;
         }
